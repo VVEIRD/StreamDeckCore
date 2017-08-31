@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -13,134 +14,110 @@ import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.InputReportListener;
 import purejavahidapi.PureJavaHidApi;
 
+/**
+ * 
+ * 
+ * MIT License
+ * 
+ * Copyright (c) 2017 Roland von Werden
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ * @author Roland von Werden
+ * @version 0.1
+ *
+ */
 public class HidDevices {
 	
 	public static final int VENDOR_ID = 4057;
 	public static final int PRODUCT_ID = 96;
 
-	private static HidDeviceInfo STREAM_DECK_INFO = null;
+	private static List<HidDeviceInfo> STREAM_DECK_INFOS = null;
 
-	private static HidDevice STREAM_DECK_DEVICE = null;
-	
-	private static StreamDeck STREAM_DECK = null;
+	private static List<HidDevice> STREAM_DECK_DEVICES = null;
+
+	private static List<StreamDeck> STREAM_DECKS = null;
 	
 	
 	public static HidDeviceInfo getStreamDeckInfo() {
-		if (STREAM_DECK_INFO == null) {
+		if (STREAM_DECK_INFOS == null) {
+			STREAM_DECK_INFOS = new ArrayList<>(5);
 			System.out.println("scanning");
 			List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
 			for (HidDeviceInfo info : devList) {
 				System.out.println("Vendor-ID: " + info.getVendorId() + ", Product-ID: " + info.getProductId());
 				if (info.getVendorId() == VENDOR_ID && info.getProductId() == PRODUCT_ID) {
-					STREAM_DECK_INFO = info;
-					break;
+					STREAM_DECK_INFOS.add(info);
 				}
 			}
 		}
-		return STREAM_DECK_INFO;
+		return STREAM_DECK_INFOS.size() > 0 ? STREAM_DECK_INFOS.get(0) : null;
 	}
 	
 	public static HidDevice getStreamDeckDevice() {
-		if (STREAM_DECK_DEVICE == null) {
+		if (STREAM_DECK_DEVICES == null || STREAM_DECK_DEVICES.size() == 0) {
 			HidDeviceInfo info = getStreamDeckInfo();
+			STREAM_DECK_DEVICES = new ArrayList<>(STREAM_DECK_INFOS.size());
 			if (info != null) {
 				try {
-					STREAM_DECK_DEVICE = PureJavaHidApi.openDevice(STREAM_DECK_INFO);
-					STREAM_DECK_DEVICE.setInputReportListener(new InputReportListener() {
-						
-						@Override
-						public void onInputReport(HidDevice source, byte reportID, byte[] reportData, int reportLength) {
-							System.out.println(reportID + ": " + bytesToHex(reportData));
-						}
-					});
+					System.out.println();
+					System.out.println("Connected Stream Decks:");
+					for (HidDeviceInfo hidDeviceinfo : STREAM_DECK_INFOS) {
+						System.out.println("  Manufacurer: " + hidDeviceinfo.getManufacturerString());
+						System.out.println("  Product:     " + hidDeviceinfo.getProductString());
+						System.out.println("  Device-Id:   " + hidDeviceinfo.getDeviceId());
+						System.out.println("  Serial-No:   " + hidDeviceinfo.getSerialNumberString());
+						System.out.println("  Path:        " + hidDeviceinfo.getPath());
+						System.out.println();
+						STREAM_DECK_DEVICES.add(PureJavaHidApi.openDevice(hidDeviceinfo));
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-		return STREAM_DECK_DEVICE;
+		return STREAM_DECK_DEVICES.size() > 0 ? STREAM_DECK_DEVICES.get(0) : null;
 	}
 	
 	public static StreamDeck getStreamDeck() {
-		if (STREAM_DECK == null) {
+		if (STREAM_DECKS == null || STREAM_DECKS.size() == 0) {
 			HidDevice dev = getStreamDeckDevice();
-			if (dev != null)
-				STREAM_DECK = new StreamDeck(STREAM_DECK_DEVICE, 99);
+			STREAM_DECKS = new ArrayList<>(STREAM_DECK_DEVICES.size());
+			if (dev != null) {
+				for (HidDevice hidDevice : STREAM_DECK_DEVICES) {
+					STREAM_DECKS.add(new StreamDeck(hidDevice, 99));
+				}
+			}
 		}
-		return STREAM_DECK;
+		return STREAM_DECKS.size() > 0 ? STREAM_DECKS.get(0) : null;
 	}
 	
-	
-	public static void main(String[] args) throws IOException, InterruptedException {
-		HidDeviceInfo streamDeckInfo = getStreamDeckInfo();
-		HidDevice streamDeck = getStreamDeckDevice();
-		
-		System.out.println(streamDeckInfo.getManufacturerString());
-		System.out.println(streamDeckInfo.getReleaseNumber());
-		System.out.println(streamDeckInfo.getPath());
-//		byte[] RESET_DATA = new byte[]{0x0B, 0x63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-//		byte[] BRIGHTNES_DATA = new byte[]{0x05, 0x55, (byte)0xAA, (byte)0xD1, 0x01, 0x7F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-//		streamDeck.setFeatureReport(RESET_DATA, RESET_DATA.length);
-//		streamDeck.setFeatureReport(BRIGHTNES_DATA, BRIGHTNES_DATA.length);
-//		StreamButton sB = new StreamButton(0, Color.BLACK, streamDeck);
-		BufferedImage img = ImageIO.read(new File("resources" + File.separator + "overwatch.png"));
-		img = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK));
-		System.out.println(img.getWidth() + ":" + img.getHeight());
-//		img = rotate180(img);
-//		sB.drawImage(img);
-		StreamDeck deck = new StreamDeck(streamDeck, 99);
-		ExecutableButton executableButton = new ExecutableButton(4, img,"C:\\elgato\\stream-deck\\shortcuts\\OW.bat");
-		deck.reset();
-		deck.setBrightness(98);
-		deck.addKey(0, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(0);
-		deck.addKey(1, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(1);
-		deck.addKey(2, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(2);
-		deck.addKey(3, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(3);
-		deck.addKey(4, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(4);
-		deck.addKey(5, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(5);
-		deck.addKey(6, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(6);
-		deck.addKey(7, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(7);
-		deck.addKey(8, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(8);
-		deck.addKey(9, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(9);
-		deck.addKey(10, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(10);
-		deck.addKey(11, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(11);
-		deck.addKey(12, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(12);
-		deck.addKey(13, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(13);
-		deck.addKey(14, executableButton);
-		Thread.sleep(500);
-		deck.removeKey(14);
-		deck.reset();
-		deck.waitForCompletion();
-//		System.exit(0);
+	public static int getStreamDeckSize() {
+		return STREAM_DECKS != null ? STREAM_DECKS.size() : 0;
 	}
+	
+	public static StreamDeck getStreamDeck(int id) {
+		if (STREAM_DECKS == null || id < 0 || id >= getStreamDeckSize())
+			return null;
+		return STREAM_DECKS.get(id);
+	}
+	
 	public static String bytesToHex(byte[] in) {
 	    final StringBuilder builder = new StringBuilder();
 	    builder.append("{");

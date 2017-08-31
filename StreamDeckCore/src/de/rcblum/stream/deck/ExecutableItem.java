@@ -1,9 +1,11 @@
 package de.rcblum.stream.deck;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 /**
- * 
+ * This  handle can be registered with the {@link StreamDeck} and will execute
+ * the given executable when the stream deck button is pressed on release.
  * 
  * MIT License
  * 
@@ -31,25 +33,65 @@ import java.awt.image.BufferedImage;
  * @version 0.1
  *
  */
-public abstract class AbstractStreamItem implements StreamItem {
+public class ExecutableItem implements StreamItem {
 	
-	protected int id = -1;
+	int id = -1;
 	
-	protected BufferedImage img = null;
+	BufferedImage img = null;
 
-	public AbstractStreamItem(int keyIndex, BufferedImage img) {
+	String pathToExecutable = null;
+
+	public ExecutableItem(int keyIndex, BufferedImage img, String pathToExecutable) {
 		super();
 		this.id = keyIndex;
 		this.img = img;
+		this.pathToExecutable = pathToExecutable;
 	}
 
 	@Override
 	public int getKeyIndex() {
+		// TODO Auto-generated method stub
 		return this.id;
 	}
 
 	@Override
 	public BufferedImage getIcon() {
+		// TODO Auto-generated method stub
 		return this.img;
 	}
+
+	@Override
+	public void onClick() {
+		System.out.println(id +": Click");
+	}
+
+	@Override
+	public void onPress() {
+		System.out.println(id +": Press");
+	}
+
+	@Override
+	public void onRelease() {
+		System.out.println(id +": Release");
+		Runtime runtime = Runtime.getRuntime();
+		try {
+			runtime.exec(this.pathToExecutable);
+		} catch (IOException e) {
+			System.out.println(id +": Could nod execute " + this.pathToExecutable);
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onDisplay() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void offDisplay() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

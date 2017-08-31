@@ -15,6 +15,35 @@ import java.util.concurrent.TimeUnit;
 import purejavahidapi.HidDevice;
 import purejavahidapi.InputReportListener;
 
+/**
+ * 
+ * 
+ * MIT License
+ * 
+ * Copyright (c) 2017 Roland von Werden
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ * 
+ * @author Roland von Werden
+ * @version 0.1
+ *
+ */
 public class StreamDeck implements InputReportListener{
 	
 	public final static byte[] RESET_DATA = new byte[] { 0x0B, 0x63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -45,7 +74,7 @@ public class StreamDeck implements InputReportListener{
 	
 	
 	
-	private HidDevice streamDeck = null;
+	private HidDevice hidDevice = null;
 	
 	private byte[] brightness = BRIGHTNES_DATA;
 
@@ -73,8 +102,8 @@ public class StreamDeck implements InputReportListener{
      */
 	public StreamDeck(HidDevice streamDeck, int brightness) {
 		super();
-		this.streamDeck = streamDeck;
-		this.streamDeck.setInputReportListener(this);
+		this.hidDevice = streamDeck;
+		this.hidDevice.setInputReportListener(this);
 		this.brightness[5] = (byte)brightness;
 		this.thread = new Thread(new DeckWorker());
 		this.thread.start();
@@ -102,10 +131,8 @@ public class StreamDeck implements InputReportListener{
 		}
 		byte[] page1 = generatePage1(keyIndex, imgData);
 		byte[] page2 = generatePage2(keyIndex, imgData);
-		System.out.println(page1.length);
-		System.out.println(page2.length);
-		System.out.println(this.streamDeck.setOutputReport((byte)0x02, page1, page1.length));
-		System.out.println(this.streamDeck.setOutputReport((byte)0x02, page2, page2.length));
+		this.hidDevice.setOutputReport((byte)0x02, page1, page1.length);
+		this.hidDevice.setOutputReport((byte)0x02, page2, page2.length);
 	}
 	
 	public void reset() {
@@ -131,7 +158,7 @@ public class StreamDeck implements InputReportListener{
 	}
 
 	private void _reset() {
-		streamDeck.setFeatureReport(RESET_DATA, RESET_DATA.length);
+		hidDevice.setFeatureReport(RESET_DATA, RESET_DATA.length);
 	}
 	
 	public void setBrightness(int brightness) {
@@ -141,7 +168,7 @@ public class StreamDeck implements InputReportListener{
 	}
 
 	private void _updateBrightnes() {
-		streamDeck.setFeatureReport(this.brightness, this.brightness.length);
+		hidDevice.setFeatureReport(this.brightness, this.brightness.length);
 	}
 
 	public void waitForCompletion() {
@@ -158,6 +185,10 @@ public class StreamDeck implements InputReportListener{
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public HidDevice getHidDevice() {
+		return hidDevice;
 	}
 
 	@Override
