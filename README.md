@@ -15,6 +15,7 @@ StreamDeckCore provides the following features as of now:
 1. Animation on pressed key
 2. Custom animations for specific keys, at a decent framrate (60/30/15 fps) if possible.
 3. Supporting multiple ESDs
+4. Recieving events for key binds that are beeing displayed and when they are taken off (e.g. onDisplay() and offDisplay())
 
 ## Dependencies
 This uses the github project https://github.com/nyholku/purejavahidapi and jna 4.0, which can be downloaded through maven:
