@@ -1,7 +1,7 @@
 # StreamDeckCore
 A java implementation for the Elgato Stream Deck.
 
-I found myself wanting to use a custom app to connect to the Elgato Stream Deck using java. Most implementations i found use javascript. so I used the information form those project to create a api myself. This is in a very early development state, so it is boud to change a lot.
+I found myself wanting to use a custom app to connect to the Elgato Stream Deck using java. Most implementations i found use javascript. so I used the information form those project to create a api myself. This is in a very early development state, so it is bound to change a lot.
 
 ## Dependencies
 This uses the github project https://github.com/nyholku/purejavahidapi and jna 4.0, which can be downloaded through maven:
