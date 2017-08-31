@@ -3,7 +3,7 @@ A java implementation for the Elgato Stream Deck (Called ESD from now on).
 
 I found myself wanting to use a custom app to connect to the ESD using java. Most implementations i found are using javascript. So I used the information form those project to create an java api myself. This is in a very early development state, so it is bound to change a lot.
 
-## Basich functionality
+## Basic functionality
 StreamDeckCore provides the following features as of now:
 1. Recognizing a connected ESD
 2. Resetting the connected ESD
