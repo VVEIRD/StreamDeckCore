@@ -13,7 +13,7 @@ StreamDeckCore provides the following features as of now:
 
 ## Future functionality
 1. Animation on pressed key
-2. Custom animations for specific key,s at a decent framrate (60/30/15 fps) if possible.
+2. Custom animations for specific keys, at a decent framrate (60/30/15 fps) if possible.
 3. Supporting multiple ESDs
 
 ## Dependencies
