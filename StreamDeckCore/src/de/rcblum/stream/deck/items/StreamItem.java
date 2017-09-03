@@ -1,9 +1,12 @@
-package de.rcblum.stream.deck;
+package de.rcblum.stream.deck.items;
 
-import java.awt.image.BufferedImage;
+import de.rcblum.stream.deck.StreamDeckController;
+import de.rcblum.stream.deck.event.StreamKeyListener;
 
 /**
- * Interface to bind actions to a key of a stream deck
+ * Interface to bind actions to a key of a stream deck. Can also be used with the {@link StreamDeckController}.
+ * 
+ * <br><br> 
  * 
  * MIT License
  * 
@@ -31,21 +34,13 @@ import java.awt.image.BufferedImage;
  * @version 0.1
  *
  */
-public interface StreamItem  {
-	
-	public int getKeyIndex();
+public interface StreamItem extends StreamKeyListener {
 	
 	/**
-	 * Returns an array with the children of this item
+	 * Returns an array with the children of this item. If the item has a parent, the parent must be the 5th item ({@link #getChildren()}[4] ) in the array.
 	 * @return Children of this item, or null, if not a folder
 	 */
 	public default StreamItem[] getChildren() {return null;}
-	
-	/**
-	 * Returns the number of children contained by this item
-	 * @return number of children, 0 if no children or not a folder
-	 */
-	public default int getChildrenCount() {return 0;}
 	
 	/**
 	 * Returns whether this item has children --> is a folder, or if it is a simple key.
@@ -53,36 +48,14 @@ public interface StreamItem  {
 	 */
 	public default boolean isLeaf() {return getChildren() == null;}
 	
+	public StreamItem getParent();
+	
+	public void setParent(StreamItem parent);
+	
 	/**
 	 * Returns the icon to be displayed on the stream deck. 
 	 * @return
 	 */
-	public BufferedImage getIcon();
-	
-	/**
-	 * Will be called if the linked button is pressed, then released
-	 */
-	public void onClick();
-
-	/**
-	 * Will be called if the linked button on the stream deck is pressed down
-	 */
-	public void onPress();
-	
-	/**
-	 * Will be called if the linked button on the stream deck is released
-	 */
-	public void onRelease();
-	
-	/**
-	 * This method will be called when the item is brought on one of the buttons
-	 * of the stream deck
-	 */
-	public void onDisplay();
-	
-	/**
-	 * This method will be called if the item is removed from the stream deck
-	 */
-	public void offDisplay();
+	public byte[] getIcon();
 	
 }

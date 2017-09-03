@@ -1,9 +1,10 @@
-package de.rcblum.stream.deck;
+package de.rcblum.stream.deck.items;
 
 import java.awt.image.BufferedImage;
 
 /**
  * 
+ * <br><br>
  * 
  * MIT License
  * 
@@ -35,21 +36,16 @@ public abstract class AbstractStreamItem implements StreamItem {
 	
 	protected int id = -1;
 	
-	protected BufferedImage img = null;
+	protected byte[] img = null;
 
-	public AbstractStreamItem(int keyIndex, BufferedImage img) {
+	public AbstractStreamItem(int keyIndex, byte[] img) {
 		super();
 		this.id = keyIndex;
 		this.img = img;
 	}
 
 	@Override
-	public int getKeyIndex() {
-		return this.id;
-	}
-
-	@Override
-	public BufferedImage getIcon() {
+	public byte[] getIcon() {
 		return this.img;
 	}
 }

@@ -7,9 +7,9 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import de.rcblum.stream.deck.ExecutableItem;
-import de.rcblum.stream.deck.HidDevices;
-import de.rcblum.stream.deck.IconHelper;
+import de.rcblum.stream.deck.StreamDeckDevices;
+import de.rcblum.stream.deck.items.ExecutableItem;
+import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.StreamDeck;
 
 /**
@@ -44,14 +44,14 @@ import de.rcblum.stream.deck.StreamDeck;
 public class TestStreamDeckIconPlacement {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		// Get StreamDeck
-		HidDevices.getStreamDeck();
-		for(int i=0; i<HidDevices.getStreamDeckSize(); i++) {
-			StreamDeck deck = HidDevices.getStreamDeck(i);
+		StreamDeckDevices.getStreamDeck();
+		for(int i=0; i<StreamDeckDevices.getStreamDeckSize(); i++) {
+			StreamDeck deck = StreamDeckDevices.getStreamDeck(i);
 			// Create Executable Key with icon
-			BufferedImage img = ImageIO.read(new File("resources" + File.separator + "icon.png"));
-			img = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK));
-			System.out.println(img.getWidth() + ":" + img.getHeight());
-			ExecutableItem executableButton = new ExecutableItem(4, img, "java.exe");
+//			BufferedImage img = ImageIO.read(new File("resources" + File.separator + "icon.png"));
+//			img = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK));
+//			System.out.println(img.getWidth() + ":" + img.getHeight());
+			ExecutableItem executableButton = new ExecutableItem(IconHelper.loadImage("resources" + File.separator + "icon.png"), "java.exe");
 	
 			// Reset stream deck
 			deck.reset();
@@ -114,6 +114,7 @@ public class TestStreamDeckIconPlacement {
 			Thread.sleep(500);
 			deck.removeKey(14);
 			deck.reset();
+			deck.setBrightness(0);
 			deck.waitForCompletion();
 			// System.exit(0);
 		}

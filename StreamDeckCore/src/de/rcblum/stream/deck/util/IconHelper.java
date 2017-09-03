@@ -1,12 +1,23 @@
-package de.rcblum.stream.deck;
+package de.rcblum.stream.deck.util;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.imageio.ImageIO;
+
+import de.rcblum.stream.deck.StreamDeck;
 
 /**
  * 
+ * 
+ * <br><br> 
  * 
  * MIT License
  * 
@@ -35,6 +46,35 @@ import java.awt.image.BufferedImage;
  *
  */
 public class IconHelper {
+
+	
+	private static Map<String, byte[]> imageCache = new HashMap<>();
+	
+	static {
+		init() ;
+	}
+	
+	private static void init () {
+		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = img.createGraphics();
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
+		g.dispose();
+		cacheImage("temp://BLACK_ICON", img);
+		img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
+		g = img.createGraphics();
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
+		g.setColor(Color.LIGHT_GRAY);
+		g.drawRect(15, 23, 42, 29);
+		g.drawRect(16, 24, 40, 27);
+		g.drawLine(53, 22, 40, 22);
+		g.drawLine(52, 21, 41, 21);
+		g.drawLine(51, 20, 42, 20);
+		g.drawLine(50, 19, 43, 19);
+		g.dispose();
+		cacheImage("temp://FOLDER", img);
+	}
 	
 	public static BufferedImage fillBackground(BufferedImage img, Color color) {
 		BufferedImage nImg = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
@@ -96,4 +136,49 @@ public class IconHelper {
         g.dispose();
         return scaledBI;
     }
+	
+	public static byte[] loadImage(String path) throws IOException {
+		if (imageCache.containsKey(path))
+			return imageCache.get(path);
+		BufferedImage img = ImageIO.read(new File(path));
+		img = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK));
+		int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
+		byte[] imgData = new byte[StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE * 3];
+		int imgDataCount=0;
+		// remove the alpha channel
+		for(int i=0;i< StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE; i++) {
+			//RGB -> BGR
+			imgData[imgDataCount++] = (byte)((pixels[i]>>16) & 0xFF);
+			imgData[imgDataCount++] = (byte)(pixels[i] & 0xFF);
+			imgData[imgDataCount++] = (byte)((pixels[i]>>8) & 0xFF);			
+		}
+		cache(path, imgData);
+		return imgData;
+	}
+
+	private static void cache(String path, byte[] imgData) {
+		imageCache.put(path, imgData);
+		System.out.println("Caching: " + path);
+	}
+
+	public static byte[] cacheImage(String path, BufferedImage img) {
+		int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
+		byte[] imgData = new byte[StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE * 3];
+		int imgDataCount=0;
+		// remove the alpha channel
+		for(int i=0;i< StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE; i++) {
+			//RGB -> BGR
+			imgData[imgDataCount++] = (byte)((pixels[i]>>16) & 0xFF);
+			imgData[imgDataCount++] = (byte)(pixels[i] & 0xFF);
+			imgData[imgDataCount++] = (byte)((pixels[i]>>8) & 0xFF);			
+		}
+		cache(path, imgData);
+		return imgData;
+	}
+
+	public static byte[] getImage(String string) {
+		if (imageCache == null)
+			imageCache = new HashMap<>();
+		return imageCache.get(string);
+	}
 }

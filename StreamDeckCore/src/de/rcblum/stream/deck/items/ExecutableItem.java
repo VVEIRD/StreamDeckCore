@@ -1,11 +1,16 @@
-package de.rcblum.stream.deck;
+package de.rcblum.stream.deck.items;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import de.rcblum.stream.deck.StreamDeck;
+import de.rcblum.stream.deck.event.KeyEvent;
+
 /**
  * This  handle can be registered with the {@link StreamDeck} and will execute
  * the given executable when the stream deck button is pressed on release.
+ * 
+ * <br><br> 
  * 
  * MIT License
  * 
@@ -34,64 +39,75 @@ import java.io.IOException;
  *
  */
 public class ExecutableItem implements StreamItem {
-	
-	int id = -1;
-	
-	BufferedImage img = null;
 
-	String pathToExecutable = null;
+	private StreamItem parent = null;
+	
+	private byte[] img = null;
 
-	public ExecutableItem(int keyIndex, BufferedImage img, String pathToExecutable) {
-		super();
-		this.id = keyIndex;
+	private String pathToExecutable = null;
+
+	public ExecutableItem(byte[] img, String pathToExecutable) {
 		this.img = img;
 		this.pathToExecutable = pathToExecutable;
 	}
 
 	@Override
-	public int getKeyIndex() {
-		// TODO Auto-generated method stub
-		return this.id;
-	}
-
-	@Override
-	public BufferedImage getIcon() {
+	public byte[] getIcon() {
 		// TODO Auto-generated method stub
 		return this.img;
 	}
-
-	@Override
-	public void onClick() {
-		System.out.println(id +": Click");
+	
+	public void onKeyEvent(KeyEvent event) {
+		switch(event.getType()) {
+		case OFF_DISPLAY :
+			this.offDisplay(event);
+			break;
+		case ON_DISPLAY:
+			this.onDisplay(event);
+			break;
+		case PRESSED:
+			this.onPress(event);
+			break;
+		case RELEASED_CLICKED:
+			this.onRelease(event);
+			this.onClick(event);
+			break;
+		}
 	}
 
-	@Override
-	public void onPress() {
-		System.out.println(id +": Press");
+	public void onClick(KeyEvent event) {
+		System.out.println(event.getKeyId() +": Click");
 	}
 
-	@Override
-	public void onRelease() {
-		System.out.println(id +": Release");
+	public void onPress(KeyEvent event) {
+		System.out.println(event.getKeyId() +": Press");
+	}
+
+	public void onRelease(KeyEvent event) {
+		System.out.println(event.getKeyId() +": Release");
 		Runtime runtime = Runtime.getRuntime();
 		try {
 			runtime.exec(this.pathToExecutable);
 		} catch (IOException e) {
-			System.out.println(id +": Could nod execute " + this.pathToExecutable);
+			System.out.println(event.getKeyId() +": Could nod execute " + this.pathToExecutable);
 			e.printStackTrace();
 		}
 	}
 
-	@Override
-	public void onDisplay() {
-		// TODO Auto-generated method stub
-		
+	public void onDisplay(KeyEvent event) {
+	}
+
+	public void offDisplay(KeyEvent event) {
 	}
 
 	@Override
-	public void offDisplay() {
-		// TODO Auto-generated method stub
-		
+	public StreamItem getParent() {
+		return this.parent;
+	}
+
+	@Override
+	public void setParent(StreamItem parent) {
+		this.parent = parent;
 	}
 
 }

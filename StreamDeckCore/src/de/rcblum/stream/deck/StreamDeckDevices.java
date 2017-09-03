@@ -16,6 +16,7 @@ import purejavahidapi.PureJavaHidApi;
 
 /**
  * 
+ * <br><br>
  * 
  * MIT License
  * 
@@ -43,7 +44,7 @@ import purejavahidapi.PureJavaHidApi;
  * @version 0.1
  *
  */
-public class HidDevices {
+public class StreamDeckDevices {
 	
 	public static final int VENDOR_ID = 4057;
 	public static final int PRODUCT_ID = 96;
