@@ -27,12 +27,16 @@ This uses the github project https://github.com/nyholku/purejavahidapi and jna 4
         <version>4.0.0</version>
     </dependency>
 
-## Usage example
+## Usage
+### Example 1
+This example binds one item to on key of the stream deck.
 ```java
-import  de.rcblum.stream.deck.*;
+import  de.rcblum.stream.deck.StreamDeck;
+import  de.rcblum.stream.deck.StreamDeckDevices;
+import  de.rcblum.stream.deck.items.ExecutableButton;
     
 // Get connected Stream Deck (Only 1 device is supported atm)
-StreamDeck deck = HidDevices.getStreamDeck();
+StreamDeck deck = StreamDeckDevices.getStreamDeck();
 
 // Reset previous configuration
 deck.reset();
@@ -45,3 +49,44 @@ ExecutableButton executableButton = new ExecutableButton(0, img,"program.exe");
 // Register key to index 0 with Stream Deck
 deck.addKey(0, executableButton);
 ```
+### Example 2
+This example creates 15 items, puts them into a folder and put that folder into another folder, which acts as root folder. The root folder and the StreamDeck device is given to the StreamDeckController, which handles traversing the given folders and handing over KeyEvents to non-folder items.
+```java
+import  de.rcblum.stream.deck.StreamDeck;
+import  de.rcblum.stream.deck.StreamDeckController;
+import  de.rcblum.stream.deck.StreamDeckDevices;
+import  de.rcblum.stream.deck.items.FolderStreamItem;
+import  de.rcblum.stream.deck.items.ExecutableButton;
+
+// Get one of the connected stream devices
+StreamDeck sd = StreamDeckDevices.getStreamDeck();
+
+// Reset device
+sd.reset();
+
+// Set brightness to 50%
+sd.setBrightness(50);
+
+// Create 15 items
+StreamItem[] items = new StreamItem[15];
+for (int i = 0; i < items.length; i++) {
+	System.out.println("resources" + File.separator + "icon" + (i+1) + ".png");
+	byte[] icon = IconHelper.loadImage("resources" + File.separator + "icon" + (i+1) + ".png");
+	ExecutableItem eI = new ExecutableItem(icon, "explorer");
+	items[i] = eI;
+}
+
+// Put items into folder
+FolderStreamItem dir = new FolderStreamItem(null, items);
+
+// Put folder with items in root folder
+StreamItem[] rootDirs = new StreamItem[15];
+rootDirs[4] = dir;
+FolderStreamItem root = new FolderStreamItem(null, rootDirs);
+
+// Create stream deck controller that will
+// handle folders and events sent from the stream deck
+StreamDeckController controller = new StreamDeckController(sd, root);
+```
+
+
