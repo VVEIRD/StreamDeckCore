@@ -7,15 +7,15 @@ I found myself wanting to use a custom app to connect to the ESD using java. Mos
 StreamDeckCore provides the following features as of now:
 1. Recognizing a connected ESD
 2. Resetting the connected ESD
-3. Settting the icons of the keys (0 - 14)
+3. Setting the icons of the keys (0 - 14)
 4. Setting the brightness of the ESD (0 - 99)
 5. Recieving key pressed, released, clicked events from the ESD
+6. Recieving events for key binds that are beeing displayed and when they are taken off (onDisplay() and offDisplay())
 
 ## Future functionality
 1. Animation on pressed key
 2. Custom animations for specific keys, at a decent framrate (60/30/15 fps) if possible.
 3. Supporting multiple ESDs
-4. Recieving events for key binds that are beeing displayed and when they are taken off (e.g. onDisplay() and offDisplay())
 
 ## Dependencies
 This uses the github project https://github.com/nyholku/purejavahidapi and jna 4.0, which can be downloaded through maven:
