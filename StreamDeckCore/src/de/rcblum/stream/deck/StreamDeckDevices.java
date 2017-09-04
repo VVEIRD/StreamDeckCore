@@ -1,17 +1,11 @@
 package de.rcblum.stream.deck;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-
 import purejavahidapi.HidDevice;
 import purejavahidapi.HidDeviceInfo;
-import purejavahidapi.InputReportListener;
 import purejavahidapi.PureJavaHidApi;
 
 /**

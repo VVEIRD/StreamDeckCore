@@ -34,7 +34,7 @@ This example binds one item to on key of the stream deck.
 import  de.rcblum.stream.deck.StreamDeck;
 import  de.rcblum.stream.deck.StreamDeckDevices;
 import  de.rcblum.stream.deck.items.ExecutableItem;
-import  de.rcblum.stream.deck.util.IconHelper
+import  de.rcblum.stream.deck.util.IconHelper;
     
 // Get connected Stream Deck (Only 1 device is supported atm)
 StreamDeck deck = StreamDeckDevices.getStreamDeck();

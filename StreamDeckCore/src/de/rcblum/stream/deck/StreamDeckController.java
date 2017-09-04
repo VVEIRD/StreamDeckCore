@@ -1,12 +1,11 @@
 package de.rcblum.stream.deck;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
 import de.rcblum.stream.deck.event.KeyEvent;
-import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.event.KeyEvent.Type;
+import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.StreamItem;
 import de.rcblum.stream.deck.util.IconHelper;
 

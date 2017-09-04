@@ -1,16 +1,12 @@
 package test.de.rcblum.stream.deck;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
-
+import de.rcblum.stream.deck.StreamDeck;
 import de.rcblum.stream.deck.StreamDeckDevices;
 import de.rcblum.stream.deck.items.ExecutableItem;
 import de.rcblum.stream.deck.util.IconHelper;
-import de.rcblum.stream.deck.StreamDeck;
 
 /**
  * Tests brightness and all keys of all connected stream deck

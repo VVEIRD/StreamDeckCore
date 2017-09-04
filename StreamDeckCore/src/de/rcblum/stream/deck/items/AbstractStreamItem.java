@@ -1,7 +1,5 @@
 package de.rcblum.stream.deck.items;
 
-import java.awt.image.BufferedImage;
-
 /**
  * 
  * <br><br>
