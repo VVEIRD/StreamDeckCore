@@ -117,6 +117,10 @@ public class StreamDeckController implements StreamKeyListener {
 	}
 	
 	private void fireOnDisplay() {
+		if (this.currentDir != null) {
+			KeyEvent evnt = new KeyEvent(streamDeck, -1, Type.OPEN_FOLDER);
+			this.currentDir.onKeyEvent(evnt);
+		}
 		StreamItem[] children = this.currentDir.getChildren();
 		if (children != null)
 			for (int i = 0; i < children.length; i++) {
@@ -136,6 +140,10 @@ public class StreamDeckController implements StreamKeyListener {
 					children[i].onKeyEvent(evnt);
 				}
 			}
+		if (this.currentDir != null) {
+			KeyEvent evnt = new KeyEvent(streamDeck, -1, Type.CLOSE_FOLDER);
+			this.currentDir.onKeyEvent(evnt);
+		}
 	}
 
 	private void updateDisplay() {
