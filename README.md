@@ -43,7 +43,7 @@ StreamDeck deck = StreamDeckDevices.getStreamDeck();
 deck.reset();
 
 // Create a button for index 0, that will start program.exe
-BufferedImage img = IconHelper.loadImage("resources" + File.separator + "icon.png");
+byte[] img = IconHelper.loadImage("resources" + File.separator + "icon.png");
 ExecutableItem ExecutableItem = new ExecutableItem(0, img,"program.exe");
 
 // Register key to index 0 with Stream Deck
