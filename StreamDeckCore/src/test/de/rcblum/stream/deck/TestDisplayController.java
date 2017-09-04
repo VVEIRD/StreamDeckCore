@@ -7,7 +7,7 @@ import de.rcblum.stream.deck.StreamDeck;
 import de.rcblum.stream.deck.StreamDeckController;
 import de.rcblum.stream.deck.StreamDeckDevices;
 import de.rcblum.stream.deck.items.ExecutableItem;
-import de.rcblum.stream.deck.items.FolderStreamItem;
+import de.rcblum.stream.deck.items.FolderItem;
 import de.rcblum.stream.deck.items.StreamItem;
 import de.rcblum.stream.deck.util.IconHelper;
 
@@ -23,7 +23,7 @@ public class TestDisplayController {
 			ExecutableItem eI = new ExecutableItem(icon, "explorer");
 			items[i] = eI;
 		}
-		FolderStreamItem root = new FolderStreamItem(null, items);
+		FolderItem root = new FolderItem("Testfolder", null, items);
 		
 		StreamDeckController controller = new StreamDeckController(sd, root);
 	}

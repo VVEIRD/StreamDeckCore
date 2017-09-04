@@ -2,15 +2,20 @@ package de.rcblum.stream.deck.util;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.swing.JLabel;
 
 import de.rcblum.stream.deck.StreamDeck;
 
@@ -46,7 +51,23 @@ import de.rcblum.stream.deck.StreamDeck;
  *
  */
 public class IconHelper {
-
+	
+	public static final Font DEFAULT_FONT = loadFont("/resources/FantasqueSansMono-Regular.ttf", 16);
+	
+	/**
+	 * Position to place the text at the top of the icon 
+	 */
+	public static final int TOP = 0;
+	
+	/**
+	 * Position to place the text at the center of the icon 
+	 */
+	public static final int CENTER = 1;
+	
+	/**
+	 * Position to place the text bottom the top of the icon 
+	 */
+	public static final int BOTTOM = 2;
 	
 	private static Map<String, byte[]> imageCache = new HashMap<>();
 	
@@ -76,6 +97,15 @@ public class IconHelper {
 		cacheImage("temp://FOLDER", img);
 	}
 	
+	private static Font loadFont(String resourcePath, int fontSize) {
+		InputStream io = IconHelper.class.getResourceAsStream(resourcePath);
+		try {
+			return Font.createFont(Font.TRUETYPE_FONT, io).deriveFont(Font.PLAIN, fontSize);
+		} catch (FontFormatException | IOException e) {
+			return new JLabel().getFont().deriveFont(Font.PLAIN, fontSize);
+		}
+	}
+
 	public static BufferedImage fillBackground(BufferedImage img, Color color) {
 		BufferedImage nImg = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
 		Graphics2D g = nImg.createGraphics();
@@ -155,6 +185,38 @@ public class IconHelper {
 		cache(path, imgData);
 		return imgData;
 	}
+	
+	public static byte[] loadImageFromResource(String path) throws IOException {
+		if (imageCache.containsKey(path))
+			return imageCache.get(path);
+		BufferedImage img = getImageFromResource(path);
+		img = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK));
+		int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
+		byte[] imgData = new byte[StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE * 3];
+		int imgDataCount=0;
+		// remove the alpha channel
+		for(int i=0;i< StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE; i++) {
+			//RGB -> BGR
+			imgData[imgDataCount++] = (byte)((pixels[i]>>16) & 0xFF);
+			imgData[imgDataCount++] = (byte)(pixels[i] & 0xFF);
+			imgData[imgDataCount++] = (byte)((pixels[i]>>8) & 0xFF);			
+		}
+		cache(path, imgData);
+		return imgData;
+	}
+	
+	public static BufferedImage getImageFromResource(String fileName){
+
+	    BufferedImage buff = null;
+	    try {
+	        buff = ImageIO.read(IconHelper.class.getResourceAsStream(fileName));
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	        return null;
+	    }
+	    return buff;
+
+	}
 
 	private static void cache(String path, byte[] imgData) {
 		imageCache.put(path, imgData);
@@ -180,5 +242,58 @@ public class IconHelper {
 		if (imageCache == null)
 			imageCache = new HashMap<>();
 		return imageCache.get(string);
+	}
+	
+	public static byte[] addText(byte[] imgData, String text, int pos) {
+		
+		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_3BYTE_BGR);
+		final byte[] a = ( (DataBufferByte) img.getRaster().getDataBuffer() ).getData();
+		System.arraycopy(imgData, 0, a, 0, imgData.length);
+		img = flipHoriz(img);
+		Graphics2D g2d = img.createGraphics();
+		g2d.setFont(DEFAULT_FONT);
+		int yStart = 22;
+		switch(pos) {
+		case BOTTOM:
+			yStart = 75;
+			break;
+		case CENTER:
+			yStart = 60;
+			break;
+		default:
+			break;
+		}
+		if (g2d.getFontMetrics().stringWidth(text) > 71 && text.contains(" ")) {
+			text = text.replaceFirst(" ", "\n");
+		}
+			
+		int y = (int) (yStart - (g2d.getFontMetrics().getHeight()/2) - (pos == CENTER ? (text.split("\n").length/2.0) * g2d.getFontMetrics().getHeight() : pos == BOTTOM ? (text.split("\n").length-1) * g2d.getFontMetrics().getHeight() : 0));
+		g2d.setColor(new Color(0, 0, 0, 155));
+		for (String line : text.split("\n")) {
+			int width = g2d.getFontMetrics().stringWidth(line);
+			int x = (StreamDeck.ICON_SIZE/2) - width/2;
+			g2d.fillRect(x-1, y-g2d.getFontMetrics().getHeight()+4, width+2, g2d.getFontMetrics().getHeight());
+			y += g2d.getFontMetrics().getHeight();
+		} 
+		g2d.setColor(Color.LIGHT_GRAY);
+		y = (int) (yStart - (g2d.getFontMetrics().getHeight()/2) - (pos == CENTER ? (text.split("\n").length/2.0) * g2d.getFontMetrics().getHeight() : pos == BOTTOM ? (text.split("\n").length-1) * g2d.getFontMetrics().getHeight() : 0));
+		for (String line : text.split("\n")) {
+			int width = g2d.getFontMetrics().stringWidth(line);
+			int x = (StreamDeck.ICON_SIZE/2) - width/2;
+			g2d.drawString(line, x, y);
+			y += g2d.getFontMetrics().getHeight();
+		}
+//		g2d.drawString(text, x, y);
+		g2d.dispose();
+		img = flipHoriz(img);
+		return ( (DataBufferByte) img.getRaster().getDataBuffer() ).getData();
+	}
+	
+	public static BufferedImage flipHoriz(BufferedImage image) {
+	    BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+	    Graphics2D gg = newImage.createGraphics();
+	    gg.drawImage(image, image.getHeight(), 0, -image.getWidth(), image.getHeight(), null);
+	    gg.dispose();
+	    return newImage;
 	}
 }

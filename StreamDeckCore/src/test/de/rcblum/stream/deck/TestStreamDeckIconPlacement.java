@@ -116,7 +116,7 @@ public class TestStreamDeckIconPlacement {
 			deck.reset();
 			deck.setBrightness(0);
 			deck.waitForCompletion();
-			// System.exit(0);
+			 System.exit(0);
 		}
 	}
 }
