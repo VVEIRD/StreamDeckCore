@@ -33,7 +33,8 @@ This example binds one item to on key of the stream deck.
 ```java
 import  de.rcblum.stream.deck.StreamDeck;
 import  de.rcblum.stream.deck.StreamDeckDevices;
-import  de.rcblum.stream.deck.items.ExecutableButton;
+import  de.rcblum.stream.deck.items.ExecutableItem;
+import  de.rcblum.stream.deck.util.IconHelper
     
 // Get connected Stream Deck (Only 1 device is supported atm)
 StreamDeck deck = StreamDeckDevices.getStreamDeck();
@@ -42,12 +43,11 @@ StreamDeck deck = StreamDeckDevices.getStreamDeck();
 deck.reset();
 
 // Create a button for index 0, that will start program.exe
-BufferedImage img = ImageIO.read(new File("resources" + File.separator + "icon.png"));
-img = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK));
-ExecutableButton executableButton = new ExecutableButton(0, img,"program.exe");
+BufferedImage img = IconHelper.loadImage("resources" + File.separator + "icon.png");
+ExecutableItem ExecutableItem = new ExecutableItem(0, img,"program.exe");
 
 // Register key to index 0 with Stream Deck
-deck.addKey(0, executableButton);
+deck.addKey(0, ExecutableItem);
 ```
 ### Example 2
 This example creates 15 items, puts them into a folder and put that folder into another folder, which acts as root folder. The root folder and the StreamDeck device is given to the StreamDeckController, which handles traversing the given folders and handing over KeyEvents to non-folder items.
@@ -55,8 +55,8 @@ This example creates 15 items, puts them into a folder and put that folder into 
 import  de.rcblum.stream.deck.StreamDeck;
 import  de.rcblum.stream.deck.StreamDeckController;
 import  de.rcblum.stream.deck.StreamDeckDevices;
-import  de.rcblum.stream.deck.items.FolderStreamItem;
-import  de.rcblum.stream.deck.items.ExecutableButton;
+import  de.rcblum.stream.deck.items.FolderItem;
+import  de.rcblum.stream.deck.items.ExecutableItem;
 
 // Get one of the connected stream devices
 StreamDeck sd = StreamDeckDevices.getStreamDeck();
@@ -77,12 +77,12 @@ for (int i = 0; i < items.length; i++) {
 }
 
 // Put items into folder
-FolderStreamItem dir = new FolderStreamItem(null, items);
+FolderItem dir = new FolderItem("Folder Level 1", null, items);
 
 // Put folder with items in root folder
 StreamItem[] rootDirs = new StreamItem[15];
 rootDirs[4] = dir;
-FolderStreamItem root = new FolderStreamItem(null, rootDirs);
+FolderItem root = new FolderItem(null, null, rootDirs);
 
 // Create stream deck controller that will
 // handle folders and events sent from the stream deck
