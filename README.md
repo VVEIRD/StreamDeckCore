@@ -1,7 +1,7 @@
 # StreamDeckCore
-A java implementation for the Elgato Stream Deck (Called ESD from now on).
+A java implementation for the Elgato Stream Deck (Called ESD from now on). Windows Linux and Mac OS X should be supported, albeit only Windows was tested.
 
-I found myself wanting to use a custom app to connect to the ESD using java. Most implementations i found are using javascript. So I used the information form those project to create an java api myself. This is in a very early development state, so it is bound to change a lot.
+This is in a very early development state, so it is bound to change a lot.
 
 ## Basic functionality
 StreamDeckCore provides the following features as of now:
@@ -18,7 +18,7 @@ StreamDeckCore provides the following features as of now:
 3. Supporting multiple ESDs
 
 ## Dependencies
-This uses the github project https://github.com/nyholku/purejavahidapi and jna 4.0, which can be downloaded through maven:
+This uses the github project https://github.com/nyholku/purejavahidapi (forked to https://github.com/WElRD/purejavahidapi) and jna 4.0, which can be downloaded through maven:
 
     <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
     <dependency>
@@ -42,12 +42,15 @@ StreamDeck deck = StreamDeckDevices.getStreamDeck();
 // Reset previous configuration
 deck.reset();
 
-// Create a button for index 0, that will start program.exe
+// Set brightness to 50%
+sd.setBrightness(50);
+
+// Create an item for key 0 that will start program.exe
 byte[] img = IconHelper.loadImage("resources" + File.separator + "icon.png");
-ExecutableItem ExecutableItem = new ExecutableItem(0, img,"program.exe");
+ExecutableItem executableItem = new ExecutableItem(0, img,"program.exe");
 
 // Register key to index 0 with Stream Deck
-deck.addKey(0, ExecutableItem);
+deck.addKey(0, executableItem);
 ```
 ### Example 2
 This example creates 15 items, puts them into a folder and put that folder into another folder, which acts as root folder. The root folder and the StreamDeck device is given to the StreamDeckController, which handles traversing the given folders and handing over KeyEvents to non-folder items.
