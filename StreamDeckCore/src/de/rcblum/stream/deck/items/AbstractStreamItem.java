@@ -1,5 +1,9 @@
 package de.rcblum.stream.deck.items;
 
+import de.rcblum.stream.deck.items.animation.AnimationStack;
+import de.rcblum.stream.deck.util.IconHelper;
+import de.rcblum.stream.deck.util.IconPackage;
+
 /**
  * 
  * <br><br>
@@ -32,18 +36,111 @@ package de.rcblum.stream.deck.items;
  */
 public abstract class AbstractStreamItem implements StreamItem {
 	
-	protected int id = -1;
+	protected String text = null;
 	
+	protected int textPos = StreamItem.TEXT_POS_BOTTOM;
+
+	/**
+	 * Parent of the item
+	 */
+	protected StreamItem parent = null;
+	
+	/**
+	 * Raw image of the folder
+	 */
+	protected byte[] rawImg = null;
+	
+	/**
+	 * Image with text if present.
+	 */
 	protected byte[] img = null;
 
-	public AbstractStreamItem(int keyIndex, byte[] img) {
+	/**
+	 * Animation for the key, if present
+	 */
+	protected AnimationStack animation = null;
+
+	public AbstractStreamItem(byte[] img) {
 		super();
-		this.id = keyIndex;
-		this.img = img;
+		this.rawImg = img;
+	}
+
+	public AbstractStreamItem(IconPackage pkg) {
+		this(pkg.icon, pkg.animation, null);
+	}
+
+	public AbstractStreamItem(byte[] img, AnimationStack animation) {
+		this(img, animation, null);
+	}
+
+	public AbstractStreamItem(byte[] img, AnimationStack animation, String text) {
+		this(img, animation, text, StreamItem.TEXT_POS_BOTTOM);
+	}
+
+	public AbstractStreamItem(byte[] rawImg, AnimationStack animation, String text, int textPos) {
+		super();
+		this.text = text;
+		this.textPos = textPos;
+		this.rawImg = rawImg;
+		this.animation = animation;
+		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
+		if (this.text != null && this.animation != null) {
+			this.animation.setTextPos(this.textPos);
+			this.animation.setText(this.text);
+		}
 	}
 
 	@Override
 	public byte[] getIcon() {
 		return this.img;
+	}
+	
+	@Override
+	public void setIconPackage(IconPackage iconPackage) {
+		this.rawImg = iconPackage.icon;
+		this.animation = iconPackage.animation;
+	}
+
+	@Override
+	public StreamItem getParent() {
+		return this.parent;
+	}
+
+	public void setParent(StreamItem parent) {
+		this.parent = parent;
+	}
+	
+	@Override
+	public String getText() {
+		return this.text;
+	}
+	
+	public void setText(String text) {
+		boolean change = this.text != text || text != null && !text.equals(this.text);
+		this.text = text;
+		if (change && this.animation != null) {
+			this.animation.setTextPos(this.textPos);
+			this.animation.setText(this.text);
+		}
+	}
+	
+	public void setTextPosition(int textPos) {
+		this.textPos = textPos;
+		if (this.text != null) {
+			this.img = IconHelper.addText(this.rawImg, this.text, this.textPos);
+			if (this.animation != null) {
+				this.animation.setTextPos(this.textPos);
+			}
+		}
+	}
+	
+	@Override
+	public boolean hasAnimation() {
+		return this.animation != null;
+	}
+	
+	@Override
+	public AnimationStack getAnimation() {
+		return this.animation;
 	}
 }

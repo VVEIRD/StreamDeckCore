@@ -37,17 +37,17 @@ import de.rcblum.stream.deck.event.KeyEvent;
  * @version 0.1
  *
  */
-public class ExecutableItem extends AbstractStreamItem {
+public class RunnableItem extends AbstractStreamItem {
 
 	private String pathToExecutable = null;
 
-	public ExecutableItem(byte[] img, String pathToExecutable) {
+	public RunnableItem(byte[] img, String pathToExecutable) {
 		super(img);
 		this.img = img;
 		this.pathToExecutable = pathToExecutable;
 	}
 
-	public ExecutableItem(byte[] img, String pathToExecutable, String text) {
+	public RunnableItem(byte[] img, String pathToExecutable, String text) {
 		super(img, null, text);
 		this.pathToExecutable = pathToExecutable;
 	}

@@ -2,6 +2,9 @@ package de.rcblum.stream.deck.items;
 
 import de.rcblum.stream.deck.StreamDeckController;
 import de.rcblum.stream.deck.event.StreamKeyListener;
+import de.rcblum.stream.deck.items.animation.AnimationStack;
+import de.rcblum.stream.deck.util.IconHelper;
+import de.rcblum.stream.deck.util.IconPackage;
 
 /**
  * Interface to bind actions to a key of a stream deck. Can also be used with the {@link StreamDeckController}.
@@ -35,6 +38,12 @@ import de.rcblum.stream.deck.event.StreamKeyListener;
  *
  */
 public interface StreamItem extends StreamKeyListener {
+
+	public static int TEXT_POS_TOP = IconHelper.TEXT_TOP;
+
+	public static int TEXT_POS_CENTER = IconHelper.TEXT_CENTER;
+
+	public static int TEXT_POS_BOTTOM = IconHelper.TEXT_BOTTOM;
 	
 	/**
 	 * Returns an array with the children of this item. If the item has a parent, the parent must be the 5th item ({@link #getChildren()}[4] ) in the array.
@@ -57,5 +66,19 @@ public interface StreamItem extends StreamKeyListener {
 	 * @return
 	 */
 	public byte[] getIcon();
+	
+	public boolean hasAnimation();
+	
+	public AnimationStack getAnimation();
+	
+	public String getText();
+	
+	public void setText(String text);
+	
+	public void setTextPosition(int textPos);
+	
+	
+	
+	public void setIconPackage(IconPackage iconPackage);
 	
 }

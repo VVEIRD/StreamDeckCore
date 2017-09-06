@@ -1,12 +1,14 @@
 package de.rcblum.stream.deck;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
 
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.KeyEvent.Type;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.StreamItem;
+import de.rcblum.stream.deck.items.animation.Animator;
 import de.rcblum.stream.deck.util.IconHelper;
 
 /**
@@ -65,6 +67,14 @@ public class StreamDeckController implements StreamKeyListener {
 
 	private long lastKeyReleasedEvent = System.currentTimeMillis();
 	
+	private StreamDeck streamDeck = null;
+
+	private StreamItem root = null;
+
+	private StreamItem currentDir = null;
+	
+	private Animator[] animators = null;
+
 	public StreamDeckController(StreamDeck streamDeck, StreamItem root) {
 		super();
 		try {
@@ -78,16 +88,47 @@ public class StreamDeckController implements StreamKeyListener {
 		while (this.root.getParent() != null)
 			this.root = this.root.getParent();
 		this.currentDir = root;
+		this.animators = new Animator[15];
 		this.updateDisplay();
 		this.fireOnDisplay();
 	}
 
-	private StreamDeck streamDeck = null;
+	private void fireOffDisplay() {
+		if (this.currentDir != null) {
+			StreamItem[] children = this.currentDir.getChildren();
+			if (children != null)
+				for (int i = 0; i < children.length; i++) {
+					if (children[i] != null) {
+						KeyEvent evnt = new KeyEvent(this.streamDeck, i, Type.OFF_DISPLAY);
+						children[i].onKeyEvent(evnt);
+						if (this.animators[i] != null) {
+							this.animators[i].onKeyEvent(evnt);
+						}
+					}
+				}
+			KeyEvent evnt = new KeyEvent(streamDeck, -1, Type.CLOSE_FOLDER);
+			this.currentDir.onKeyEvent(evnt);
+		}
+	}
 
-	private StreamItem root = null;
-
-	private StreamItem currentDir = null;
-
+	private void fireOnDisplay() {
+		if (this.currentDir != null) {
+			KeyEvent evnt = new KeyEvent(streamDeck, -1, Type.OPEN_FOLDER);
+			this.currentDir.onKeyEvent(evnt);
+		}
+		StreamItem[] children = this.currentDir.getChildren();
+		if (children != null)
+			for (int i = 0; i < children.length; i++) {
+				if (children[i] != null) {
+					KeyEvent evnt = new KeyEvent(this.streamDeck, i, Type.ON_DISPLAY);
+					children[i].onKeyEvent(evnt);
+					if (this.animators[i] != null) {
+						this.animators[i].onKeyEvent(evnt);
+					}
+				}
+			}
+	}
+	
 	@Override
 	public void onKeyEvent(KeyEvent event) {
 		if (event.getType() == Type.RELEASED_CLICKED && System.currentTimeMillis() - lastKeyReleasedEvent < KEY_DEAD_ZONE) 
@@ -101,8 +142,12 @@ public class StreamDeckController implements StreamKeyListener {
 		else if (children[id] != null && !children[id].isLeaf() && type == Type.RELEASED_CLICKED){
 			openFolder(children[id]);
 		}
-		else if (children[id] != null && !(id == 4 && this.currentDir.getParent() != null))
+		else if (children[id] != null && !(id == 4 && this.currentDir.getParent() != null)) {
 			children[id].onKeyEvent(event);
+			if (this.animators[id] != null) {
+				this.animators[id].onKeyEvent(event);
+			}
+		}
 		lastKeyReleasedEvent = System.currentTimeMillis();
 	}
 
@@ -115,47 +160,25 @@ public class StreamDeckController implements StreamKeyListener {
 			this.fireOnDisplay();
 		}
 	}
-	
-	private void fireOnDisplay() {
-		if (this.currentDir != null) {
-			KeyEvent evnt = new KeyEvent(streamDeck, -1, Type.OPEN_FOLDER);
-			this.currentDir.onKeyEvent(evnt);
-		}
-		StreamItem[] children = this.currentDir.getChildren();
-		if (children != null)
-			for (int i = 0; i < children.length; i++) {
-				if (children[i] != null) {
-					KeyEvent evnt = new KeyEvent(this.streamDeck, i, Type.ON_DISPLAY);
-					children[i].onKeyEvent(evnt);
-				}
-			}
-	}
-
-	private void fireOffDisplay() {
-		StreamItem[] children = this.currentDir.getChildren();
-		if (children != null)
-			for (int i = 0; i < children.length; i++) {
-				if (children[i] != null) {
-					KeyEvent evnt = new KeyEvent(this.streamDeck, i, Type.OFF_DISPLAY);
-					children[i].onKeyEvent(evnt);
-				}
-			}
-		if (this.currentDir != null) {
-			KeyEvent evnt = new KeyEvent(streamDeck, -1, Type.CLOSE_FOLDER);
-			this.currentDir.onKeyEvent(evnt);
-		}
-	}
 
 	private void updateDisplay() {
 		StreamItem[] children = this.currentDir.getChildren();
 		if (children != null)
 			for (int i = 0; i < children.length; i++) {
+				if (this.animators[i] != null) {
+					this.animators[i].stop(true);
+					this.animators[i] = null;
+				}
 				if (children[i] != null) {
 					if (this.currentDir.getParent() != null && i == 4) {
 						streamDeck.drawImage(i, this.back);						
 					}
 					else {
 						streamDeck.drawImage(i, children[i].getIcon());
+						if (children[i].hasAnimation()) {
+							Animator a = new Animator(streamDeck, i, children[i].getAnimation());
+							this.animators[i] = a;
+						}
 					}
 				}
 				else {

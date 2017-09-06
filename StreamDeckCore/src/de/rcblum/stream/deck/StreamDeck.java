@@ -113,6 +113,7 @@ public class StreamDeck implements InputReportListener {
 		@Override
 		public void run() {
 			long time = System.currentTimeMillis();
+			long count = 0;
 			while (running || !running && !sendPool.isEmpty()) {
 				Runnable task = sendPool.poll();
 				if (task != null) {
@@ -122,6 +123,7 @@ public class StreamDeck implements InputReportListener {
 						e.printStackTrace();
 					}
 				}
+//				if (count++/5 == 0)
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
@@ -413,6 +415,8 @@ public class StreamDeck implements InputReportListener {
 	public void waitForCompletion() {
 		long time = 0;
 		while (this.sendPool.size() != 0) {
+			if (this.sendPool.size() > 500)
+				System.out.println("Send pool: " + this.sendPool.size());
 			try {
 				Thread.sleep(50);
 				time += 50;
