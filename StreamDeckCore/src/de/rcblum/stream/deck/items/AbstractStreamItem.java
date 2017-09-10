@@ -1,5 +1,8 @@
 package de.rcblum.stream.deck.items;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.IconPackage;
@@ -59,10 +62,14 @@ public abstract class AbstractStreamItem implements StreamItem {
 	 * Animation for the key, if present
 	 */
 	protected AnimationStack animation = null;
+	
+	/**
+	 * Listeners for updates to the icons
+	 */
+	List<IconUpdateListener> listeners = null;
 
 	public AbstractStreamItem(byte[] img) {
-		super();
-		this.rawImg = img;
+		this(img, null);
 	}
 
 	public AbstractStreamItem(IconPackage pkg) {
@@ -83,6 +90,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 		this.textPos = textPos;
 		this.rawImg = rawImg;
 		this.animation = animation;
+		this.listeners = new LinkedList<>();
 		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
 		if (this.text != null && this.animation != null) {
 			this.animation.setTextPos(this.textPos);
@@ -98,7 +106,13 @@ public abstract class AbstractStreamItem implements StreamItem {
 	@Override
 	public void setIconPackage(IconPackage iconPackage) {
 		this.rawImg = iconPackage.icon;
+		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
 		this.animation = iconPackage.animation;
+		if (this.text != null && this.animation != null) {
+			this.animation.setTextPos(this.textPos);
+			this.animation.setText(this.text);
+		}
+		this.fireIconUpdate();
 	}
 
 	@Override
@@ -118,9 +132,13 @@ public abstract class AbstractStreamItem implements StreamItem {
 	public void setText(String text) {
 		boolean change = this.text != text || text != null && !text.equals(this.text);
 		this.text = text;
-		if (change && this.animation != null) {
-			this.animation.setTextPos(this.textPos);
-			this.animation.setText(this.text);
+		if (change) {
+			if (this.animation != null) {
+				this.animation.setTextPos(this.textPos);
+				this.animation.setText(this.text);
+			}
+			this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
+			this.fireIconUpdate();
 		}
 	}
 	
@@ -131,6 +149,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 			if (this.animation != null) {
 				this.animation.setTextPos(this.textPos);
 			}
+			this.fireIconUpdate();
 		}
 	}
 	
@@ -142,5 +161,20 @@ public abstract class AbstractStreamItem implements StreamItem {
 	@Override
 	public AnimationStack getAnimation() {
 		return this.animation;
+	}
+	
+	public void addIconUpdateListener(IconUpdateListener listener) {
+		this.listeners.add(listener);
+	}
+	
+	public void removeIconUpdateListener(IconUpdateListener listener) {
+		this.listeners.remove(listener);
+	}
+	
+	private void fireIconUpdate() {
+		for (int i = 0; i < this.listeners.size(); i++) {
+			if (this.listeners != null)
+				this.listeners.get(i).onIconUpdate(this);
+		}
 	}
 }

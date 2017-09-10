@@ -83,7 +83,7 @@ public class IconHelper {
 	 */
 	public static boolean APPLY_FRAME = true;
 
-	public static final Font DEFAULT_FONT = loadFont("/resources/FantasqueSansMono-Regular.ttf", 17);
+	public static final Font DEFAULT_FONT = loadFont("/resources/SourceCodePro-Semibold.ttf", 15);
 
 	/**
 	 * Position to place the text at the top of the icon
@@ -126,7 +126,7 @@ public class IconHelper {
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setFont(DEFAULT_FONT);
-		int yStart = 22;
+		int yStart = 28;
 		switch (pos) {
 		case TEXT_BOTTOM:
 			yStart = 75;
@@ -144,11 +144,11 @@ public class IconHelper {
 		int y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2)
 				- (pos == TEXT_CENTER ? (text.split("\n").length / 2.0) * g2d.getFontMetrics().getHeight()
 						: pos == TEXT_BOTTOM ? (text.split("\n").length - 1) * g2d.getFontMetrics().getHeight() : 0));
-		g2d.setColor(new Color(0, 0, 0, 25));
+		g2d.setColor(new Color(0, 0, 0, 150));
 		for (String line : text.split("\n")) {
 			int width = g2d.getFontMetrics().stringWidth(line);
 			int x = (StreamDeck.ICON_SIZE / 2) - width / 2;
-			g2d.fillRect(x - 1, y - g2d.getFontMetrics().getHeight() + 4, width + 2, g2d.getFontMetrics().getHeight());
+			g2d.fillRect(x - 1, y - g2d.getFontMetrics().getHeight() + 7, width + 2, g2d.getFontMetrics().getHeight()-4);
 			y += g2d.getFontMetrics().getHeight();
 		}
 		g2d.setColor(Color.LIGHT_GRAY);

@@ -4,10 +4,11 @@ import java.io.IOException;
 
 import de.rcblum.stream.deck.StreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
+import de.rcblum.stream.deck.util.IconPackage;
 
 /**
  * This  handle can be registered with the {@link StreamDeck} and will execute
- * the given executable when the stream deck button is pressed on release.
+ * the given {@link Runnable} task when the stream deck button is pressed on release.
  * 
  * <br><br> 
  * 
@@ -39,17 +40,22 @@ import de.rcblum.stream.deck.event.KeyEvent;
  */
 public class RunnableItem extends AbstractStreamItem {
 
-	private String pathToExecutable = null;
+	private Runnable runnable = null;
 
-	public RunnableItem(byte[] img, String pathToExecutable) {
+	public RunnableItem(byte[] img, Runnable runnable) {
 		super(img);
 		this.img = img;
-		this.pathToExecutable = pathToExecutable;
+		this.runnable = runnable;
 	}
 
-	public RunnableItem(byte[] img, String pathToExecutable, String text) {
+	public RunnableItem(IconPackage iconPackage, Runnable runnable) {
+		super(iconPackage);
+		this.runnable = runnable;
+	}
+
+	public RunnableItem(byte[] img, Runnable runnable, String text) {
 		super(img, null, text);
-		this.pathToExecutable = pathToExecutable;
+		this.runnable = runnable;
 	}
 
 	@Override
@@ -76,28 +82,16 @@ public class RunnableItem extends AbstractStreamItem {
 		}
 	}
 
-	public void onClick(KeyEvent event) {
-		System.out.println(event.getKeyId() +": Click");
-	}
+	public void onClick(KeyEvent event) {}
 
-	public void onPress(KeyEvent event) {
-		System.out.println(event.getKeyId() +": Press");
-	}
+	public void onPress(KeyEvent event) {}
 
 	public void onRelease(KeyEvent event) {
-		System.out.println(event.getKeyId() +": Release");
-		Runtime runtime = Runtime.getRuntime();
-		try {
-			runtime.exec(this.pathToExecutable);
-		} catch (IOException e) {
-			System.out.println(event.getKeyId() +": Could nod execute " + this.pathToExecutable);
-			e.printStackTrace();
-		}
+		Thread t = new Thread(this.runnable);
+		t.start();
 	}
 
-	public void onDisplay(KeyEvent event) {
-	}
+	public void onDisplay(KeyEvent event) {}
 
-	public void offDisplay(KeyEvent event) {
-	}
+	public void offDisplay(KeyEvent event) {}
 }

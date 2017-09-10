@@ -81,4 +81,8 @@ public interface StreamItem extends StreamKeyListener {
 	
 	public void setIconPackage(IconPackage iconPackage);
 	
+	public void addIconUpdateListener(IconUpdateListener listener);
+	
+	public void removeIconUpdateListener(IconUpdateListener listener);
+	
 }

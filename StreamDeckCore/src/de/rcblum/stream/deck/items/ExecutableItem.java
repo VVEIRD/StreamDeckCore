@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import de.rcblum.stream.deck.StreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
+import de.rcblum.stream.deck.util.IconPackage;
 
 /**
  * This  handle can be registered with the {@link StreamDeck} and will execute
@@ -44,6 +45,11 @@ public class ExecutableItem extends AbstractStreamItem {
 	public ExecutableItem(byte[] img, String pathToExecutable) {
 		super(img);
 		this.img = img;
+		this.pathToExecutable = pathToExecutable;
+	}
+
+	public ExecutableItem(IconPackage iconPackage, String pathToExecutable) {
+		super(iconPackage);
 		this.pathToExecutable = pathToExecutable;
 	}
 

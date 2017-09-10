@@ -58,15 +58,26 @@ public class KeyEvent extends EventObject{
 		this.type = type;
 	}
 
+	/**
+	 * Returns the Stream Deck for which the event was created
+	 */
 	@Override
 	public StreamDeck getSource() {
 		return (StreamDeck)super.getSource();
 	}
 	
+	/**
+	 * Returns the key for which the event was created
+	 * @return
+	 */
 	public int getKeyId() {
 		return keyId;
 	}
 	
+	/**
+	 * Returns the type of the event
+	 * @return Type of the Event
+	 */
 	public Type getType() {
 		return type;
 	}

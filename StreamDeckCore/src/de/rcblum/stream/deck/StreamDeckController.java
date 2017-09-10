@@ -7,6 +7,7 @@ import java.util.Objects;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.KeyEvent.Type;
 import de.rcblum.stream.deck.event.StreamKeyListener;
+import de.rcblum.stream.deck.items.IconUpdateListener;
 import de.rcblum.stream.deck.items.StreamItem;
 import de.rcblum.stream.deck.items.animation.Animator;
 import de.rcblum.stream.deck.util.IconHelper;
@@ -45,12 +46,12 @@ import de.rcblum.stream.deck.util.IconHelper;
  * @version 0.1
  *
  */
-public class StreamDeckController implements StreamKeyListener {
+public class StreamDeckController implements StreamKeyListener, IconUpdateListener {
 	
 	/**
-	 * Sets the key dead zone for key events, default 50 ms. 
+	 * Sets the key dead zone for key events, default 25 ms. 
 	 */
-	private static long KEY_DEAD_ZONE = 50;
+	private static long KEY_DEAD_ZONE = 25;
 	
 	/**
 	 * Sets the key dead zone. The dead zone defines how much time in
@@ -90,6 +91,7 @@ public class StreamDeckController implements StreamKeyListener {
 		this.currentDir = root;
 		this.animators = new Animator[15];
 		this.updateDisplay();
+		this.addIconListener();
 		this.fireOnDisplay();
 	}
 
@@ -150,22 +152,63 @@ public class StreamDeckController implements StreamKeyListener {
 		}
 		lastKeyReleasedEvent = System.currentTimeMillis();
 	}
+	
+	@Override
+	public void onIconUpdate(StreamItem source) {
+		if (source.getParent() == this.currentDir) {
+			updateDisplay(false);
+		}
+	}
 
 	private void openFolder(StreamItem folder) {
 		folder = Objects.requireNonNull(folder);
 		if (!folder.isLeaf() && this.currentDir != folder) {
 			this.fireOffDisplay();
+			this.removeIconListener();
 			this.currentDir = folder;
+			this.addIconListener();
 			this.updateDisplay();
 			this.fireOnDisplay();
 		}
 	}
 
+	private void removeIconListener() {
+		StreamItem[] children = this.currentDir.getChildren();
+		if (children != null) {
+			for (int i = 0; i < children.length; i++) {
+				if (children[i] != null) {
+					children[i].removeIconUpdateListener(this);
+				}
+			}
+		}
+	}
+
+	private void addIconListener() {
+		StreamItem[] children = this.currentDir.getChildren();
+		if (children != null) {
+			for (int i = 0; i < children.length; i++) {
+				if (children[i] != null) {
+					children[i].addIconUpdateListener(this);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Updates the stream deck with current items, updates animators
+	 */
 	private void updateDisplay() {
+		this.updateDisplay(true);
+	}
+
+	/**
+	 * Updates the stream deck with current 
+	 */
+	private void updateDisplay(boolean updateAnimators) {
 		StreamItem[] children = this.currentDir.getChildren();
 		if (children != null)
 			for (int i = 0; i < children.length; i++) {
-				if (this.animators[i] != null) {
+				if (updateAnimators && this.animators[i] != null) {
 					this.animators[i].stop(true);
 					this.animators[i] = null;
 				}
@@ -173,9 +216,9 @@ public class StreamDeckController implements StreamKeyListener {
 					if (this.currentDir.getParent() != null && i == 4) {
 						streamDeck.drawImage(i, this.back);						
 					}
-					else {
+					else if (this.animators[i] == null || !this.animators[i].isActive()) {
 						streamDeck.drawImage(i, children[i].getIcon());
-						if (children[i].hasAnimation()) {
+						if (updateAnimators && children[i].hasAnimation()) {
 							Animator a = new Animator(streamDeck, i, children[i].getAnimation());
 							this.animators[i] = a;
 						}
@@ -185,6 +228,35 @@ public class StreamDeckController implements StreamKeyListener {
 					streamDeck.clearButton(i);
 				}
 			}
+	}
+	
+	/**
+	 * Wrapper to set brightness of stream deck
+	 * @param brightness Brightness in percent 0 - 100 %
+	 */
+	public void setBrightness(int brightness) {
+		this.streamDeck.setBrightness(brightness);
+	}
+	
+	/**
+	 * Resets stream deck and updates display of keys
+	 */
+	public void resetStreamDeck() {
+		this.streamDeck.reset();
+		this.updateDisplay();
+	}
+	
+	/**
+	 * Stops the update by animators on the streamdeck and the streamdeck itself
+	 * @param immediate <code>true</code> = Stop all updating at once, <code>false</code> = stop after animation is done
+	 */
+	public void stop(boolean immediate) {
+		for (int i = 0; i < animators.length; i++) {
+			if (animators[i] != null) {
+				animators[i].stop(immediate);
+			}
+		}
+		this.streamDeck.stop();
 	}
 
 }
