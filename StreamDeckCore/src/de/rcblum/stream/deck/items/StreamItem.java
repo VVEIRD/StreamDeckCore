@@ -3,6 +3,7 @@ package de.rcblum.stream.deck.items;
 import de.rcblum.stream.deck.StreamDeckController;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
+import de.rcblum.stream.deck.items.listeners.IconUpdateListener;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.IconPackage;
 

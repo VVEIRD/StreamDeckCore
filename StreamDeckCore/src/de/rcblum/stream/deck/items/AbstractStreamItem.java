@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.rcblum.stream.deck.items.animation.AnimationStack;
+import de.rcblum.stream.deck.items.listeners.IconUpdateListener;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.IconPackage;
 

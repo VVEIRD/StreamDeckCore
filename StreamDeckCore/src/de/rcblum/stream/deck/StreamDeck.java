@@ -149,6 +149,7 @@ public class StreamDeck implements InputReportListener {
 		@Override
 		public void run() {
 			StreamDeck.this._drawImage(keyIndex, img);
+//			StreamDeck.this.drawImage(keyIndex, img);
 		}
 
 	}
@@ -269,7 +270,7 @@ public class StreamDeck implements InputReportListener {
 		sendPool.add(new IconUpdater(keyIndex, imgData));
 	}
 
-	private void _drawImage(int keyIndex, byte[] imgData) {
+	public synchronized void _drawImage(int keyIndex, byte[] imgData) {
 		// int[] pixels = ((DataBufferInt)
 		// img.getRaster().getDataBuffer()).getData();
 		// byte[] imgData = new byte[ICON_SIZE * ICON_SIZE * 3];

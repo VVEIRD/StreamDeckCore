@@ -20,7 +20,7 @@ import de.rcblum.stream.deck.util.IconPackage;
 public class TestAnimationStack {
 	public static void main(String[] args) throws URISyntaxException, IOException {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		AnimationStack as = new AnimationStack(AnimationStack.REPEAT_LOOPING, AnimationStack.FRAME_RATE_30, AnimationStack.TRIGGER_PRESSED, new byte[0][0]);
+		AnimationStack as = new AnimationStack(AnimationStack.REPEAT_LOOPING, true, AnimationStack.FRAME_RATE_30, AnimationStack.TRIGGER_PRESSED, new byte[0][0]);
 		System.out.println(gson.toJson(as));
 		IconHelper.createIconPackage("resources" + File.separator + "icon.zip", "resources" + File.separator + "icon.png", "resources" + File.separator + "icon.gif", as);
 		IconPackage ip = IconHelper.loadIconPackage("resources" + File.separator + "icon.zip");

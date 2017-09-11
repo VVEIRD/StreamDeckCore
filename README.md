@@ -11,14 +11,20 @@ StreamDeckCore provides the following features as of now:
 4. Setting the brightness of the ESD (0 - 99)
 5. Recieving key pressed, released, clicked events from the ESD
 6. Recieving events for key binds that are beeing displayed and when they are taken off (onDisplay() and offDisplay())
+7. Animation on pressed key
+8. Custom animations for specific keys, at a decent framrate (60/30/15 fps) if possible.
+9. Supporting multiple ESDs
 
 ## Future functionality
-1. Animation on pressed key
-2. Custom animations for specific keys, at a decent framrate (60/30/15 fps) if possible.
-3. Supporting multiple ESDs
+?? ATM no new functionality planned
+
+## Current objectives
+1. Clean up sources
+2. Document everything
+3. Create tutorial & example programs
 
 ## Dependencies
-This uses the github project https://github.com/nyholku/purejavahidapi (forked to https://github.com/WElRD/purejavahidapi) and jna 4.0, which can be downloaded through maven:
+This uses the github project https://github.com/nyholku/purejavahidapi (forked to https://github.com/WElRD/purejavahidapi), jna 4.0 and gson, which can be downloaded through maven:
 
     <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
     <dependency>
@@ -26,70 +32,15 @@ This uses the github project https://github.com/nyholku/purejavahidapi (forked t
         <artifactId>jna</artifactId>
         <version>4.0.0</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+	<dependency>
+	    <groupId>com.google.code.gson</groupId>
+	    <artifactId>gson</artifactId>
+	    <version>2.8.1</version>
+	</dependency>
+    
 
 ## Usage
-### Example 1
-This example binds one item to on key of the stream deck.
-```java
-import  de.rcblum.stream.deck.StreamDeck;
-import  de.rcblum.stream.deck.StreamDeckDevices;
-import  de.rcblum.stream.deck.items.ExecutableItem;
-import  de.rcblum.stream.deck.util.IconHelper;
-    
-// Get connected Stream Deck (Only 1 device is supported atm)
-StreamDeck deck = StreamDeckDevices.getStreamDeck();
-
-// Reset previous configuration
-deck.reset();
-
-// Set brightness to 50%
-sd.setBrightness(50);
-
-// Create an item for key 0 that will start program.exe
-byte[] img = IconHelper.loadImage("resources" + File.separator + "icon.png");
-ExecutableItem executableItem = new ExecutableItem(0, img,"program.exe");
-
-// Register key to index 0 with Stream Deck
-deck.addKey(0, executableItem);
-```
-### Example 2
-This example creates 15 items, puts them into a folder and put that folder into another folder, which acts as root folder. The root folder and the StreamDeck device is given to the StreamDeckController, which handles traversing the given folders and handing over KeyEvents to non-folder items.
-```java
-import  de.rcblum.stream.deck.StreamDeck;
-import  de.rcblum.stream.deck.StreamDeckController;
-import  de.rcblum.stream.deck.StreamDeckDevices;
-import  de.rcblum.stream.deck.items.FolderItem;
-import  de.rcblum.stream.deck.items.ExecutableItem;
-
-// Get one of the connected stream devices
-StreamDeck sd = StreamDeckDevices.getStreamDeck();
-
-// Reset device
-sd.reset();
-
-// Set brightness to 50%
-sd.setBrightness(50);
-
-// Create 15 items
-StreamItem[] items = new StreamItem[15];
-for (int i = 0; i < items.length; i++) {
-	System.out.println("resources" + File.separator + "icon" + (i+1) + ".png");
-	byte[] icon = IconHelper.loadImage("resources" + File.separator + "icon" + (i+1) + ".png");
-	ExecutableItem eI = new ExecutableItem(icon, "explorer");
-	items[i] = eI;
-}
-
-// Put items into folder
-FolderItem dir = new FolderItem("Folder Level 1", null, items);
-
-// Put folder with items in root folder
-StreamItem[] rootDirs = new StreamItem[15];
-rootDirs[4] = dir;
-FolderItem root = new FolderItem(null, null, rootDirs);
-
-// Create stream deck controller that will
-// handle folders and events sent from the stream deck
-StreamDeckController controller = new StreamDeckController(sd, root);
-```
+For examples please see the [wiki](https://github.com/WElRD/StreamDeckCore/wiki)
 
 

@@ -73,8 +73,8 @@ public class AnimationStack {
 	public static final int FRAME_RATE_60 = 60;
 
 	/**
-	 * The animation should be playeed as soon as the accosiated item is displayed
-	 * on a key.
+	 * The animation should be playeed as soon as the accosiated item is
+	 * displayed on a key.
 	 */
 	public static final int TRIGGER_AUTO = 0;
 
@@ -103,6 +103,8 @@ public class AnimationStack {
 	 */
 	private int repeatType = REPEAT_ONCE;
 
+	private boolean endAnimationImmediate = false;
+
 	/**
 	 * Original frame data
 	 */
@@ -129,16 +131,20 @@ public class AnimationStack {
 	 * 
 	 * @param repeatType
 	 *            If and how the animation should be repeated.
+	 * @param endAnimationImmediate
+	 *            Defines if the animation should be stopped immediate after the
+	 *            trigger expires, e.g. aborting the animation before it finishes
 	 * @param frameRate
 	 *            Frame rate the animation should be played at
 	 * @param trigger
 	 *            Trigger when the animation should be played
 	 * @param frames
-	 *            Frames of the animation. In the stream deck compatible format, see
+	 *            Frames of the animation. In the stream deck compatible format,
+	 *            see
 	 *            {@link IconHelper#convertImage(java.awt.image.BufferedImage)}
 	 */
-	public AnimationStack(int repeatType, int frameRate, int trigger, byte[][] frames) {
-		this(repeatType, frameRate, trigger, frames, null, StreamItem.TEXT_POS_BOTTOM);
+	public AnimationStack(int repeatType, boolean endAnimationImmediate, int frameRate, int trigger, byte[][] frames) {
+		this(repeatType, endAnimationImmediate, frameRate, trigger, frames, null, StreamItem.TEXT_POS_BOTTOM);
 	}
 
 	/**
@@ -151,7 +157,8 @@ public class AnimationStack {
 	 * @param trigger
 	 *            Trigger when the animation should be played
 	 * @param frames
-	 *            Frames of the animation. In the stream deck compatible format, see
+	 *            Frames of the animation. In the stream deck compatible format,
+	 *            see
 	 *            {@link IconHelper#convertImage(java.awt.image.BufferedImage)}
 	 * @param text
 	 *            Text to be displayed while the animation is running
@@ -161,12 +168,14 @@ public class AnimationStack {
 	 *            {@link StreamItem#TEXT_POS_CENTER},
 	 *            {@link StreamItem#TEXT_POS_BOTTOM})
 	 */
-	public AnimationStack(int repeatType, int frameRate, int trigger, byte[][] frames, String text, int textPos) {
+	public AnimationStack(int repeatType, boolean endAnimationImmediate, int frameRate, int trigger, byte[][] frames,
+			String text, int textPos) {
 		this.repeatType = repeatType;
 		this.frameRate = frameRate;
 		this.trigger = trigger;
 		this.text = text;
 		this.textPos = textPos;
+		this.endAnimationImmediate = endAnimationImmediate;
 		this.rawFrames = Objects.requireNonNull(frames, "Frames for animation cannot be null.");
 		this.frames = new byte[this.rawFrames.length][];
 		if (this.text != null) {
@@ -179,12 +188,18 @@ public class AnimationStack {
 	}
 
 	/**
-	 * Returns how many frames this animation has.
+	 * Returns if the animation should be played as soon as the item is
+	 * displayed on the stream deck
 	 * 
-	 * @return Amount of frames
+	 * @return <code>true</code> if animation should start immediate as the item
+	 *         is displayed on the stream deck
 	 */
-	public int getFrameCount() {
-		return this.frames.length;
+	public boolean autoPlay() {
+		return this.trigger == TRIGGER_AUTO;
+	}
+
+	public boolean endAnimationImmediate() {
+		return endAnimationImmediate;
 	}
 
 	/**
@@ -195,6 +210,97 @@ public class AnimationStack {
 	 */
 	public byte[] getFrame(int frameNo) {
 		return this.frames[frameNo];
+	}
+
+	/**
+	 * Returns how many frames this animation has.
+	 * 
+	 * @return Amount of frames
+	 */
+	public int getFrameCount() {
+		return this.frames.length;
+	}
+
+	/**
+	 * Reutrns the frame rate at which the animation should be played
+	 * 
+	 * @return
+	 */
+	public int getFrameRate() {
+		return this.frameRate;
+	}
+
+	/**
+	 * Returns the repeat type of the animation
+	 * 
+	 * @return int value of the repeat type
+	 */
+	public int getRepeatType() {
+		return this.repeatType;
+	}
+
+	/**
+	 * Returns the trigger for the animation
+	 * 
+	 * @return int value of the trigger for the animation
+	 */
+	public int getTrigger() {
+		return this.trigger;
+	}
+
+	/**
+	 * Returns if the animation should be triggered.
+	 * 
+	 * @param keyEventType
+	 *            Key event sent by the stream deck
+	 * @return <code>true</code> if the animation should be triggered,
+	 *         <code>false</code> if not
+	 */
+	public boolean isTriggered(Type keyEventType) {
+		return this.trigger == TRIGGER_PRESSED && keyEventType == Type.PRESSED
+				|| this.trigger == TRIGGER_CLICKED && keyEventType == Type.RELEASED_CLICKED
+				|| this.trigger == TRIGGER_AUTO;
+	}
+
+	/**
+	 * Returns if the animation should be looped
+	 * 
+	 * @return <code>true</code> if the animation should be looped indefinatly,
+	 *         <code>false</code> if not
+	 */
+	public boolean loop() {
+		return this.repeatType == REPEAT_LOOPING;
+	}
+
+	/**
+	 * Returns if the animation should be reversed ass soon as the last frame in
+	 * any direction is met
+	 * 
+	 * @return <code>true</code> if the animation should ping pong between the
+	 *         last and the first frame, <code>false</code> if not
+	 */
+	public boolean pingPong() {
+		return this.repeatType == REPEAT_PING_PONG;
+	}
+
+	/**
+	 * Returns if the animation should be displayed once
+	 * 
+	 * @return <code>true</code> if the animation should only be displayed once,
+	 *         <code>false</code> if not
+	 */
+	public boolean playOnce() {
+		return this.repeatType == REPEAT_ONCE;
+	}
+
+	/**
+	 * Sets if the animation should be stopped immediate after the trigger is
+	 * not applicable anymore.
+	 * 
+	 * @param endAnimationImmediate
+	 */
+	public void setEndAnimationImmediate(boolean endAnimationImmediate) {
+		this.endAnimationImmediate = endAnimationImmediate;
 	}
 
 	/**
@@ -252,88 +358,5 @@ public class AnimationStack {
 			// swap local frames with the stacks frames
 			this.frames = nframes;
 		}
-	}
-
-	/**
-	 * Returns the trigger for the animation
-	 * 
-	 * @return int value of the trigger for the animation
-	 */
-	public int getTrigger() {
-		return this.trigger;
-	}
-
-	/**
-	 * Returns if the animation should be triggered.
-	 * 
-	 * @param keyEventType
-	 *            Key event sent by the stream deck
-	 * @return <code>true</code> if the animation should be triggered,
-	 *         <code>false</code> if not
-	 */
-	public boolean isTriggered(Type keyEventType) {
-		return this.trigger == TRIGGER_PRESSED && keyEventType == Type.PRESSED
-				|| this.trigger == TRIGGER_CLICKED && keyEventType == Type.RELEASED_CLICKED
-				|| this.trigger == TRIGGER_AUTO;
-	}
-
-	/**
-	 * Returns the repeat type of the animation
-	 * 
-	 * @return int value of the repeat type
-	 */
-	public int getRepeatType() {
-		return this.repeatType;
-	}
-
-	/**
-	 * Reutrns the frame rate at which the animation should be played
-	 * 
-	 * @return
-	 */
-	public int getFrameRate() {
-		return this.frameRate;
-	}
-
-	/**
-	 * Returns if the animation should be played as soon as the item is displayed on
-	 * the stream deck
-	 * 
-	 * @return <code>true</code> if animation should start immediate as the item is
-	 *         displayed on the stream deck
-	 */
-	public boolean autoPlay() {
-		return this.trigger == TRIGGER_AUTO;
-	}
-
-	/**
-	 * Returns if the animation should be looped
-	 * 
-	 * @return <code>true</code> if the animation should be looped indefinatly,
-	 *         <code>false</code> if not
-	 */
-	public boolean loop() {
-		return this.repeatType == REPEAT_LOOPING;
-	}
-
-	/**
-	 * Returns if the animation should be reversed ass soon as the last frame in any
-	 * direction is met
-	 * 
-	 * @return <code>true</code> if the animation should ping pong between the last
-	 *         and the first frame, <code>false</code> if not
-	 */
-	public boolean pingPong() {
-		return this.repeatType == REPEAT_PING_PONG;
-	}
-
-	/**
-	 * Returns if the animation should be displayed once
-	 * 
-	 * @return <code>true</code> if the animation should only be displayed once,
-	 *         <code>false</code> if not
-	 */
-	public boolean playOnce() {
-		return this.repeatType == REPEAT_ONCE;
 	}
 }

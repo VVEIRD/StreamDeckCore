@@ -1,5 +1,7 @@
 package de.rcblum.stream.deck.items.animation;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -7,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import de.rcblum.stream.deck.StreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.StreamKeyListener;
+import de.rcblum.stream.deck.items.listeners.AnimationListener;
 
 /**
  * Controller that handles the animation of a key.
@@ -83,6 +86,8 @@ public class Animator implements StreamKeyListener, Runnable {
 	 */
 	private boolean stopAfterAnimation = false;
 
+	private List<AnimationListener> listeners = new LinkedList<AnimationListener>();
+
 	/**
 	 * Creates an animator for the given stream deck key and
 	 * {@link AnimationStack}
@@ -110,27 +115,47 @@ public class Animator implements StreamKeyListener, Runnable {
 	 */
 	public void onKeyEvent(KeyEvent event) {
 		boolean triggered = this.animation.isTriggered(event.getType());
+		System.out.println(event.getType() + ":" + triggered + ":" + (event.getKeyId() == keyIndex) + ":"
+				+ (this.scheduler == null));
 		if (triggered && event.getKeyId() == keyIndex && this.scheduler == null) {
 			this.start();
 		} else if (!triggered && event.getKeyId() == keyIndex && this.scheduler != null) {
-			this.stop(false);
+			System.out.println("Stop: " + this.stopAfterAnimation);
+			this.stop(this.animation.endAnimationImmediate());
 		}
 	}
 
+	/**
+	 * Starts the animation
+	 */
 	public void start() {
-		this.scheduler = Executors.newScheduledThreadPool(1);
-		this.scheduler.scheduleAtFixedRate(this, 1_000_000 / this.animation.getFrameRate(),
-				1_000_000 / this.animation.getFrameRate(), TimeUnit.MICROSECONDS);
+		System.out.println("Is Running: " + isActive());
+		if (!isActive()) {
+			this.scheduler = Executors.newScheduledThreadPool(1);
+			this.scheduler.scheduleAtFixedRate(this, 1_000_000 / this.animation.getFrameRate(),
+					1_000_000 / this.animation.getFrameRate(), TimeUnit.MICROSECONDS);
+			this.fireOnStart();
+		}
 	}
 
+	/**
+	 * Stops the animation.
+	 * 
+	 * @param immediate
+	 *            <code>true</code> if animation should be stopped immediate,
+	 *            <code>false</code> if the animation should end first. Looped
+	 *            and ping pong animations will not stop with
+	 *            <code>false</code>.
+	 */
 	public void stop(boolean immediate) {
 		if (this.scheduler != null) {
-			if (immediate) {
+			if (immediate || this.scheduler.isShutdown()) {
 				this.scheduler.shutdown();
 				this.scheduler = null;
 				this.framePos = 0;
 				this.frameAdvance = 1;
 				this.stopAfterAnimation = false;
+				this.fireOnStop();
 			} else {
 				this.stopAfterAnimation = true;
 			}
@@ -151,27 +176,52 @@ public class Animator implements StreamKeyListener, Runnable {
 			this.framePos += this.frameAdvance;
 		}
 		// Handle Loops
-		else if (this.framePos + this.frameAdvance >= frameCount && this.animation.loop()) {
+		else if (this.framePos + this.frameAdvance >= frameCount && this.animation.loop() && !this.stopAfterAnimation) {
 			this.framePos = 0;
 		}
 		// Handle Ping Pong
 		else if ((this.framePos + this.frameAdvance >= frameCount || framePos + this.frameAdvance < 0)
-				&& this.animation.pingPong()) {
+				&& this.animation.pingPong() && !this.stopAfterAnimation) {
 			this.frameAdvance = -1 * this.frameAdvance;
 			this.framePos += this.frameAdvance;
 		}
-		// Handle Play once
-		else if (this.framePos + this.frameAdvance >= frameCount && this.animation.playOnce()
-				|| this.stopAfterAnimation) {
-			this.scheduler.shutdown();
+		// Handle Play once and stop after animation
+		else if ((this.framePos + this.frameAdvance >= frameCount && this.animation.playOnce())
+				|| ((this.framePos + this.frameAdvance >= frameCount || framePos + this.frameAdvance < 0)
+						&& this.stopAfterAnimation)) {
+			this.scheduler.shutdownNow();
 			this.scheduler = null;
 			this.framePos = 0;
 			this.frameAdvance = 1;
 			this.stopAfterAnimation = false;
+			this.fireOnStop();
 		}
 	}
 
 	public boolean isActive() {
 		return this.scheduler != null && !this.scheduler.isShutdown();
+	}
+
+	public boolean addAnimationListener(AnimationListener listener) {
+		if (isActive())
+			listener.onAnimationStart(this.keyIndex);
+		return this.listeners.add(listener);
+	}
+
+	public boolean removeAnimationListener(AnimationListener listener) {
+		return this.listeners.remove(listener);
+	}
+
+	private void fireOnStart() {
+		for (int i = 0; i < this.listeners.size(); i++) {
+			this.listeners.get(i).onAnimationStart(this.keyIndex);
+		}
+	}
+
+	private void fireOnStop() {
+		System.out.println("Inform listener about stopping the animation");
+		for (int i = 0; i < this.listeners.size(); i++) {
+			this.listeners.get(i).onAnimationStop(this.keyIndex);
+		}
 	}
 }
