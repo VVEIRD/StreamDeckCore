@@ -1,19 +1,17 @@
 # StreamDeckCore
-A java implementation for the Elgato Stream Deck (Called ESD from now on). Windows Linux and Mac OS X should be supported, albeit only Windows was tested.
-
-This is in a very early development state, so it is bound to change a lot.
+This project provides api acces to any connected Elgato Stream Deck (Called ESD from now on). Windows, Linux and Mac OS X should be supported, but only windows could be tested. _This project is not associated in any way with Elgato Systems._
 
 ## Basic functionality
 StreamDeckCore provides the following features as of now:
-1. Recognizing a connected ESD
-2. Resetting the connected ESD
-3. Setting the icons of the keys (0 - 14)
-4. Setting the brightness of the ESD (0 - 99)
-5. Recieving key pressed, released, clicked events from the ESD
-6. Recieving events for key binds that are beeing displayed and when they are taken off (onDisplay() and offDisplay())
-7. Animation on pressed key
-8. Custom animations for specific keys, at a decent framrate (60/30/15 fps) if possible.
-9. Supporting multiple ESDs
+1. Supporting multiple ESDs
+2. Recognizing a connected ESD
+3. Retriving all connected ESDs
+4. Resetting the connected ESD
+5 Setting the icons of the keys (0 - 14)
+6. Setting the brightness of the ESD (0 - 99)
+7. Recieving key pressed, released, clicked events from the ESD
+8. Recieving events for key binds that are beeing displayed and when they are taken off through KeyEvents.
+9. Custom animations for specific keys, at a 60/30/15 fps or custom fps.
 
 ## Future functionality
 ?? ATM no new functionality planned
