@@ -2,15 +2,19 @@ package de.rcblum.stream.deck.items;
 
 import java.io.IOException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.rcblum.stream.deck.StreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.util.IconPackage;
 
 /**
- * This  handle can be registered with the {@link StreamDeck} and will execute
+ * This handle can be registered with the {@link StreamDeck} and will execute
  * the given executable when the stream deck button is pressed on release.
  * 
- * <br><br> 
+ * <br>
+ * <br>
  * 
  * MIT License
  * 
@@ -23,8 +27,8 @@ import de.rcblum.stream.deck.util.IconPackage;
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -39,6 +43,8 @@ import de.rcblum.stream.deck.util.IconPackage;
  *
  */
 public class ExecutableItem extends AbstractStreamItem {
+
+	Logger logger = LogManager.getLogger(ExecutableItem.class);
 
 	private String pathToExecutable = null;
 
@@ -58,15 +64,9 @@ public class ExecutableItem extends AbstractStreamItem {
 		this.pathToExecutable = pathToExecutable;
 	}
 
-	@Override
-	public byte[] getIcon() {
-		// TODO Auto-generated method stub
-		return this.img;
-	}
-	
 	public void onKeyEvent(KeyEvent event) {
-		switch(event.getType()) {
-		case OFF_DISPLAY :
+		switch (event.getType()) {
+		case OFF_DISPLAY:
 			this.offDisplay(event);
 			break;
 		case ON_DISPLAY:
@@ -83,21 +83,25 @@ public class ExecutableItem extends AbstractStreamItem {
 	}
 
 	public void onClick(KeyEvent event) {
-		System.out.println(event.getKeyId() +": Click");
 	}
 
 	public void onPress(KeyEvent event) {
-		System.out.println(event.getKeyId() +": Press");
 	}
 
+	/**
+	 * On release of the bound key the program will be executed
+	 * 
+	 * @param event
+	 *            Event that contains the information of the released of the
+	 *            key.
+	 */
 	public void onRelease(KeyEvent event) {
-		System.out.println(event.getKeyId() +": Release");
 		Runtime runtime = Runtime.getRuntime();
 		try {
 			runtime.exec(this.pathToExecutable);
 		} catch (IOException e) {
-			System.out.println(event.getKeyId() +": Could nod execute " + this.pathToExecutable);
-			e.printStackTrace();
+			logger.error(event.getKeyId() + ": Could nod execute " + this.pathToExecutable);
+			logger.error(e);
 		}
 	}
 

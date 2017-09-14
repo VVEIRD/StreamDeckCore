@@ -9,8 +9,11 @@ import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.IconPackage;
 
 /**
+ * Abstract version of StreamItem, implements al relevant functions for icons
+ * and animations.
  * 
- * <br><br>
+ * <br>
+ * <br>
  * 
  * MIT License
  * 
@@ -23,8 +26,8 @@ import de.rcblum.stream.deck.util.IconPackage;
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -39,21 +42,21 @@ import de.rcblum.stream.deck.util.IconPackage;
  *
  */
 public abstract class AbstractStreamItem implements StreamItem {
-	
+
 	protected String text = null;
-	
+
 	protected int textPos = StreamItem.TEXT_POS_BOTTOM;
 
 	/**
 	 * Parent of the item
 	 */
 	protected StreamItem parent = null;
-	
+
 	/**
 	 * Raw image of the folder
 	 */
 	protected byte[] rawImg = null;
-	
+
 	/**
 	 * Image with text if present.
 	 */
@@ -63,7 +66,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 	 * Animation for the key, if present
 	 */
 	protected AnimationStack animation = null;
-	
+
 	/**
 	 * Listeners for updates to the icons
 	 */
@@ -103,7 +106,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 	public byte[] getIcon() {
 		return this.img;
 	}
-	
+
 	@Override
 	public void setIconPackage(IconPackage iconPackage) {
 		this.rawImg = iconPackage.icon;
@@ -124,12 +127,12 @@ public abstract class AbstractStreamItem implements StreamItem {
 	public void setParent(StreamItem parent) {
 		this.parent = parent;
 	}
-	
+
 	@Override
 	public String getText() {
 		return this.text;
 	}
-	
+
 	public void setText(String text) {
 		boolean change = this.text != text || text != null && !text.equals(this.text);
 		this.text = text;
@@ -142,7 +145,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 			this.fireIconUpdate();
 		}
 	}
-	
+
 	public void setTextPosition(int textPos) {
 		this.textPos = textPos;
 		if (this.text != null) {
@@ -153,25 +156,25 @@ public abstract class AbstractStreamItem implements StreamItem {
 			this.fireIconUpdate();
 		}
 	}
-	
+
 	@Override
 	public boolean hasAnimation() {
 		return this.animation != null;
 	}
-	
+
 	@Override
 	public AnimationStack getAnimation() {
 		return this.animation;
 	}
-	
+
 	public void addIconUpdateListener(IconUpdateListener listener) {
 		this.listeners.add(listener);
 	}
-	
+
 	public void removeIconUpdateListener(IconUpdateListener listener) {
 		this.listeners.remove(listener);
 	}
-	
+
 	private void fireIconUpdate() {
 		for (int i = 0; i < this.listeners.size(); i++) {
 			if (this.listeners != null)

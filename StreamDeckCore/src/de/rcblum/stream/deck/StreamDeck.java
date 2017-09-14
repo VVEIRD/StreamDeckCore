@@ -416,8 +416,6 @@ public class StreamDeck implements InputReportListener {
 	public void waitForCompletion() {
 		long time = 0;
 		while (this.sendPool.size() != 0) {
-			if (this.sendPool.size() > 500)
-				System.out.println("Send pool: " + this.sendPool.size());
 			try {
 				Thread.sleep(50);
 				time += 50;

@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import de.rcblum.stream.deck.util.IconHelper;
 import purejavahidapi.HidDevice;
 import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.PureJavaHidApi;
@@ -40,6 +44,8 @@ import purejavahidapi.PureJavaHidApi;
  */
 public class StreamDeckDevices {
 	
+	private static Logger logger = LogManager.getLogger(StreamDeckDevices.class);
+	
 	public static final int VENDOR_ID = 4057;
 	public static final int PRODUCT_ID = 96;
 
@@ -53,11 +59,12 @@ public class StreamDeckDevices {
 	public static HidDeviceInfo getStreamDeckInfo() {
 		if (STREAM_DECK_INFOS == null) {
 			STREAM_DECK_INFOS = new ArrayList<>(5);
-			System.out.println("scanning");
+			logger.info("Scanning for devices");
 			List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
 			for (HidDeviceInfo info : devList) {
-				System.out.println("Vendor-ID: " + info.getVendorId() + ", Product-ID: " + info.getProductId());
+				logger.debug("Vendor-ID: " + info.getVendorId() + ", Product-ID: " + info.getProductId());
 				if (info.getVendorId() == VENDOR_ID && info.getProductId() == PRODUCT_ID) {
+					logger.info("Found ESD ["+info.getVendorId()+":"+info.getProductId()+"]");
 					STREAM_DECK_INFOS.add(info);
 				}
 			}
@@ -71,15 +78,14 @@ public class StreamDeckDevices {
 			STREAM_DECK_DEVICES = new ArrayList<>(STREAM_DECK_INFOS.size());
 			if (info != null) {
 				try {
-					System.out.println();
-					System.out.println("Connected Stream Decks:");
+					logger.info("Connected Stream Decks:");
 					for (HidDeviceInfo hidDeviceinfo : STREAM_DECK_INFOS) {
-						System.out.println("  Manufacurer: " + hidDeviceinfo.getManufacturerString());
-						System.out.println("  Product:     " + hidDeviceinfo.getProductString());
-						System.out.println("  Device-Id:   " + hidDeviceinfo.getDeviceId());
-						System.out.println("  Serial-No:   " + hidDeviceinfo.getSerialNumberString());
-						System.out.println("  Path:        " + hidDeviceinfo.getPath());
-						System.out.println();
+						logger.info("  Manufacurer: " + hidDeviceinfo.getManufacturerString());
+						logger.info("  Product:     " + hidDeviceinfo.getProductString());
+						logger.info("  Device-Id:   " + hidDeviceinfo.getDeviceId());
+						logger.info("  Serial-No:   " + hidDeviceinfo.getSerialNumberString());
+						logger.info("  Path:        " + hidDeviceinfo.getPath());
+						logger.info("");
 						STREAM_DECK_DEVICES.add(PureJavaHidApi.openDevice(hidDeviceinfo));
 					}
 				} catch (IOException e) {

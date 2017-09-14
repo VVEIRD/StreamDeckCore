@@ -13,14 +13,13 @@ import de.rcblum.stream.deck.util.IconHelper;
 
 public class TestFolderInFolder {
 	public static void main(String[] args) throws IOException {
-		
+		System.setProperty("log4j.configurationFile", TestAnimationStack.class.getResource("/resources/log4j.xml").getFile());
 		StreamDeck sd = StreamDeckDevices.getStreamDeck();
 		sd.reset();
 		sd.setBrightness(50);
 		// Level 2
 		StreamItem[] items = new StreamItem[15];
 		for (int i = 0; i < items.length; i++) {
-			System.out.println("resources" + File.separator + "icon" + (i+1) + ".png");
 			byte[] icon = IconHelper.loadImage("resources" + File.separator + "icon" + (i+1) + ".png");
 			ExecutableItem eI = new ExecutableItem(icon, "explorer");
 			items[i] = eI;
@@ -31,7 +30,6 @@ public class TestFolderInFolder {
 		items = new StreamItem[15];
 		items[0] = dir;
 		for (int i = 1; i < items.length; i++) {
-			System.out.println("resources" + File.separator + "icon" + (i+1) + ".png");
 			byte[] icon = IconHelper.loadImage("resources" + File.separator + "icon" + (i+1) + ".png");
 			ExecutableItem eI = new ExecutableItem(icon, "explorer");
 			items[i] = eI;

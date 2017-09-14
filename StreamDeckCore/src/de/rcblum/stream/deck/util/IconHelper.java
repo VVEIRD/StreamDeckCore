@@ -34,6 +34,8 @@ import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.JLabel;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -42,6 +44,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import de.rcblum.stream.deck.StreamDeck;
+import de.rcblum.stream.deck.StreamDeckController;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 
 /**
@@ -77,19 +80,21 @@ import de.rcblum.stream.deck.items.animation.AnimationStack;
  *
  */
 public class IconHelper {
-	
+
 	/**
 	 * Switch for drawing a black rounded frame around all images
 	 */
 	public static boolean APPLY_FRAME = true;
 
-	public static final Font DEFAULT_FONT = loadFont("/resources/SourceCodePro-Semibold.ttf", 15);
+	/**
+	 * Default font for the text on the ESD
+	 */
+	public static final Font DEFAULT_FONT = loadFont("/resources/Blogger-Sans-Medium.ttf", 18);
 
 	/**
 	 * Position to place the text at the top of the icon
 	 */
 	public static final int TEXT_TOP = 0;
-	
 
 	/**
 	 * Position to place the text at the center of the icon
@@ -101,20 +106,35 @@ public class IconHelper {
 	 */
 	public static final int TEXT_BOTTOM = 2;
 
+	/**
+	 * Cache for loaded images
+	 */
 	private static Map<String, byte[]> imageCache = new HashMap<>();
 
+	/**
+	 * cache for loaded IconPackages
+	 */
 	private static Map<String, IconPackage> packageCache = new HashMap<>();
+	
+	private static Logger logger = LogManager.getLogger(IconHelper.class);
 
 	static {
 		init();
 	}
 
 	/**
-	 * Adds a text to a copy of the given image. Position of the text can be influenced by <code>pos</code>. Text will be wrapped around the first space, if the text is to wide.
-	 * @param imgData	Image where the text should be added to.
-	 * @param text		Text to be added to the image.
-	 * @param pos		Position of the text (Top, Center, Bottom, see {@link #TEXT_TOP}, {@link #TEXT_CENTER}, {@link #TEXT_BOTTOM})
-	 * @return			byte array with the image where the text was added
+	 * Adds a text to a copy of the given image. Position of the text can be
+	 * influenced by <code>pos</code>. Text will be wrapped around the first
+	 * space, if the text is to wide.
+	 * 
+	 * @param imgData
+	 *            Image where the text should be added to.
+	 * @param text
+	 *            Text to be added to the image.
+	 * @param pos
+	 *            Position of the text (Top, Center, Bottom, see
+	 *            {@link #TEXT_TOP}, {@link #TEXT_CENTER}, {@link #TEXT_BOTTOM})
+	 * @return byte array with the image where the text was added
 	 */
 	public static byte[] addText(byte[] imgData, String text, int pos) {
 
@@ -123,8 +143,7 @@ public class IconHelper {
 		System.arraycopy(imgData, 0, a, 0, imgData.length);
 		img = flipHoriz(img);
 		Graphics2D g2d = img.createGraphics();
-		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setFont(DEFAULT_FONT);
 		int yStart = 28;
 		switch (pos) {
@@ -148,7 +167,8 @@ public class IconHelper {
 		for (String line : text.split("\n")) {
 			int width = g2d.getFontMetrics().stringWidth(line);
 			int x = (StreamDeck.ICON_SIZE / 2) - width / 2;
-			g2d.fillRect(x - 1, y - g2d.getFontMetrics().getHeight() + 7, width + 2, g2d.getFontMetrics().getHeight()-4);
+			g2d.fillRect(x - 1, y - g2d.getFontMetrics().getHeight() + 7, width + 2,
+					g2d.getFontMetrics().getHeight() - 4);
 			y += g2d.getFontMetrics().getHeight();
 		}
 		g2d.setColor(Color.LIGHT_GRAY);
@@ -168,19 +188,26 @@ public class IconHelper {
 	}
 
 	/**
-	 * Caches the given image data with the path 
-	 * @param path	Path for which the image data will be cached
-	 * @param imgData	image data to be cached
+	 * Caches the given image data with the path
+	 * 
+	 * @param path
+	 *            Path for which the image data will be cached
+	 * @param imgData
+	 *            image data to be cached
 	 */
 	private static void cache(String path, byte[] imgData) {
 		imageCache.put(path, imgData);
-		System.out.println("Caching: " + path);
+		logger.debug("Caching: " + path);
 	}
 
 	/**
-	 * Converts given image to bgr color schema and caches the resulting image data.
-	 * @param path	Path to be caches 
-	 * @param img	Image to be cached, must be fo TYPE_INT_*RGB*
+	 * Converts given image to bgr color schema and caches the resulting image
+	 * data.
+	 * 
+	 * @param path
+	 *            Path to be caches
+	 * @param img
+	 *            Image to be cached, must be fo TYPE_INT_*RGB*
 	 * @return Returns the cached image data
 	 */
 	public static byte[] cacheImage(String path, BufferedImage img) {
@@ -202,12 +229,14 @@ public class IconHelper {
 	 * Converts the given image to the stream deck format.<br>
 	 * Format is:<br>
 	 * Color Schema: BGR<br>
-	 * Image size:   72 x 72 pixel<br>
-	 * Stored in an array with each byte
-	 * stored seperatly (Size of each array is 72 x 72 x 3 = 15_552).
+	 * Image size: 72 x 72 pixel<br>
+	 * Stored in an array with each byte stored seperatly (Size of each array is
+	 * 72 x 72 x 3 = 15_552).
 	 * 
-	 * @param img	Image to be converted
-	 * @return		Byte arraythat contains the given image, ready to be sent to the stream deck
+	 * @param img
+	 *            Image to be converted
+	 * @return Byte arraythat contains the given image, ready to be sent to the
+	 *         stream deck
 	 */
 	public static byte[] convertImage(BufferedImage img) {
 		img = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK));
@@ -233,10 +262,16 @@ public class IconHelper {
 	}
 
 	/**
-	 * Packs an icon and the associated animation frames and timing into one usable archive.
-	 * @param pathToArchive	Archive to be created
-	 * @param pathToIcon	Icon that should normaly be displayed on one or multiple keys on the stream deck.
-	 * @param pathToGif		Gif, that
+	 * Packs an icon and the associated animation frames and timing into one
+	 * usable archive.
+	 * 
+	 * @param pathToArchive
+	 *            Archive to be created
+	 * @param pathToIcon
+	 *            Icon that should normaly be displayed on one or multiple keys
+	 *            on the stream deck.
+	 * @param pathToGif
+	 *            Gif, that
 	 * @param stack
 	 * @throws URISyntaxException
 	 * @throws IOException
@@ -257,11 +292,13 @@ public class IconHelper {
 			if (stack != null) {
 				Gson gson = new GsonBuilder().setPrettyPrinting().create();
 				String text = gson.toJson(stack);
-				Files.write(animationFile, text.getBytes("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+				Files.write(animationFile, text.getBytes("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING,
+						StandardOpenOption.WRITE, StandardOpenOption.CREATE);
 				// save animation frames
 				if (pathToGif != null && Files.exists(Paths.get(pathToGif))) {
 					try {
-						String[] imageatt = new String[] { "imageLeftPosition", "imageTopPosition", "imageWidth", "imageHeight" };
+						String[] imageatt = new String[] { "imageLeftPosition", "imageTopPosition", "imageWidth",
+								"imageHeight" };
 
 						ImageReader reader = (ImageReader) ImageIO.getImageReadersByFormatName("gif").next();
 						ImageInputStream ciis = ImageIO.createImageInputStream(new File(pathToGif));
@@ -289,8 +326,8 @@ public class IconHelper {
 										imageAttr.put(imageatt[k], Integer.valueOf(attnode.getNodeValue()));
 									}
 									if (i == 0) {
-										master = new BufferedImage(imageAttr.get("imageWidth"), imageAttr.get("imageHeight"),
-												BufferedImage.TYPE_INT_ARGB);
+										master = new BufferedImage(imageAttr.get("imageWidth"),
+												imageAttr.get("imageHeight"), BufferedImage.TYPE_INT_ARGB);
 									}
 									master.getGraphics().drawImage(image, imageAttr.get("imageLeftPosition"),
 											imageAttr.get("imageTopPosition"), null);
@@ -578,17 +615,11 @@ public class IconHelper {
 
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				returnImage.setRGB(height - x - 1, width - y - 1, inputImage.getRGB(x, y));
-				// Again check the Picture for better understanding
+				int nX = height - x - 1;
+				int nY = height - (width - y - 1) - 1;
+				returnImage.setRGB(nX, nY, inputImage.getRGB(x, y));
 			}
 		}
-		BufferedImage returnImage2 = new BufferedImage(height, width, inputImage.getType());
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < height; y++) {
-				returnImage2.setRGB(x, height - y - 1, returnImage.getRGB(x, y));
-				// Again check the Picture for better understanding
-			}
-		}
-		return returnImage2;
+		return returnImage;
 	}
 }

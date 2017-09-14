@@ -22,7 +22,7 @@ StreamDeckCore provides the following features as of now:
 3. Create tutorial & example programs
 
 ## Dependencies
-This uses the github project https://github.com/nyholku/purejavahidapi (forked to https://github.com/WElRD/purejavahidapi), jna 4.0 and gson, which can be downloaded through maven:
+This uses the github project https://github.com/nyholku/purejavahidapi (forked to https://github.com/WElRD/purejavahidapi), jna 4.0, gson and log4j, which can be downloaded through maven:
 
     <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
     <dependency>
@@ -36,6 +36,19 @@ This uses the github project https://github.com/nyholku/purejavahidapi (forked t
 	    <artifactId>gson</artifactId>
 	    <version>2.8.1</version>
 	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
+	<dependency>
+		<groupId>org.apache.logging.log4j</groupId>
+		<artifactId>log4j-api</artifactId>
+		<version>2.9.0</version>
+	</dependency>
+	<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+	<dependency>
+		<groupId>org.apache.logging.log4j</groupId>
+		<artifactId>log4j-core</artifactId>
+		<version>2.9.0</version>
+	</dependency>
+	
     
 
 ## Usage

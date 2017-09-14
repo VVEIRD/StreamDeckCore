@@ -19,6 +19,7 @@ import de.rcblum.stream.deck.util.IconPackage;
 
 public class TestAnimationStack {
 	public static void main(String[] args) throws URISyntaxException, IOException {
+		System.setProperty("log4j.configurationFile", TestAnimationStack.class.getResource("/resources/log4j.xml").getFile());
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		AnimationStack as = new AnimationStack(AnimationStack.REPEAT_LOOPING, true, AnimationStack.FRAME_RATE_30, AnimationStack.TRIGGER_PRESSED, new byte[0][0]);
 		System.out.println(gson.toJson(as));

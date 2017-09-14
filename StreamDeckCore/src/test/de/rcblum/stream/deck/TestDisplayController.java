@@ -13,7 +13,7 @@ import de.rcblum.stream.deck.util.IconHelper;
 
 public class TestDisplayController {
 	public static void main(String[] args) throws IOException {
-		
+		System.setProperty("log4j.configurationFile", TestAnimationStack.class.getResource("/resources/log4j.xml").getFile());
 		StreamDeck sd = StreamDeckDevices.getStreamDeck();
 		sd.reset();
 		sd.setBrightness(100);

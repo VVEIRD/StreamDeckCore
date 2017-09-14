@@ -6,6 +6,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import de.rcblum.stream.deck.StreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.StreamKeyListener;
@@ -16,34 +19,36 @@ import de.rcblum.stream.deck.items.listeners.AnimationListener;
  * 
  * <br>
  * <br>
- * 
- * MIT License
- * 
- * Copyright (c) 2017 Roland von Werden
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ *  
+ * MIT License<br>
+ * <br>
+ * Copyright (c) 2017 Roland von Werden<br>
+ * <br>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy<br>
+ * of this software and associated documentation files (the "Software"), to deal<br>
+ * in the Software without restriction, including without limitation the rights<br>
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell<br>
+ * copies of the Software, and to permit persons to whom the Software is<br>
+ * furnished to do so, subject to the following conditions:<br>
+ * <br>
+ * The above copyright notice and this permission notice shall be included in all<br>
+ * copies or substantial portions of the Software.<br>
+ * <br>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR<br>
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,<br>
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE<br>
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER<br>
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,<br>
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE<br>
+ * SOFTWARE.<br>
  * 
  * @author Roland von Werden
  * @version 0.1
  *
  */
 public class Animator implements StreamKeyListener, Runnable {
+
+	Logger logger = LogManager.getLogger(Animator.class);
 
 	/**
 	 * Stream Deck that conatins the key on which the animation should be
@@ -86,6 +91,9 @@ public class Animator implements StreamKeyListener, Runnable {
 	 */
 	private boolean stopAfterAnimation = false;
 
+	/**
+	 * Listeners for when animation state changes
+	 */
 	private List<AnimationListener> listeners = new LinkedList<AnimationListener>();
 
 	/**
@@ -101,13 +109,22 @@ public class Animator implements StreamKeyListener, Runnable {
 	 *            behavior and frames of the animation
 	 */
 	public Animator(StreamDeck streamDeck, int keyIndex, AnimationStack animation) {
-		System.out.println("New animator: " + keyIndex);
+		logger.debug(keyIndex + ": New animator");
 		this.streamDeck = streamDeck;
 		this.keyIndex = keyIndex;
 		this.animation = animation;
-		System.out.println("Autoplay: " + this.animation.autoPlay());
+		logger.debug(this.keyIndex + ": Autoplay: " + this.animation.autoPlay());
 		if (this.animation.autoPlay())
 			this.start();
+	}
+
+	/**
+	 * Returns the current icon of the animation
+	 * 
+	 * @return Current frame of the animation
+	 */
+	public byte[] getCurrentIcon() {
+		return this.animation.getFrame(this.framePos);
 	}
 
 	/**
@@ -115,12 +132,13 @@ public class Animator implements StreamKeyListener, Runnable {
 	 */
 	public void onKeyEvent(KeyEvent event) {
 		boolean triggered = this.animation.isTriggered(event.getType());
-		System.out.println(event.getType() + ":" + triggered + ":" + (event.getKeyId() == keyIndex) + ":"
-				+ (this.scheduler == null));
+		logger.debug(this.keyIndex + ": Key event received [type:triggered:valid_key_id:already_running]: ["
+				+ event.getType() + ":" + triggered + ":" + (event.getKeyId() == keyIndex) + ":"
+				+ (this.scheduler == null) + "]");
 		if (triggered && event.getKeyId() == keyIndex && this.scheduler == null) {
 			this.start();
 		} else if (!triggered && event.getKeyId() == keyIndex && this.scheduler != null) {
-			System.out.println("Stop: " + this.stopAfterAnimation);
+			logger.debug(this.keyIndex + ": Stop animation, wait for completion: " + this.stopAfterAnimation);
 			this.stop(this.animation.endAnimationImmediate());
 		}
 	}
@@ -129,7 +147,6 @@ public class Animator implements StreamKeyListener, Runnable {
 	 * Starts the animation
 	 */
 	public void start() {
-		System.out.println("Is Running: " + isActive());
 		if (!isActive()) {
 			this.scheduler = Executors.newScheduledThreadPool(1);
 			this.scheduler.scheduleAtFixedRate(this, 1_000_000 / this.animation.getFrameRate(),
@@ -162,6 +179,9 @@ public class Animator implements StreamKeyListener, Runnable {
 		}
 	}
 
+	/**
+	 * Displays one frame of the animation
+	 */
 	public void run() {
 		byte[] frame = null;
 		int frameCount = this.animation.getFrameCount();
@@ -198,28 +218,56 @@ public class Animator implements StreamKeyListener, Runnable {
 		}
 	}
 
+	/**
+	 * Returns boolean if the animation is active
+	 * 
+	 * @return <code>true</code> if animation is running, <code>false</code> if
+	 *         not
+	 */
 	public boolean isActive() {
 		return this.scheduler != null && !this.scheduler.isShutdown();
 	}
 
+	/**
+	 * Adds an animation listener
+	 * 
+	 * @param listener
+	 *            Listener to be added
+	 * @return <code>true</code> if the listener was added, <code>false</code>
+	 *         if not
+	 */
 	public boolean addAnimationListener(AnimationListener listener) {
 		if (isActive())
 			listener.onAnimationStart(this.keyIndex);
 		return this.listeners.add(listener);
 	}
 
+	/**
+	 * Remvoes an animation listener
+	 * 
+	 * @param listener
+	 *            Listener to be removes
+	 * @return <code>true</code> if the listener was removed, <code>false</code>
+	 *         if not
+	 */
 	public boolean removeAnimationListener(AnimationListener listener) {
 		return this.listeners.remove(listener);
 	}
 
+	/**
+	 * Fires a start event call to all listeners
+	 */
 	private void fireOnStart() {
 		for (int i = 0; i < this.listeners.size(); i++) {
 			this.listeners.get(i).onAnimationStart(this.keyIndex);
 		}
 	}
 
+	/**
+	 * Fires a stop event call to all listeners
+	 */
 	private void fireOnStop() {
-		System.out.println("Inform listener about stopping the animation");
+		logger.debug(this.keyIndex + ": Inform listener about stopping the animation");
 		for (int i = 0; i < this.listeners.size(); i++) {
 			this.listeners.get(i).onAnimationStop(this.keyIndex);
 		}
