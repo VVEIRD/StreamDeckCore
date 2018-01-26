@@ -126,6 +126,8 @@ public class AnimationStack {
 	 */
 	private transient int textPos = StreamItem.TEXT_POS_BOTTOM;
 
+	private AnimationTrigger animationTrigger;
+
 	/**
 	 * Creates AnimationStack without text.
 	 * 
@@ -257,6 +259,8 @@ public class AnimationStack {
 	 *         <code>false</code> if not
 	 */
 	public boolean isTriggered(Type keyEventType) {
+		if (this.animationTrigger != null)
+			return this.animationTrigger.isTriggered(keyEventType);
 		return this.trigger == TRIGGER_PRESSED && keyEventType == Type.PRESSED
 				|| this.trigger == TRIGGER_CLICKED && keyEventType == Type.RELEASED_CLICKED
 				|| this.trigger == TRIGGER_AUTO;
@@ -291,6 +295,10 @@ public class AnimationStack {
 	 */
 	public boolean playOnce() {
 		return this.repeatType == REPEAT_ONCE;
+	}
+	
+	public void setAnimationTrigger(AnimationTrigger animationTrigger) {
+		this.animationTrigger = animationTrigger;
 	}
 
 	/**

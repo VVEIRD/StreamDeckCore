@@ -87,9 +87,11 @@ public class IconHelper {
 	public static boolean APPLY_FRAME = true;
 
 	/**
-	 * Default font for the text on the ESD
+	 * Default font for the text on the ESD FantasqueSansMono-Bold.ttf
+	 * /resources/Blogger-Sans-Medium.ttf
+	 * /resources/FantasqueSansMono-Bold.ttf
 	 */
-	public static final Font DEFAULT_FONT = loadFont("/resources/Blogger-Sans-Medium.ttf", 18);
+	public static final Font DEFAULT_FONT = loadFont("/resources/FantasqueSansMono-Regular.ttf", 16);
 
 	/**
 	 * Position to place the text at the top of the icon
@@ -241,12 +243,7 @@ public class IconHelper {
 	public static byte[] convertImage(BufferedImage img) {
 		img = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK));
 		if (APPLY_FRAME) {
-			BufferedImage frame = getImageFromResource("/resources/frame.png");
-			if (frame != null) {
-				Graphics2D g = img.createGraphics();
-				g.drawImage(frame, 0, 0, null);
-				g.dispose();
-			}
+			img = applyFrame(img);
 		}
 		int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
 		byte[] imgData = new byte[StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE * 3];
@@ -259,6 +256,18 @@ public class IconHelper {
 			imgData[imgDataCount++] = (byte) ((pixels[i] >> 8) & 0xFF);
 		}
 		return imgData;
+	}
+
+	public static BufferedImage applyFrame(BufferedImage img) {
+		BufferedImage frame = getImageFromResource("/resources/frame.png");
+		BufferedImage nImg = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
+		if (frame != null) {
+			Graphics2D g = nImg.createGraphics();
+			g.drawImage(img, 0, 0, null);
+			g.drawImage(frame, 0, 0, null);
+			g.dispose();
+		}
+		return nImg;
 	}
 
 	/**
@@ -463,6 +472,8 @@ public class IconHelper {
 		cacheImage("temp://FOLDER", img);
 		try {
 			loadImageFromResource("/resources/frame.png");
+			byte[] back = loadImageFromResource("/resources/back.png");
+			cache("temp://BACK", back);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -490,8 +501,12 @@ public class IconHelper {
 			Path iconPath = fileSystem.getPath("icon.png");
 			// load main icon
 			byte[] icon = IconHelper.loadImage(iconPath);
+			// load unmodified image
+			BufferedImage rawIcon = loadRawImage(iconPath);
 			// load animation, if exists
 			Path animFile = fileSystem.getPath("animation.json");
+			// Raw Animation frames, if exists
+			BufferedImage[] rawFrames = null;
 			AnimationStack animation = null;
 			if (Files.exists(animFile)) {
 				String text = new String(Files.readAllBytes(animFile), StandardCharsets.UTF_8);
@@ -501,22 +516,36 @@ public class IconHelper {
 				int frameIndex = 0;
 				Path frameFile = fileSystem.getPath((frameIndex++) + ".png");
 				List<byte[]> frameList = new LinkedList<>();
+				List<BufferedImage> rawFrameList = new LinkedList<>();
 				while (Files.exists(frameFile)) {
 					byte[] frame = IconHelper.loadImage(frameFile);
 					frameList.add(frame);
+					rawFrameList.add(loadRawImage(frameFile));
 					frameFile = fileSystem.getPath((frameIndex++) + ".png");
 				}
 				byte[][] frames = new byte[frameList.size()][];
+				rawFrames = new BufferedImage[rawFrameList.size()];
 				for (int i = 0; i < frames.length; i++) {
 					frames[i] = frameList.get(i);
+					rawFrames[i] = rawFrameList.get(i);
 				}
 				animation.setFrames(frames);
 			}
 			fileSystem.close();
-			IconPackage iconPackage = new IconPackage(icon, animation);
+			IconPackage iconPackage = new IconPackage(icon, animation, rawIcon, rawFrames);
 			packageCache.put(pathToZip, iconPackage);
 			return iconPackage;
 		}
+	}
+	
+	public static byte[] loadImageSafe(String path) {
+		byte[] icon = null;
+		try {
+			icon = loadImage(path);
+		} catch (IOException e) {
+			icon = IconHelper.getImage("temp://BLACK_ICON");
+		}
+		return icon;
 	}
 
 	public static byte[] loadImage(Path path) throws IOException {
@@ -541,6 +570,17 @@ public class IconHelper {
 		byte[] imgData = convertImage(img);
 		cache(path, imgData);
 		return imgData;
+	}
+
+	public static BufferedImage loadRawImage(Path path) throws IOException {
+		try (InputStream inputStream = Files.newInputStream(path)) {
+			return loadRawImage(path.getFileSystem().toString() + path.toAbsolutePath().toString(), inputStream);
+		}
+	}
+
+	public static BufferedImage loadRawImage(String path, InputStream inputStream) throws IOException {
+		BufferedImage img = ImageIO.read(inputStream);
+		return img;
 	}
 
 	public static byte[] loadImageFromResource(String path) throws IOException {

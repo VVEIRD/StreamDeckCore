@@ -175,7 +175,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 		this.listeners.remove(listener);
 	}
 
-	private void fireIconUpdate() {
+	protected void fireIconUpdate() {
 		for (int i = 0; i < this.listeners.size(); i++) {
 			if (this.listeners != null)
 				this.listeners.get(i).onIconUpdate(this);

@@ -277,10 +277,10 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 				this.animators[i].stop(true);
 				this.animators[i] = null;
 			}
-			if (children[i] != null) {
-				if (this.currentDir.getParent() != null && i == 4) {
-					streamDeck.drawImage(i, this.back);
-				} else if (this.animators[i] == null || !this.animators[i].isActive()) {
+			if (this.currentDir.getParent() != null && i == 4) {
+				streamDeck.drawImage(i, this.back);
+			} else if (children[i] != null) {
+				 if (this.animators[i] == null || !this.animators[i].isActive()) {
 					if (this.animators[i] != null && this.animators[i].isActive()) {
 						streamDeck.drawImage(i, this.animators[i].getCurrentIcon());
 					}

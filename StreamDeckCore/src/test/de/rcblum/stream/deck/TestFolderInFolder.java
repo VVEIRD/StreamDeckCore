@@ -21,7 +21,7 @@ public class TestFolderInFolder {
 		StreamItem[] items = new StreamItem[15];
 		for (int i = 0; i < items.length; i++) {
 			byte[] icon = IconHelper.loadImage("resources" + File.separator + "icon" + (i+1) + ".png");
-			ExecutableItem eI = new ExecutableItem(icon, "explorer");
+			ExecutableItem eI = new ExecutableItem(icon, "uplay://launch/635/0");
 			items[i] = eI;
 		}
 		FolderItem dir = new FolderItem("Folder Level 2", null, items);
@@ -31,7 +31,7 @@ public class TestFolderInFolder {
 		items[0] = dir;
 		for (int i = 1; i < items.length; i++) {
 			byte[] icon = IconHelper.loadImage("resources" + File.separator + "icon" + (i+1) + ".png");
-			ExecutableItem eI = new ExecutableItem(icon, "explorer");
+			ExecutableItem eI = new ExecutableItem(icon, "uplay://launch/635/0");
 			items[i] = eI;
 		}
 		dir = new FolderItem("Folder Level 1", null, items);
