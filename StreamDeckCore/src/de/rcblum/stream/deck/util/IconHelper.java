@@ -547,6 +547,16 @@ public class IconHelper {
 		}
 		return icon;
 	}
+	
+	public static byte[] loadImageSafe(Path path) {
+		byte[] icon = null;
+		try {
+			icon = loadImage(path);
+		} catch (IOException e) {
+			icon = IconHelper.getImage("temp://BLACK_ICON");
+		}
+		return icon;
+	}
 
 	public static byte[] loadImage(Path path) throws IOException {
 		if (imageCache.containsKey(path.getFileSystem().toString() + path.toAbsolutePath().toString()))
@@ -662,4 +672,5 @@ public class IconHelper {
 		}
 		return returnImage;
 	}
+
 }

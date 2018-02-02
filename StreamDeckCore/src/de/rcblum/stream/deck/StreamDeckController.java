@@ -1,6 +1,8 @@
 package de.rcblum.stream.deck;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
@@ -196,16 +198,17 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	}
 
 	/**
-	 * Updates the display data 
+	 * Updates the display data.<br>
+	 * <br>
+	 * BUGFIXES:<br>
+	 * #1 - Changed if query to work with proxy items (skeletons encasing the real item(s))
 	 */
 	@Override
 	public void onIconUpdate(StreamItem source) {
-		if (source.getParent() == this.currentDir && this.currentDir != null) {
+		if (this.currentDir != null && this.currentDir.getChildId(source) >= 0) {
 			int childIndex = this.currentDir.getChildId(source);
-			if (childIndex >= 0) {
-				logger.debug("Updating key " + childIndex);
-				this.updateKey(childIndex, false);
-			}
+			logger.debug("Updating key " + childIndex);
+			this.updateKey(childIndex, false);
 		}
 	}
 
