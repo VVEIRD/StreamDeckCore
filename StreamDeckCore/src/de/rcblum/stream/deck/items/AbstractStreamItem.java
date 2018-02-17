@@ -120,6 +120,23 @@ public abstract class AbstractStreamItem implements StreamItem {
 	}
 
 	@Override
+	public void setAnimation(AnimationStack animation) {
+		this.animation = animation;
+		if (this.text != null && this.animation != null) {
+			this.animation.setTextPos(this.textPos);
+			this.animation.setText(this.text);
+		}
+		this.fireIconUpdate();
+	}
+
+	@Override
+	public void setIcon(byte[] icon) {
+		this.rawImg = icon;
+		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
+		this.fireIconUpdate();
+	}
+
+	@Override
 	public StreamItem getParent() {
 		return this.parent;
 	}

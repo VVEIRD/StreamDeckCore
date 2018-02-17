@@ -44,7 +44,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import de.rcblum.stream.deck.StreamDeck;
-import de.rcblum.stream.deck.StreamDeckController;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 
 /**
@@ -121,8 +120,33 @@ public class IconHelper {
 	private static Logger logger = LogManager.getLogger(IconHelper.class);
 
 	static {
-		init();
+		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = img.createGraphics();
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
+		g.dispose();
+		BLACK_ICON = cacheImage("temp://BLACK_ICON", img);
+		img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
+		g = img.createGraphics();
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
+		g.setColor(Color.LIGHT_GRAY);
+		g.drawRect(15, 23, 42, 29);
+		g.drawRect(16, 24, 40, 27);
+		g.drawLine(53, 22, 40, 22);
+		g.drawLine(52, 21, 41, 21);
+		g.drawLine(51, 20, 42, 20);
+		g.drawLine(50, 19, 43, 19);
+		g.dispose();
+		FOLDER_ICON = cacheImage("temp://FOLDER", img);
+		loadImageFromResource("/resources/frame.png");
+		byte[] back = loadImageFromResource("/resources/back.png");
+		cache("temp://BACK", back);
 	}
+	
+	public final static byte[] BLACK_ICON;
+	
+	public final static byte[] FOLDER_ICON;
 
 	/**
 	 * Adds a text to a copy of the given image. Position of the text can be
@@ -256,6 +280,24 @@ public class IconHelper {
 			imgData[imgDataCount++] = (byte) ((pixels[i] >> 8) & 0xFF);
 		}
 		return imgData;
+	}
+	
+	/**
+	 * Applies a normal BufferedImage to an already BGR converted image in byte form
+	 * @param imgData	base image as byte array
+	 * @param apply		image to be applied
+	 */
+	public static byte[] applyImage(byte[] imgData, BufferedImage apply) {
+
+		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_3BYTE_BGR);
+		final byte[] a = ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
+		System.arraycopy(imgData, 0, a, 0, imgData.length);
+		img = flipHoriz(img);
+		Graphics2D g2d = img.createGraphics();
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.drawImage(apply, null, 0, 0);
+		img = flipHoriz(img);
+		return ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
 	}
 
 	public static BufferedImage applyFrame(BufferedImage img) {
@@ -440,43 +482,23 @@ public class IconHelper {
 	public static BufferedImage getImageFromResource(String fileName) {
 
 		BufferedImage buff = null;
-		try {
-			buff = ImageIO.read(IconHelper.class.getResourceAsStream(fileName));
+		try (InputStream inS = IconHelper.class.getResourceAsStream(fileName)){
+			if (inS != null) {
+				logger.debug("Loading image as resource: " + fileName);
+				buff = ImageIO.read(inS);
+			}
+			else {
+				logger.error("Image does not exist: " + fileName);
+				return null;
+			}
 		} catch (IOException e) {
+			logger.error("Couldn't load image as resource: " + fileName);
+			logger.error(e);
 			e.printStackTrace();
 			return null;
 		}
 		return buff;
 
-	}
-
-	private static void init() {
-		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
-		Graphics2D g = img.createGraphics();
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
-		g.dispose();
-		cacheImage("temp://BLACK_ICON", img);
-		img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
-		g = img.createGraphics();
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
-		g.setColor(Color.LIGHT_GRAY);
-		g.drawRect(15, 23, 42, 29);
-		g.drawRect(16, 24, 40, 27);
-		g.drawLine(53, 22, 40, 22);
-		g.drawLine(52, 21, 41, 21);
-		g.drawLine(51, 20, 42, 20);
-		g.drawLine(50, 19, 43, 19);
-		g.dispose();
-		cacheImage("temp://FOLDER", img);
-		try {
-			loadImageFromResource("/resources/frame.png");
-			byte[] back = loadImageFromResource("/resources/back.png");
-			cache("temp://BACK", back);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	private static Font loadFont(String resourcePath, int fontSize) {
@@ -539,13 +561,7 @@ public class IconHelper {
 	}
 	
 	public static byte[] loadImageSafe(String path) {
-		byte[] icon = null;
-		try {
-			icon = loadImage(path);
-		} catch (IOException e) {
-			icon = IconHelper.getImage("temp://BLACK_ICON");
-		}
-		return icon;
+		return loadImageSafe(Paths.get(path));
 	}
 	
 	public static byte[] loadImageSafe(Path path) {
@@ -593,13 +609,28 @@ public class IconHelper {
 		return img;
 	}
 
-	public static byte[] loadImageFromResource(String path) throws IOException {
+	public static byte[] loadImageFromResource(String path) {
 		if (imageCache.containsKey(path))
 			return imageCache.get(path);
 		BufferedImage img = getImageFromResource(path);
-		byte[] imgData = convertImage(img);
-		cache(path, imgData);
-		return imgData;
+		if (img != null) {
+			byte[] imgData = convertImage(img);
+			cache(path, imgData);
+			return imgData;
+		}
+		return null;
+	}
+
+	public static byte[] loadImageFromResourceSafe(String path) {
+		if (imageCache.containsKey(path))
+			return imageCache.get(path);
+		BufferedImage img = getImageFromResource(path);
+		if (img != null) {
+			byte[] imgData = convertImage(img);
+			cache(path, imgData);
+			return imgData;
+		}
+		return IconHelper.getImage("temp://BLACK_ICON");
 	}
 
 	public static byte[][] loadImagesFromGif(String pathToGif) {
@@ -672,5 +703,4 @@ public class IconHelper {
 		}
 		return returnImage;
 	}
-
 }

@@ -1,8 +1,6 @@
 package de.rcblum.stream.deck;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
@@ -112,11 +110,9 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 */
 	public StreamDeckController(StreamDeck streamDeck, StreamItem root) {
 		super();
-		try {
-			this.back = IconHelper.loadImageFromResource("/resources/back.png");
-		} catch (IOException e) {
-			this.back = IconHelper.addText(IconHelper.getImage("temp://FOLDER"), "back", StreamItem.TEXT_POS_BOTTOM);
-		}
+		this.back = IconHelper.loadImageFromResource("/resources/back.png");
+		if (this.back == null)
+			this.back = IconHelper.addText(IconHelper.FOLDER_ICON, "back", StreamItem.TEXT_POS_BOTTOM);
 		this.streamDeck = streamDeck;
 		this.streamDeck.addKeyListener(this);
 		this.root = root;

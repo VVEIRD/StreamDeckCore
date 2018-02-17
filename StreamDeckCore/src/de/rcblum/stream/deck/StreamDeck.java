@@ -4,9 +4,13 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.KeyEvent.Type;
@@ -71,7 +75,15 @@ import purejavahidapi.InputReportListener;
  *
  */
 public class StreamDeck implements InputReportListener {
+	
+	private static Logger logger = LogManager.getLogger(StreamDeck.class);
 
+	/**
+	 * Job that is submitted, when the Method {@link StreamDeck#setBrightness(int)} is called.<br>
+	 * When executed it will call the Method {@link StreamDeck#_updateBrightnes()}, which will send the brightness command to the stream deck.
+	 * @author rcBlum
+	 *
+	 */
 	private class BrightnessUpdater implements Runnable {
 		public BrightnessUpdater() {
 		}
@@ -82,6 +94,11 @@ public class StreamDeck implements InputReportListener {
 		}
 	}
 
+	/**
+	 * Dispatcher that asynchronously sends out all issued {@link KeyEvent}s.
+	 * @author rcBlum
+	 *
+	 */
 	private class EventDispatcher implements Runnable {
 
 		@Override
@@ -93,14 +110,24 @@ public class StreamDeck implements InputReportListener {
 					if (i < StreamDeck.this.keys.length && StreamDeck.this.keys[i] != null) {
 						StreamDeck.this.keys[i].onKeyEvent(event);
 					}
-					StreamDeck.this.listerners.stream().forEach(l -> l.onKeyEvent(event));
+					StreamDeck.this.listerners.stream().forEach(l -> 
+						{
+							try {
+								l.onKeyEvent(event);
+							} 
+							catch (Exception e) {
+								logger.error("Error sending out KeyEvents");
+								logger.error(e);
+							}
+						}
+					);
 				}
 				if (StreamDeck.this.recievePool.isEmpty()) {
 					try {
 						Thread.sleep(1);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.error("EventDispatcher sleep interrupted");
+						logger.error(e);
 					}
 				}
 			}
@@ -108,34 +135,40 @@ public class StreamDeck implements InputReportListener {
 
 	}
 
+	/**
+	 * Dispatches all commands asynchronously queued up in {@link StreamDeck#sendPool} to the esd.
+	 * @author rcBlum
+	 *
+	 */
 	private class DeckWorker implements Runnable {
 
 		@Override
 		public void run() {
-			long time = System.currentTimeMillis();
-			long count = 0;
 			while (running || !running && !sendPool.isEmpty()) {
 				Runnable task = sendPool.poll();
 				if (task != null) {
 					try {
 						task.run();
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.error("Error sending the following command-class th the esd: " + task.getClass() );
+						logger.error(e);
 					}
 				}
-//				if (count++/5 == 0)
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				time = System.currentTimeMillis();
 			}
 		}
 
 	}
 
+	/**
+	 * Sends an Icon to a given key on the ESD.
+	 * @author rcBlum
+	 *
+	 */
 	private class IconUpdater implements Runnable {
 
 		int keyIndex;
@@ -154,9 +187,13 @@ public class StreamDeck implements InputReportListener {
 
 	}
 
+	/**
+	 * Sends the reset command to the ESD.
+	 * @author rcBlum
+	 *
+	 */
 	private class Resetter implements Runnable {
-		public Resetter() {
-		}
+		public Resetter() {}
 
 		@Override
 		public void run() {
@@ -164,30 +201,60 @@ public class StreamDeck implements InputReportListener {
 		}
 	}
 
+	/**
+	 * Reset command
+	 */
 	public final static byte[] RESET_DATA = new byte[] { 0x0B, 0x63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
+	/**
+	 * Brightness command
+	 */
 	public final static byte[] BRIGHTNES_DATA = new byte[] { 0x05, 0x55, (byte) 0xAA, (byte) 0xD1, 0x01, 0x63, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+	/**
+	 * Header for Page 1 of the image command
+	 */
 	private static byte[] PAGE_1_HEADER = new byte[] { 0x01, 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x42, 0x4D, (byte) 0xF6, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00,
 			0x00, 0x28, 0x00, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00,
 			0x00, 0x00, 0x00, (byte) 0xC0, 0x3C, 0x00, 0x00, (byte) 0xC4, 0x0E, 0x00, 0x00, (byte) 0xC4, 0x0E, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+	/**
+	 * Header for Page 2 of the image command
+	 */
 	private static byte[] PAGE_2_HEADER = new byte[] { 0x01, 0x02, 0x00, 0x01, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+	/**
+	 * Number of buttons on the ESD
+	 */
 	public final static int BUTTON_COUNT = 15;
 
+	/**
+	 * Icon size of one key
+	 */
 	public final static int ICON_SIZE = 72;
 
+	/**
+	 * Page size that can be sent to the ESD at once
+	 */
 	public final static int PAGE_PACKET_SIZE = 8190;
 
+	/**
+	 * Pixels(times 3 to get the amount of bytes) of an icon that can be sent with page 1 of the image command
+	 */
 	public final static int NUM_FIRST_PAGE_PIXELS = 2583;
 
+	/**
+	 * Pixels(times 3 to get the amount of bytes) of an icon that can be sent with page 2 of the image command
+	 */
 	public final static int NUM_SECOND_PAGE_PIXELS = 2601;
 
+	/**
+	 * Back image for not used keys
+	 */
 	public final static byte[] BLACK_ICON = createBlackIcon("temp://BLACK_ICON");
 
 	private static byte[] createBlackIcon(String path) {
@@ -199,28 +266,64 @@ public class StreamDeck implements InputReportListener {
 		return IconHelper.cacheImage(path, img);
 	}
 
+	/**
+	 * HidDevice associated with the connected ESD
+	 */
 	private HidDevice hidDevice = null;
 
-	private byte[] brightness = BRIGHTNES_DATA;
+	/**
+	 * Brightness command for this instance.
+	 */
+	private byte[] brightness = Arrays.copyOf(BRIGHTNES_DATA, BRIGHTNES_DATA.length);
 
+	/**
+	 * Keys set to be displayed on the StreamDeck
+	 */
 	private StreamItem[] keys = new StreamItem[15];
 
+	/**
+	 * current values if a key on a certain index is pressed or not
+	 */
 	private boolean[] keysPressed = new boolean[15];
 
+	/**
+	 * Queue for commands to be sent to the ESD
+	 */
 	Queue<Runnable> sendPool = new ConcurrentLinkedQueue<>();
 
+	/**
+	 * Queue for {@link KeyEvent}s that are triggered by the ESD
+	 */
 	Queue<KeyEvent> recievePool = new ConcurrentLinkedQueue<>();
 
+	/**
+	 * Page 1 for the image command
+	 */
 	private byte[] p1 = new byte[PAGE_PACKET_SIZE];
 
+	/**
+	 * Page 2 for the image command
+	 */
 	private byte[] p2 = new byte[PAGE_PACKET_SIZE];
 
+	/**
+	 * Daemon that send commands to the ESD
+	 */
 	private Thread sendWorker = null;
 
-	private Thread recieveWorker = null;
+	/**
+	 * Daemon that sends received {@link KeyEvent}s  to the affected listeners.
+	 */
+	private Thread eventDispatcher = null;
 
+	/**
+	 * Intended state of the daemons
+	 */
 	private boolean running = true;
 
+	/**
+	 * Registered Listeners to the {@link KeyEvent}s created by the ESD
+	 */
 	private List<StreamKeyListener> listerners;
 
 	/**
@@ -239,18 +342,31 @@ public class StreamDeck implements InputReportListener {
 		listerners = new ArrayList<>(5);
 		this.sendWorker = new Thread(new DeckWorker());
 		this.sendWorker.start();
-		this.recieveWorker = new Thread(new EventDispatcher());
-		this.recieveWorker.start();
+		this.eventDispatcher = new Thread(new EventDispatcher());
+		this.eventDispatcher.start();
 	}
 
+	/**
+	 * Sends reset-command to ESD
+	 */
 	private void _reset() {
 		hidDevice.setFeatureReport(RESET_DATA, RESET_DATA.length);
 	}
 
+
+	/**
+	 * Sends brightness-command to ESD
+	 */
 	private void _updateBrightnes() {
 		hidDevice.setFeatureReport(this.brightness, this.brightness.length);
 	}
 
+	/**
+	 * Adds a {@link StreamKeyListener} to the given index
+	 * @param keyId	Index of the key, 0..14
+	 * @param item StreamItem to be bound to the index
+	 * @throws IndexOutOfBoundsException when keyId is < 0 or > 14.
+	 */
 	public void addKey(int keyId, StreamItem item) {
 		if (keyId < this.keys.length && keyId >= 0) {
 			this.keys[keyId] = item;
@@ -258,14 +374,30 @@ public class StreamDeck implements InputReportListener {
 		}
 	}
 
+	/**
+	 * Adds an StreamKeyListener to the ESD. WHenever a Event is generated, the Listener will be informed.
+	 * @param listener	Listener to be added
+	 * @return	<code>true</code> if listener was added, <code>false</code> if listener is already registered.
+	 */
 	public boolean addKeyListener(StreamKeyListener listener) {
 		return this.listerners.add(listener);
 	}
 
+
+	/**
+	 * Removes an StreamKeyListener from the ESD.
+	 * @param listener	Listener to be removed
+	 * @return	<code>true</code> if listener was removed, <code>false</code> if listener is not registered.
+	 */
 	public boolean remvoeKeyListener(StreamKeyListener listener) {
 		return this.listerners.remove(listener);
 	}
 
+	/**
+	 * Creates a Job to send the give icon to the ESD to be displayed on the given keyxIndex
+	 * @param keyIndex	Index of ESD (0..14)
+	 * @param imgData	Image in BGR format to be displayed
+	 */
 	public void drawImage(int keyIndex, byte[] imgData) {
 		sendPool.add(new IconUpdater(keyIndex, imgData));
 	}
