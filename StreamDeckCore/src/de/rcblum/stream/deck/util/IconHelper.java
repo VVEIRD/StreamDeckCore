@@ -87,8 +87,7 @@ public class IconHelper {
 
 	/**
 	 * Default font for the text on the ESD FantasqueSansMono-Bold.ttf
-	 * /resources/Blogger-Sans-Medium.ttf
-	 * /resources/FantasqueSansMono-Bold.ttf
+	 * /resources/Blogger-Sans-Medium.ttf /resources/FantasqueSansMono-Bold.ttf
 	 */
 	public static final Font DEFAULT_FONT = loadFont("/resources/FantasqueSansMono-Regular.ttf", 16);
 
@@ -116,7 +115,7 @@ public class IconHelper {
 	 * cache for loaded IconPackages
 	 */
 	private static Map<String, IconPackage> packageCache = new HashMap<>();
-	
+
 	private static Logger logger = LogManager.getLogger(IconHelper.class);
 
 	static {
@@ -130,7 +129,7 @@ public class IconHelper {
 		g = img.createGraphics();
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
-		g.setColor(Color.LIGHT_GRAY);
+		g.setColor(new Color(132, 132, 132));
 		g.drawRect(15, 23, 42, 29);
 		g.drawRect(16, 24, 40, 27);
 		g.drawLine(53, 22, 40, 22);
@@ -143,9 +142,9 @@ public class IconHelper {
 		byte[] back = loadImageFromResource("/resources/back.png");
 		cache("temp://BACK", back);
 	}
-	
+
 	public final static byte[] BLACK_ICON;
-	
+
 	public final static byte[] FOLDER_ICON;
 
 	/**
@@ -163,6 +162,26 @@ public class IconHelper {
 	 * @return byte array with the image where the text was added
 	 */
 	public static byte[] addText(byte[] imgData, String text, int pos) {
+		return addText(imgData, text, pos, DEFAULT_FONT.getSize());
+	}
+
+	/**
+	 * Adds a text to a copy of the given image. Position of the text can be
+	 * influenced by <code>pos</code>. Text will be wrapped around the first
+	 * space, if the text is to wide.
+	 * 
+	 * @param imgData
+	 *            Image where the text should be added to.
+	 * @param text
+	 *            Text to be added to the image.
+	 * @param pos
+	 *            Position of the text (Top, Center, Bottom, see
+	 *            {@link #TEXT_TOP}, {@link #TEXT_CENTER}, {@link #TEXT_BOTTOM})
+	 * @param fontSize
+	 *            Size of the font to use
+	 * @return byte array with the image where the text was added
+	 */
+	public static byte[] addText(byte[] imgData, String text, int pos, float fontSize) {
 
 		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_3BYTE_BGR);
 		final byte[] a = ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
@@ -170,7 +189,7 @@ public class IconHelper {
 		img = flipHoriz(img);
 		Graphics2D g2d = img.createGraphics();
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2d.setFont(DEFAULT_FONT);
+		g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
 		int yStart = 28;
 		switch (pos) {
 		case TEXT_BOTTOM:
@@ -281,11 +300,15 @@ public class IconHelper {
 		}
 		return imgData;
 	}
-	
+
 	/**
-	 * Applies a normal BufferedImage to an already BGR converted image in byte form
-	 * @param imgData	base image as byte array
-	 * @param apply		image to be applied
+	 * Applies a normal BufferedImage to an already BGR converted image in byte
+	 * form
+	 * 
+	 * @param imgData
+	 *            base image as byte array
+	 * @param apply
+	 *            image to be applied
 	 */
 	public static byte[] applyImage(byte[] imgData, BufferedImage apply) {
 
@@ -482,12 +505,11 @@ public class IconHelper {
 	public static BufferedImage getImageFromResource(String fileName) {
 
 		BufferedImage buff = null;
-		try (InputStream inS = IconHelper.class.getResourceAsStream(fileName)){
+		try (InputStream inS = IconHelper.class.getResourceAsStream(fileName)) {
 			if (inS != null) {
 				logger.debug("Loading image as resource: " + fileName);
 				buff = ImageIO.read(inS);
-			}
-			else {
+			} else {
 				logger.error("Image does not exist: " + fileName);
 				return null;
 			}
@@ -559,11 +581,11 @@ public class IconHelper {
 			return iconPackage;
 		}
 	}
-	
+
 	public static byte[] loadImageSafe(String path) {
 		return loadImageSafe(Paths.get(path));
 	}
-	
+
 	public static byte[] loadImageSafe(Path path) {
 		byte[] icon = null;
 		try {

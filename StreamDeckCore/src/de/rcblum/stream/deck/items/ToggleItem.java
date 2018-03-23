@@ -40,9 +40,9 @@ public abstract class ToggleItem extends AbstractStreamItem {
 			this.isOn = !this.isOn;
 			updateIcon();
 			if (this.isOn) 
-				onEnable();
+				onEnable(true);
 			else 
-				onDisable();
+				onDisable(true);
 			break;
 		default:
 			break;
@@ -51,7 +51,7 @@ public abstract class ToggleItem extends AbstractStreamItem {
 
 	private void updateIcon() {
 		if (this.isOn) {
-			this.rawImg = IconHelper.applyImage(this.unmodded, IconHelper.getImageFromResource("/icons/selected.png"));
+			this.rawImg = IconHelper.applyImage(this.unmodded, IconHelper.getImageFromResource("/resources/selected.png"));
 		}
 		else {
 			this.rawImg = this.unmodded;
@@ -65,9 +65,9 @@ public abstract class ToggleItem extends AbstractStreamItem {
 			this.isOn = selected;
 			updateIcon();
 			if(this.isOn)
-				onEnable();
+				onEnable(false);
 			else
-				onDisable();
+				onDisable(false);
 		}
 	}
 	
@@ -83,11 +83,11 @@ public abstract class ToggleItem extends AbstractStreamItem {
 	/**
 	 * Is called when the Item is toggled to on.
 	 */
-	protected abstract void onEnable();
+	protected abstract void onEnable(boolean byEvent);
 	
 	/**
 	 * Is called when the item is toggled to off
 	 */
-	protected abstract void onDisable();
+	protected abstract void onDisable(boolean byEvent);
 
 }

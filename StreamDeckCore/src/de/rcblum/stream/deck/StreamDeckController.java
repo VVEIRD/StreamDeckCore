@@ -112,7 +112,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 		super();
 		this.back = IconHelper.loadImageFromResource("/resources/back.png");
 		if (this.back == null)
-			this.back = IconHelper.addText(IconHelper.FOLDER_ICON, "back", StreamItem.TEXT_POS_BOTTOM);
+			this.back = IconHelper.addText(IconHelper.getImage("temp://FOLDER"), "back", StreamItem.TEXT_POS_BOTTOM);
 		this.streamDeck = streamDeck;
 		this.streamDeck.addKeyListener(this);
 		this.root = root;
@@ -329,7 +329,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 				animators[i].stop(immediate);
 			}
 		}
-		this.streamDeck.stop();
+//		this.streamDeck.stop();
 	}
 
 	@Override

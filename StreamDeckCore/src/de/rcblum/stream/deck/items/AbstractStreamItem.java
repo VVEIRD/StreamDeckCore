@@ -109,8 +109,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 
 	@Override
 	public void setIconPackage(IconPackage iconPackage) {
-		this.rawImg = iconPackage.icon;
-		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
+		setIcon(iconPackage.icon);
 		this.animation = iconPackage.animation;
 		if (this.text != null && this.animation != null) {
 			this.animation.setTextPos(this.textPos);

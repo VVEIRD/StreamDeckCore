@@ -118,6 +118,7 @@ public class StreamDeck implements InputReportListener {
 							catch (Exception e) {
 								logger.error("Error sending out KeyEvents");
 								logger.error(e);
+								e.printStackTrace();
 							}
 						}
 					);
