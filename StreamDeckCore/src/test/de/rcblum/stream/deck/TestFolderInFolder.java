@@ -51,8 +51,9 @@ public class TestFolderInFolder {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		sd.setBrightness(0);
-		sd.waitForCompletion();
+		controller.stop(true, true);
+//		sd.setBrightness(0);
+//		sd.waitForCompletion();
 		System.exit(0);
 	}
 }

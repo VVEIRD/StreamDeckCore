@@ -83,6 +83,8 @@ public class URIItem extends AbstractStreamItem {
 			this.onRelease(event);
 			this.onClick(event);
 			break;
+		default:
+			break;
 		}
 	}
 

@@ -16,16 +16,11 @@ public class TestDisplayController {
 		sd.reset();
 		sd.setBrightness(5);
 		StreamItem[] items = new StreamItem[15];
-		// for (int i = 0; i < items.length; i++) {
-		// byte[] icon = IconHelper.loadImage("resources" + File.separator +
-		// "icon" + (i+1) + ".png");
-		// ExecutableItem eI = new ExecutableItem(icon, "explorer");
-		// items[i] = eI;
-		// }
 		FolderItem root = new FolderItem("Testfolder", null, items);
 
 		StreamDeckController controller = new StreamDeckController(sd, root);
 		Thread.sleep(2000);
+		controller.stop(true, true);
 		System.exit(0);
 	}
 }

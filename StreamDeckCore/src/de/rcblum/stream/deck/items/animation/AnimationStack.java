@@ -10,7 +10,11 @@ import de.rcblum.stream.deck.util.SDImage;
 /**
  * Structure that contains all necessary data to display an animation on a
  * key.<br>
- * See {@link Animator} for actually animating on a stream deck key.
+ * See {@link Animator} for actually animating on a stream deck key. 
+ * <br>
+ * <br>
+ * With too many animation at once, there is the possibility to break icon
+ * displayed.
  * 
  * <br>
  * <br>
@@ -19,22 +23,30 @@ import de.rcblum.stream.deck.util.SDImage;
  * <br>
  * Copyright (c) 2017 Roland von Werden<br>
  * <br>
- * Permission is hereby granted, free of charge, to any person obtaining a copy<br>
- * of this software and associated documentation files (the "Software"), to deal<br>
- * in the Software without restriction, including without limitation the rights<br>
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy<br>
+ * of this software and associated documentation files (the "Software"), to
+ * deal<br>
+ * in the Software without restriction, including without limitation the
+ * rights<br>
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell<br>
  * copies of the Software, and to permit persons to whom the Software is<br>
  * furnished to do so, subject to the following conditions:<br>
  * <br>
- * The above copyright notice and this permission notice shall be included in all<br>
+ * The above copyright notice and this permission notice shall be included in
+ * all<br>
  * copies or substantial portions of the Software.<br>
  * <br>
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR<br>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR<br>
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,<br>
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE<br>
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE<br>
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER<br>
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,<br>
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE<br>
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM,<br>
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE<br>
  * SOFTWARE.<br>
  * 
  * @author Roland von Werden
@@ -69,13 +81,18 @@ public class AnimationStack {
 	public static final int FRAME_RATE_30 = 30;
 
 	/**
-	 * Animation should be played at the frame rate of 60 frames per second.
+	 * DEPRECATED: Framerates above 30 FPS are note supported anymore. THe ESD
+	 * breaks when using a to high framerate. Animation should be played at the
+	 * <br>
+	 * frame rate of 60 frames per second.
+	 * 
 	 */
+	@Deprecated
 	public static final int FRAME_RATE_60 = 60;
 
 	/**
-	 * The animation should be playeed as soon as the accosiated item is
-	 * displayed on a key.
+	 * The animation should be playeed as soon as the accosiated item is displayed
+	 * on a key.
 	 */
 	public static final int TRIGGER_AUTO = 0;
 
@@ -132,19 +149,15 @@ public class AnimationStack {
 	/**
 	 * Creates AnimationStack without text.
 	 * 
-	 * @param repeatType
-	 *            If and how the animation should be repeated.
-	 * @param endAnimationImmediate
-	 *            Defines if the animation should be stopped immediate after the
-	 *            trigger expires, e.g. aborting the animation before it finishes
-	 * @param frameRate
-	 *            Frame rate the animation should be played at
-	 * @param trigger
-	 *            Trigger when the animation should be played
-	 * @param frames
-	 *            Frames of the animation. In the stream deck compatible format,
-	 *            see
-	 *            {@link IconHelper#convertImage(java.awt.image.BufferedImage)}
+	 * @param repeatType            If and how the animation should be repeated.
+	 * @param endAnimationImmediate Defines if the animation should be stopped
+	 *                              immediate after the trigger expires, e.g.
+	 *                              aborting the animation before it finishes
+	 * @param frameRate             Frame rate the animation should be played at
+	 * @param trigger               Trigger when the animation should be played
+	 * @param frames                Frames of the animation. In the stream deck
+	 *                              compatible format, see
+	 *                              {@link IconHelper#convertImage(java.awt.image.BufferedImage)}
 	 */
 	public AnimationStack(int repeatType, boolean endAnimationImmediate, int frameRate, int trigger, SDImage[] frames) {
 		this(repeatType, endAnimationImmediate, frameRate, trigger, frames, null, StreamItem.TEXT_POS_BOTTOM);
@@ -153,28 +166,22 @@ public class AnimationStack {
 	/**
 	 * Creates AnimationStack with text.
 	 * 
-	 * @param repeatType
-	 *            If and how the animation should be repeated.
-	 * @param frameRate
-	 *            Frame rate the animation should be played at
-	 * @param trigger
-	 *            Trigger when the animation should be played
-	 * @param frames
-	 *            Frames of the animation. In the stream deck compatible format,
-	 *            see
-	 *            {@link IconHelper#convertImage(java.awt.image.BufferedImage)}
-	 * @param text
-	 *            Text to be displayed while the animation is running
-	 * @param textPos
-	 *            Position of the text on the frames
-	 *            ({@link StreamItem#TEXT_POS_TOP},
-	 *            {@link StreamItem#TEXT_POS_CENTER},
-	 *            {@link StreamItem#TEXT_POS_BOTTOM})
+	 * @param repeatType If and how the animation should be repeated.
+	 * @param frameRate  Frame rate the animation should be played at (Max 30 fps).
+	 * @param trigger    Trigger when the animation should be played
+	 * @param frames     Frames of the animation. In the stream deck compatible
+	 *                   format, see
+	 *                   {@link IconHelper#convertImage(java.awt.image.BufferedImage)}
+	 * @param text       Text to be displayed while the animation is running
+	 * @param textPos    Position of the text on the frames
+	 *                   ({@link StreamItem#TEXT_POS_TOP},
+	 *                   {@link StreamItem#TEXT_POS_CENTER},
+	 *                   {@link StreamItem#TEXT_POS_BOTTOM})
 	 */
 	public AnimationStack(int repeatType, boolean endAnimationImmediate, int frameRate, int trigger, SDImage[] frames,
 			String text, int textPos) {
 		this.repeatType = repeatType;
-		this.frameRate = frameRate;
+		this.frameRate = frameRate > 30 ? 30 : frameRate;
 		this.trigger = trigger;
 		this.text = text;
 		this.textPos = textPos;
@@ -191,11 +198,11 @@ public class AnimationStack {
 	}
 
 	/**
-	 * Returns if the animation should be played as soon as the item is
-	 * displayed on the stream deck
+	 * Returns if the animation should be played as soon as the item is displayed on
+	 * the stream deck
 	 * 
-	 * @return <code>true</code> if animation should start immediate as the item
-	 *         is displayed on the stream deck
+	 * @return <code>true</code> if animation should start immediate as the item is
+	 *         displayed on the stream deck
 	 */
 	public boolean autoPlay() {
 		return this.trigger == TRIGGER_AUTO;
@@ -254,8 +261,7 @@ public class AnimationStack {
 	/**
 	 * Returns if the animation should be triggered.
 	 * 
-	 * @param keyEventType
-	 *            Key event sent by the stream deck
+	 * @param keyEventType Key event sent by the stream deck
 	 * @return <code>true</code> if the animation should be triggered,
 	 *         <code>false</code> if not
 	 */
@@ -278,11 +284,11 @@ public class AnimationStack {
 	}
 
 	/**
-	 * Returns if the animation should be reversed ass soon as the last frame in
-	 * any direction is met
+	 * Returns if the animation should be reversed ass soon as the last frame in any
+	 * direction is met
 	 * 
-	 * @return <code>true</code> if the animation should ping pong between the
-	 *         last and the first frame, <code>false</code> if not
+	 * @return <code>true</code> if the animation should ping pong between the last
+	 *         and the first frame, <code>false</code> if not
 	 */
 	public boolean pingPong() {
 		return this.repeatType == REPEAT_PING_PONG;
@@ -297,14 +303,14 @@ public class AnimationStack {
 	public boolean playOnce() {
 		return this.repeatType == REPEAT_ONCE;
 	}
-	
+
 	public void setAnimationTrigger(AnimationTrigger animationTrigger) {
 		this.animationTrigger = animationTrigger;
 	}
 
 	/**
-	 * Sets if the animation should be stopped immediate after the trigger is
-	 * not applicable anymore.
+	 * Sets if the animation should be stopped immediate after the trigger is not
+	 * applicable anymore.
 	 * 
 	 * @param endAnimationImmediate
 	 */
@@ -315,8 +321,7 @@ public class AnimationStack {
 	/**
 	 * Sets the frames for the animation
 	 * 
-	 * @param frames
-	 *            frames of the animation
+	 * @param frames frames of the animation
 	 */
 	public void setFrames(SDImage[] frames) {
 		this.rawFrames = frames;

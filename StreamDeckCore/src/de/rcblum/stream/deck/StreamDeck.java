@@ -97,14 +97,14 @@ public class StreamDeck implements InputReportListener {
 
 	/**
 	 * Dispatcher that asynchronously sends out all issued {@link KeyEvent}s.
-	 * @author rcBlum
+	 * @author Roland von Werden
 	 *
 	 */
 	private class EventDispatcher implements Runnable {
 
 		@Override
 		public void run() {
-			while (running || !running && !recievePool.isEmpty()) {
+			while (StreamDeck.this.running || !StreamDeck.this.running && !recievePool.isEmpty()) {
 				if (!StreamDeck.this.recievePool.isEmpty()) {
 					KeyEvent event = StreamDeck.this.recievePool.poll();
 					int i = event.getKeyId();
@@ -138,15 +138,24 @@ public class StreamDeck implements InputReportListener {
 	}
 
 	/**
-	 * Dispatches all commands asynchronously queued up in {@link StreamDeck#sendPool} to the esd.
-	 * @author rcBlum
+	 * Dispatches all commands asynchronously queued up in {@link StreamDeck#sendPool} to the ESD.
+	 * Send rate is limited to 500 commands per second.
+	 * If the execution of one command is completed in less tha on ms the thread is put to sleep for 1 ms.
+	 * As long as one loop takes up less then 2 ms the rest of the time is actively wated
+	 * 
+	 * @author rcRoland von Werden
 	 *
 	 */
 	private class DeckWorker implements Runnable {
 
 		@Override
 		public void run() {
+			long actions = 0;
+			long time = System.currentTimeMillis();
+			long t = 0;
+			int a = 0;
 			while (running || !running && !sendPool.isEmpty()) {
+				t = System.nanoTime();
 				Runnable task = sendPool.poll();
 				if (task != null) {
 					try {
@@ -156,11 +165,24 @@ public class StreamDeck implements InputReportListener {
 						logger.error(e);
 					}
 				}
-				try {
-					Thread.sleep(1);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				if (System.nanoTime()-t < 1_000)
+					try {
+						Thread.sleep(1);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				if(logger.isDebugEnabled()) {
+					actions++;
+					if(System.currentTimeMillis() - time > 30_000) {
+						logger.debug("Commands send per one second: " + (actions/10));
+						logger.debug("Commands send per 30 seconds: " + actions);
+						time = System.currentTimeMillis();
+						actions = 0;
+					}
 				}
+				while(System.nanoTime()-t < 2_000)
+					a = 1+1;
+				
 			}
 		}
 

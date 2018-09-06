@@ -1,7 +1,5 @@
 package de.rcblum.stream.deck.items;
 
-import java.io.IOException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -80,6 +78,8 @@ public class ExecutableItem extends AbstractStreamItem {
 			this.onRelease(event);
 			this.onClick(event);
 			break;
+		default:
+			break;
 		}
 	}
 
@@ -100,7 +100,7 @@ public class ExecutableItem extends AbstractStreamItem {
 		Runtime runtime = Runtime.getRuntime();
 		try {
 			runtime.exec(this.pathToExecutable);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error(event.getKeyId() + ": Could nod execute " + this.pathToExecutable);
 			logger.error(e);
 		}

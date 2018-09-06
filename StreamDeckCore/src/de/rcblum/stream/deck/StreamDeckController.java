@@ -57,17 +57,15 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	private static long KEY_DEAD_ZONE = 25;
 
 	/**
-	 * Sets the key dead zone. The dead zone defines how much time in
-	 * milliseconds after a Key released event must have passed before another
-	 * will be forwarded.
+	 * Sets the key dead zone. The dead zone defines how much time in milliseconds
+	 * after a Key released event must have passed before another will be forwarded.
 	 * 
-	 * @param kEY_DEAD_ZONE
-	 *            Time in MS between key released events
+	 * @param KEY_DEAD_ZONE Time in MS between key released events
 	 */
 	public static void setKeyDeadzone(long keyDeadZone) {
 		KEY_DEAD_ZONE = keyDeadZone;
 	}
-	
+
 	Logger logger = LogManager.getLogger(StreamDeckController.class);
 
 	/**
@@ -97,8 +95,8 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	private StreamItem currentDir = null;
 
 	/**
-	 * Animators to the currently displayed items. <code>null</code> if no
-	 * animation is present.
+	 * Animators to the currently displayed items. <code>null</code> if no animation
+	 * is present.
 	 */
 	private Animator[] animators = null;
 
@@ -123,11 +121,17 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 		this.updateDisplay();
 		this.addIconListener();
 		this.fireOnDisplay();
+		// Sleep the creation of the SDC for 200 ms so it wont break due to fast inputs.
+		try {
+			Thread.sleep(200);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
 	}
 
 	/**
-	 * Fire an off-display event to the currently displayed items, their
-	 * animators and an close folder event to their containing folder.
+	 * Fire an off-display event to the currently displayed items, their animators
+	 * and an close folder event to their containing folder.
 	 */
 	private void fireOffDisplay() {
 		if (this.currentDir != null) {
@@ -148,8 +152,8 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	}
 
 	/**
-	 * Fire an open folder event to the current folder. Fire an off-display
-	 * event to the currently displayed items and their animators.
+	 * Fire an open folder event to the current folder. Fire an off-display event to
+	 * the currently displayed items and their animators.
 	 */
 	private void fireOnDisplay() {
 		if (this.currentDir != null) {
@@ -168,14 +172,35 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 				}
 			}
 	}
+	
+	/**
+	 * returns the StreamDeck used by the controller.
+	 * @return
+	 */
+	public StreamDeck getStreamDeck() {
+		return streamDeck;
+	}
 
 	/**
 	 * Handling key events from the ESD.
+	 * 
+	 * @param event Key event to be processed by the SDC.
 	 */
 	@Override
-	public synchronized void onKeyEvent(KeyEvent event) {
+	public void onKeyEvent(KeyEvent event) {
+		this.onKeyEvent(event, true);
+	}
+
+	/**
+	 * Handling key events from the ESD.
+	 * 
+	 * @param event       Event to be processed
+	 * @param useDeadzone <code>true</code> if deadzone should be used,
+	 *                    <code>false</code> if the deadzone should be ignored
+	 */
+	private synchronized void onKeyEvent(KeyEvent event, boolean useDeadzone) {
 		if (event.getType() == Type.RELEASED_CLICKED
-				&& System.currentTimeMillis() - lastKeyReleasedEvent < KEY_DEAD_ZONE)
+				&& System.currentTimeMillis() - lastKeyReleasedEvent < KEY_DEAD_ZONE && useDeadzone)
 			return;
 		StreamItem[] children = this.currentDir.getChildren();
 		int id = event.getKeyId();
@@ -192,22 +217,49 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 		}
 		lastKeyReleasedEvent = System.currentTimeMillis();
 	}
-	
+
 	/**
 	 * Manually Pushing a button at the given id.
-	 * @param no Number of the button to be pushed, 0 - 14, right top to left bottom.
+	 * 
+	 * @param no Number of the button to be pushed, 0 - 14, right top to left
+	 *           bottom.
 	 */
 	public void pushButton(int no) {
 		no = no > 14 ? 14 : no < 0 ? 0 : no;
 		KeyEvent evnt = new KeyEvent(streamDeck, no, Type.RELEASED_CLICKED);
-		this.onKeyEvent(evnt);
+		this.onKeyEvent(evnt, false);
+	}
+
+	/**
+	 * Manually presses a button at the given id until {@link #releaseButton(int)}
+	 * is called.
+	 * 
+	 * @param no Number of the button to be pushed, 0 - 14, right top to left
+	 *           bottom.
+	 */
+	public void pressButton(int no) {
+		no = no > 14 ? 14 : no < 0 ? 0 : no;
+		KeyEvent evnt = new KeyEvent(streamDeck, no, Type.PRESSED);
+		this.onKeyEvent(evnt, false);
+	}
+
+	/**
+	 * Manually releases a button at the given id. If the button is not pressed, it
+	 * will be pushed instead.
+	 * 
+	 * @param no Number of the button to be pushed, 0 - 14, right top to left
+	 *           bottom.
+	 */
+	public void releaseButton(int no) {
+		this.pushButton(no);
 	}
 
 	/**
 	 * Updates the display data.<br>
 	 * <br>
 	 * BUGFIXES:<br>
-	 * #1 - Changed if query to work with proxy items (skeletons encasing the real item(s))
+	 * #1 - Changed if query to work with proxy items (skeletons encasing the real
+	 * item(s))
 	 */
 	@Override
 	public void onIconUpdate(StreamItem source) {
@@ -218,6 +270,11 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 		}
 	}
 
+	/**
+	 * Opens the given folder item.
+	 * 
+	 * @param folder Folder to be displayed on the StreamDeck.
+	 */
 	private void openFolder(StreamItem folder) {
 		folder = Objects.requireNonNull(folder);
 		if (!folder.isLeaf() && this.currentDir != folder) {
@@ -230,6 +287,10 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 		}
 	}
 
+	/**
+	 * Removes the {@link StreamDeckController} from all cildren of the current
+	 * directory.
+	 */
 	private void removeIconListener() {
 		StreamItem[] children = this.currentDir.getChildren();
 		if (children != null) {
@@ -242,7 +303,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	}
 
 	/**
-	 * Adds this instance as IconListener to the children of the current folder. 
+	 * Adds this instance as IconListener to the children of the current folder.
 	 */
 	private void addIconListener() {
 		StreamItem[] children = this.currentDir.getChildren();
@@ -289,11 +350,10 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 			if (this.currentDir.getParent() != null && i == 4) {
 				streamDeck.drawImage(i, this.back);
 			} else if (children[i] != null) {
-				 if (this.animators[i] == null || !this.animators[i].isActive()) {
+				if (this.animators[i] == null || !this.animators[i].isActive()) {
 					if (this.animators[i] != null && this.animators[i].isActive()) {
 						streamDeck.drawImage(i, this.animators[i].getCurrentIcon());
-					}
-					else {
+					} else {
 						streamDeck.drawImage(i, children[i].getIcon());
 					}
 					if (updateAnimators && children[i].hasAnimation()) {
@@ -311,8 +371,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	/**
 	 * Wrapper to set brightness of stream deck
 	 * 
-	 * @param brightness
-	 *            Brightness in percent 0 - 100 %
+	 * @param brightness Brightness in percent 0 - 100 %
 	 */
 	public void setBrightness(int brightness) {
 		this.streamDeck.setBrightness(brightness);
@@ -329,17 +388,22 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	/**
 	 * Stops the update by animators on the streamdeck and the streamdeck itself
 	 * 
-	 * @param immediate
-	 *            <code>true</code> = Stop all updating at once,
-	 *            <code>false</code> = stop after animation is done
+	 * @param immediate <code>true</code> = Stop all updating at once,
+	 *                  <code>false</code> = stop after animation is done
 	 */
-	public void stop(boolean immediate) {
+	public void stop(boolean immediate, boolean shutdownStreamDeck) {
 		for (int i = 0; i < animators.length; i++) {
 			if (animators[i] != null) {
 				animators[i].stop(immediate);
 			}
 		}
-//		this.streamDeck.stop();
+		if(shutdownStreamDeck) {
+			this.streamDeck.reset();
+			this.streamDeck.setBrightness(0);
+			this.streamDeck.waitForCompletion();
+			this.streamDeck.stop();
+		}
+			
 	}
 
 	@Override

@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import javax.swing.plaf.synth.SynthSliderUI;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -29,8 +27,8 @@ public class TestAnimationStack {
 		IconHelper.createIconPackage("resources" + File.separator + "icon.zip", "resources" + File.separator + "icon.png", "resources" + File.separator + "icon.gif", as);
 		IconPackage ip = IconHelper.loadIconPackage("resources" + File.separator + "icon.zip");
 		StreamItem[] items = new StreamItem[15];
-		ExecutableItem item0 = new ExecutableItem(ip, "notepad");
-		ExecutableItem item1 = new ExecutableItem(IconHelper.loadImage("resources" + File.separator + "water.png"), "notepad");
+		ExecutableItem item0 = new ExecutableItem(ip, "cmd /c dir");
+		ExecutableItem item1 = item0;
 		item0.setIconPackage(ip);
 		items[7] = item0;
 		items[0] = item1;
@@ -42,14 +40,23 @@ public class TestAnimationStack {
 		sd.reset();
 		sd.setBrightness(90);
 		StreamDeckController sdc = new StreamDeckController(sd, root);
-
+		sdc.pressButton(0);
+		sdc.pressButton(4);
+		sdc.pressButton(7);
+		sdc.pressButton(10);
+		sdc.pressButton(14);
 		try {
-			Thread.sleep(5_000);
+			Thread.sleep(15_000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		item0.setText("Hello");
+		sdc.releaseButton(0);
+		sdc.releaseButton(4);
+		sdc.releaseButton(7);
+		sdc.releaseButton(10);
+		sdc.releaseButton(14);
 		try {
 			Thread.sleep(5_000);
 		} catch (InterruptedException e) {
@@ -63,15 +70,22 @@ public class TestAnimationStack {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		sd.setBrightness(50);
 		item0.setTextPosition(StreamItem.TEXT_POS_CENTER);
+		sdc.pressButton(0);
+		sdc.pressButton(4);
+		sdc.pressButton(7);
+		sdc.pressButton(10);
+		sdc.pressButton(14);
 		try {
-			Thread.sleep(15_000);
+			Thread.sleep(90_000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		sdc.releaseButton(7);
 		sd.setBrightness(0);
-		sdc.stop(true);
+		sdc.stop(true, true);
 		sd.waitForCompletion();
 		sd.reset();
 		System.exit(0);
