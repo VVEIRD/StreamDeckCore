@@ -2,6 +2,7 @@ package de.rcblum.stream.deck.items;
 
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.util.IconHelper;
+import de.rcblum.stream.deck.util.SDImage;
 
 /**
  * Simple Stream Item that can contain other stream items.
@@ -46,7 +47,7 @@ public class FolderItem extends AbstractStreamItem {
 	}
 
 	@Override
-	public byte[] getIcon() {
+	public SDImage getIcon() {
 		return this.img;
 	}
 

@@ -109,7 +109,7 @@ public class IconHelper {
 	/**
 	 * Cache for loaded images
 	 */
-	private static Map<String, byte[]> imageCache = new HashMap<>();
+	private static Map<String, SDImage> imageCache = new HashMap<>();
 
 	/**
 	 * cache for loaded IconPackages
@@ -139,13 +139,13 @@ public class IconHelper {
 		g.dispose();
 		FOLDER_ICON = cacheImage("temp://FOLDER", img);
 		loadImageFromResource("/resources/frame.png");
-		byte[] back = loadImageFromResource("/resources/back.png");
+		SDImage back = loadImageFromResource("/resources/back.png");
 		cache("temp://BACK", back);
 	}
 
-	public final static byte[] BLACK_ICON;
+	public final static SDImage BLACK_ICON;
 
-	public final static byte[] FOLDER_ICON;
+	public final static SDImage FOLDER_ICON;
 
 	/**
 	 * Adds a text to a copy of the given image. Position of the text can be
@@ -161,7 +161,7 @@ public class IconHelper {
 	 *            {@link #TEXT_TOP}, {@link #TEXT_CENTER}, {@link #TEXT_BOTTOM})
 	 * @return byte array with the image where the text was added
 	 */
-	public static byte[] addText(byte[] imgData, String text, int pos) {
+	public static SDImage addText(SDImage imgData, String text, int pos) {
 		return addText(imgData, text, pos, DEFAULT_FONT.getSize());
 	}
 
@@ -181,13 +181,10 @@ public class IconHelper {
 	 *            Size of the font to use
 	 * @return byte array with the image where the text was added
 	 */
-	public static byte[] addText(byte[] imgData, String text, int pos, float fontSize) {
-
-		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_3BYTE_BGR);
-		final byte[] a = ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
-		System.arraycopy(imgData, 0, a, 0, imgData.length);
-		img = flipHoriz(img);
+	public static SDImage addText(SDImage imgData, String text, int pos, float fontSize) {
+		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
 		Graphics2D g2d = img.createGraphics();
+		g2d.drawImage(imgData.image, 0, 0, null);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
 		int yStart = 28;
@@ -228,8 +225,8 @@ public class IconHelper {
 		}
 		// g2d.drawString(text, x, y);
 		g2d.dispose();
-		img = flipHoriz(img);
-		return ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
+		SDImage newImage = convertImage(img);
+		return newImage;
 	}
 
 	/**
@@ -240,7 +237,7 @@ public class IconHelper {
 	 * @param imgData
 	 *            image data to be cached
 	 */
-	private static void cache(String path, byte[] imgData) {
+	private static void cache(String path, SDImage imgData) {
 		imageCache.put(path, imgData);
 		logger.debug("Caching: " + path);
 	}
@@ -255,7 +252,7 @@ public class IconHelper {
 	 *            Image to be cached, must be fo TYPE_INT_*RGB*
 	 * @return Returns the cached image data
 	 */
-	public static byte[] cacheImage(String path, BufferedImage img) {
+	public static SDImage cacheImage(String path, BufferedImage img) {
 		int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
 		byte[] imgData = new byte[StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE * 3];
 		int imgDataCount = 0;
@@ -266,8 +263,9 @@ public class IconHelper {
 			imgData[imgDataCount++] = (byte) (pixels[i] & 0xFF);
 			imgData[imgDataCount++] = (byte) ((pixels[i] >> 8) & 0xFF);
 		}
-		cache(path, imgData);
-		return imgData;
+		SDImage sdImage = new SDImage(imgData, img);
+		cache(path, sdImage);
+		return sdImage;
 	}
 
 	/**
@@ -283,10 +281,12 @@ public class IconHelper {
 	 * @return Byte arraythat contains the given image, ready to be sent to the
 	 *         stream deck
 	 */
-	public static byte[] convertImage(BufferedImage img) {
+	public static SDImage convertImage(BufferedImage img) {
 		img = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK));
+		BufferedImage imgSrc = IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK));
 		if (APPLY_FRAME) {
 			img = applyFrame(img);
+			imgSrc = applyFrame(imgSrc);
 		}
 		int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
 		byte[] imgData = new byte[StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE * 3];
@@ -298,7 +298,7 @@ public class IconHelper {
 			imgData[imgDataCount++] = (byte) (pixels[i] & 0xFF);
 			imgData[imgDataCount++] = (byte) ((pixels[i] >> 8) & 0xFF);
 		}
-		return imgData;
+		return new SDImage(imgData, imgSrc);
 	}
 
 	/**
@@ -310,17 +310,15 @@ public class IconHelper {
 	 * @param apply
 	 *            image to be applied
 	 */
-	public static byte[] applyImage(byte[] imgData, BufferedImage apply) {
+	public static SDImage applyImage(SDImage imgData, BufferedImage apply) {
 
-		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_3BYTE_BGR);
-		final byte[] a = ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
-		System.arraycopy(imgData, 0, a, 0, imgData.length);
-		img = flipHoriz(img);
+		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
 		Graphics2D g2d = img.createGraphics();
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.drawImage(imgData.image, null, 0, 0);
 		g2d.drawImage(apply, null, 0, 0);
-		img = flipHoriz(img);
-		return ((DataBufferByte) img.getRaster().getDataBuffer()).getData();
+		g2d.dispose();
+		return convertImage(img);
 	}
 
 	public static BufferedImage applyFrame(BufferedImage img) {
@@ -496,7 +494,7 @@ public class IconHelper {
 		return newImage;
 	}
 
-	public static byte[] getImage(String string) {
+	public static SDImage getImage(String string) {
 		if (imageCache == null)
 			imageCache = new HashMap<>();
 		return imageCache.get(string);
@@ -544,13 +542,12 @@ public class IconHelper {
 		try (FileSystem fileSystem = FileSystems.newFileSystem(uri, env)) {
 			Path iconPath = fileSystem.getPath("icon.png");
 			// load main icon
-			byte[] icon = IconHelper.loadImage(iconPath);
+			SDImage icon = IconHelper.loadImage(iconPath);
 			// load unmodified image
-			BufferedImage rawIcon = loadRawImage(iconPath);
+//			BufferedImage rawIcon = loadRawImage(iconPath);
 			// load animation, if exists
 			Path animFile = fileSystem.getPath("animation.json");
 			// Raw Animation frames, if exists
-			BufferedImage[] rawFrames = null;
 			AnimationStack animation = null;
 			if (Files.exists(animFile)) {
 				String text = new String(Files.readAllBytes(animFile), StandardCharsets.UTF_8);
@@ -559,35 +556,33 @@ public class IconHelper {
 				// Load animation frames
 				int frameIndex = 0;
 				Path frameFile = fileSystem.getPath((frameIndex++) + ".png");
-				List<byte[]> frameList = new LinkedList<>();
+				List<SDImage> frameList = new LinkedList<>();
 				List<BufferedImage> rawFrameList = new LinkedList<>();
 				while (Files.exists(frameFile)) {
-					byte[] frame = IconHelper.loadImage(frameFile);
+					SDImage frame = IconHelper.loadImage(frameFile);
 					frameList.add(frame);
 					rawFrameList.add(loadRawImage(frameFile));
 					frameFile = fileSystem.getPath((frameIndex++) + ".png");
 				}
-				byte[][] frames = new byte[frameList.size()][];
-				rawFrames = new BufferedImage[rawFrameList.size()];
+				SDImage[] frames = new SDImage[frameList.size()];
 				for (int i = 0; i < frames.length; i++) {
 					frames[i] = frameList.get(i);
-					rawFrames[i] = rawFrameList.get(i);
 				}
 				animation.setFrames(frames);
 			}
 			fileSystem.close();
-			IconPackage iconPackage = new IconPackage(icon, animation, rawIcon, rawFrames);
+			IconPackage iconPackage = new IconPackage(icon, animation);
 			packageCache.put(pathToZip, iconPackage);
 			return iconPackage;
 		}
 	}
 
-	public static byte[] loadImageSafe(String path) {
+	public static SDImage loadImageSafe(String path) {
 		return loadImageSafe(Paths.get(path));
 	}
 
-	public static byte[] loadImageSafe(Path path) {
-		byte[] icon = null;
+	public static SDImage loadImageSafe(Path path) {
+		SDImage icon = null;
 		try {
 			icon = loadImage(path);
 		} catch (IOException e) {
@@ -596,7 +591,7 @@ public class IconHelper {
 		return icon;
 	}
 
-	public static byte[] loadImage(Path path) throws IOException {
+	public static SDImage loadImage(Path path) throws IOException {
 		if (imageCache.containsKey(path.getFileSystem().toString() + path.toAbsolutePath().toString()))
 			return imageCache.get(path.getFileSystem().toString() + path.toAbsolutePath().toString());
 		try (InputStream inputStream = Files.newInputStream(path)) {
@@ -604,18 +599,18 @@ public class IconHelper {
 		}
 	}
 
-	public static byte[] loadImage(String path) throws IOException {
+	public static SDImage loadImage(String path) throws IOException {
 		if (imageCache.containsKey(path))
 			return imageCache.get(path);
 		FileInputStream fIn = new FileInputStream(new File(path));
 		return loadImage(path, fIn);
 	}
 
-	public static byte[] loadImage(String path, InputStream inputStream) throws IOException {
+	public static SDImage loadImage(String path, InputStream inputStream) throws IOException {
 		if (imageCache.containsKey(path))
 			return imageCache.get(path);
 		BufferedImage img = ImageIO.read(inputStream);
-		byte[] imgData = convertImage(img);
+		SDImage imgData = convertImage(img); 
 		cache(path, imgData);
 		return imgData;
 	}
@@ -631,31 +626,31 @@ public class IconHelper {
 		return img;
 	}
 
-	public static byte[] loadImageFromResource(String path) {
+	public static SDImage loadImageFromResource(String path) {
 		if (imageCache.containsKey(path))
 			return imageCache.get(path);
 		BufferedImage img = getImageFromResource(path);
 		if (img != null) {
-			byte[] imgData = convertImage(img);
+			SDImage imgData = convertImage(img); 
 			cache(path, imgData);
 			return imgData;
 		}
 		return null;
 	}
 
-	public static byte[] loadImageFromResourceSafe(String path) {
+	public static SDImage loadImageFromResourceSafe(String path) {
 		if (imageCache.containsKey(path))
 			return imageCache.get(path);
 		BufferedImage img = getImageFromResource(path);
 		if (img != null) {
-			byte[] imgData = convertImage(img);
+			SDImage imgData = convertImage(img); 
 			cache(path, imgData);
 			return imgData;
 		}
 		return IconHelper.getImage("temp://BLACK_ICON");
 	}
 
-	public static byte[][] loadImagesFromGif(String pathToGif) {
+	public static SDImage[] loadImagesFromGif(String pathToGif) {
 		try {
 			String[] imageatt = new String[] { "imageLeftPosition", "imageTopPosition", "imageWidth", "imageHeight" };
 
@@ -666,7 +661,7 @@ public class IconHelper {
 			int noi = reader.getNumImages(true);
 			BufferedImage master = null;
 
-			byte[][] images = new byte[noi][];
+			SDImage[] images = new SDImage[noi];
 
 			for (int i = 0; i < noi; i++) {
 				BufferedImage image = reader.read(i);
@@ -695,7 +690,7 @@ public class IconHelper {
 					}
 				}
 				// ImageIO.write(master, "GIF", new File( i + ".gif"));
-				byte[] imgData = convertImage(master);
+				SDImage imgData = convertImage(master); 
 				images[i] = imgData;
 			}
 			return images;

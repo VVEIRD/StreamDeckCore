@@ -13,6 +13,7 @@ import de.rcblum.stream.deck.StreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.listeners.AnimationListener;
+import de.rcblum.stream.deck.util.SDImage;
 
 /**
  * Controller that handles the animation of a key.
@@ -123,7 +124,7 @@ public class Animator implements StreamKeyListener, Runnable {
 	 * 
 	 * @return Current frame of the animation
 	 */
-	public byte[] getCurrentIcon() {
+	public SDImage getCurrentIcon() {
 		return this.animation.getFrame(this.framePos);
 	}
 
@@ -183,7 +184,7 @@ public class Animator implements StreamKeyListener, Runnable {
 	 * Displays one frame of the animation
 	 */
 	public void run() {
-		byte[] frame = null;
+		SDImage frame = null;
 		int frameCount = this.animation.getFrameCount();
 		// Get nexte frame to render
 		if (this.framePos >= 0 && this.framePos < frameCount) {

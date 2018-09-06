@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import de.rcblum.stream.deck.StreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.util.IconPackage;
+import de.rcblum.stream.deck.util.SDImage;
 
 /**
  * This handle can be registered with the {@link StreamDeck} and will execute
@@ -48,7 +49,7 @@ public class ExecutableItem extends AbstractStreamItem {
 
 	private String pathToExecutable = null;
 
-	public ExecutableItem(byte[] img, String pathToExecutable) {
+	public ExecutableItem(SDImage img, String pathToExecutable) {
 		super(img);
 		this.img = img;
 		this.pathToExecutable = pathToExecutable;
@@ -59,7 +60,7 @@ public class ExecutableItem extends AbstractStreamItem {
 		this.pathToExecutable = pathToExecutable;
 	}
 
-	public ExecutableItem(byte[] img, String pathToExecutable, String text) {
+	public ExecutableItem(SDImage img, String pathToExecutable, String text) {
 		super(img, null, text);
 		this.pathToExecutable = pathToExecutable;
 	}

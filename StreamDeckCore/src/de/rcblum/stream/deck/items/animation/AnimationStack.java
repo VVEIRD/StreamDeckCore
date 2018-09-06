@@ -5,6 +5,7 @@ import java.util.Objects;
 import de.rcblum.stream.deck.event.KeyEvent.Type;
 import de.rcblum.stream.deck.items.StreamItem;
 import de.rcblum.stream.deck.util.IconHelper;
+import de.rcblum.stream.deck.util.SDImage;
 
 /**
  * Structure that contains all necessary data to display an animation on a
@@ -108,12 +109,12 @@ public class AnimationStack {
 	/**
 	 * Original frame data
 	 */
-	private transient byte[][] rawFrames = null;
+	private transient SDImage[] rawFrames = null;
 
 	/**
 	 * Frame data modified with the text to display
 	 */
-	private transient byte[][] frames = null;
+	private transient SDImage[] frames = null;
 
 	/**
 	 * Text to be dispalyed while animation is on
@@ -145,7 +146,7 @@ public class AnimationStack {
 	 *            see
 	 *            {@link IconHelper#convertImage(java.awt.image.BufferedImage)}
 	 */
-	public AnimationStack(int repeatType, boolean endAnimationImmediate, int frameRate, int trigger, byte[][] frames) {
+	public AnimationStack(int repeatType, boolean endAnimationImmediate, int frameRate, int trigger, SDImage[] frames) {
 		this(repeatType, endAnimationImmediate, frameRate, trigger, frames, null, StreamItem.TEXT_POS_BOTTOM);
 	}
 
@@ -170,7 +171,7 @@ public class AnimationStack {
 	 *            {@link StreamItem#TEXT_POS_CENTER},
 	 *            {@link StreamItem#TEXT_POS_BOTTOM})
 	 */
-	public AnimationStack(int repeatType, boolean endAnimationImmediate, int frameRate, int trigger, byte[][] frames,
+	public AnimationStack(int repeatType, boolean endAnimationImmediate, int frameRate, int trigger, SDImage[] frames,
 			String text, int textPos) {
 		this.repeatType = repeatType;
 		this.frameRate = frameRate;
@@ -179,7 +180,7 @@ public class AnimationStack {
 		this.textPos = textPos;
 		this.endAnimationImmediate = endAnimationImmediate;
 		this.rawFrames = Objects.requireNonNull(frames, "Frames for animation cannot be null.");
-		this.frames = new byte[this.rawFrames.length][];
+		this.frames = new SDImage[this.rawFrames.length];
 		if (this.text != null) {
 			for (int i = 0; i < frames.length; i++) {
 				this.frames[i] = IconHelper.addText(this.rawFrames[i], this.text, this.textPos);
@@ -210,7 +211,7 @@ public class AnimationStack {
 	 * @param frameNo
 	 * @return
 	 */
-	public byte[] getFrame(int frameNo) {
+	public SDImage getFrame(int frameNo) {
 		return this.frames[frameNo];
 	}
 
@@ -317,9 +318,9 @@ public class AnimationStack {
 	 * @param frames
 	 *            frames of the animation
 	 */
-	public void setFrames(byte[][] frames) {
+	public void setFrames(SDImage[] frames) {
 		this.rawFrames = frames;
-		byte[][] nframes = new byte[this.rawFrames.length][];
+		SDImage[] nframes = new SDImage[this.rawFrames.length];
 		if (this.text != null) {
 			for (int i = 0; i < nframes.length; i++) {
 				nframes[i] = IconHelper.addText(this.rawFrames[i], this.text, this.textPos);
@@ -338,7 +339,7 @@ public class AnimationStack {
 	public void setText(String text) {
 		this.text = text;
 		// create new local frames
-		byte[][] nframes = new byte[this.rawFrames.length][];
+		SDImage[] nframes = new SDImage[this.rawFrames.length];
 		if (this.text != null) {
 			for (int i = 0; i < nframes.length; i++) {
 				nframes[i] = IconHelper.addText(this.rawFrames[i], this.text, this.textPos);
@@ -359,7 +360,7 @@ public class AnimationStack {
 		this.textPos = textPos;
 		if (this.text != null) {
 			// Create frames with new text pos
-			byte[][] nframes = new byte[this.rawFrames.length][];
+			SDImage[] nframes = new SDImage[this.rawFrames.length];
 			for (int i = 0; i < nframes.length; i++) {
 				nframes[i] = IconHelper.addText(this.rawFrames[i], this.text, this.textPos);
 			}

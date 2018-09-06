@@ -1,7 +1,5 @@
 package de.rcblum.stream.deck.util;
 
-import java.awt.image.BufferedImage;
-
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 /**
  * Datastructure that pools togerther icon and the associated AnimationStack
@@ -36,25 +34,19 @@ import de.rcblum.stream.deck.items.animation.AnimationStack;
  */
 public class IconPackage {
 	
-	public final BufferedImage iconSource;
-	
-	public final BufferedImage[] animationSource;
-
 	/**
 	 * Icon that is displayed by default
 	 */
-	public final byte[] icon;
+	public final SDImage icon;
 	
 	/**
 	 * Animation stack, that contains the necessary frames and framerate/trigger/playback type for the animation.
 	 */
 	public final AnimationStack animation;
 
-	public IconPackage(byte[] icon, AnimationStack animation, BufferedImage iconSource, BufferedImage[] animationSource) {
+	public IconPackage(SDImage icon, AnimationStack animation) {
 		super();
 		this.icon = icon;
 		this.animation = animation;
-		this.iconSource = iconSource;
-		this.animationSource = animationSource;
 	}
 }

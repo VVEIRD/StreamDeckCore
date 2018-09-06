@@ -1,6 +1,5 @@
 package de.rcblum.stream.deck;
 
-import java.io.IOException;
 import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,6 +13,7 @@ import de.rcblum.stream.deck.items.animation.Animator;
 import de.rcblum.stream.deck.items.listeners.AnimationListener;
 import de.rcblum.stream.deck.items.listeners.IconUpdateListener;
 import de.rcblum.stream.deck.util.IconHelper;
+import de.rcblum.stream.deck.util.SDImage;
 
 /**
  * Can be used to hand over control over the stream deck by providing a "folder"
@@ -74,7 +74,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 * Back icon with an arrow, displayed on the top left button when entering a
 	 * folder
 	 */
-	private byte[] back = null;
+	private SDImage back = null;
 
 	/**
 	 * Time, the last time a key was releaed, is used for the key dead zone
@@ -173,7 +173,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 * Handling key events from the ESD.
 	 */
 	@Override
-	public void onKeyEvent(KeyEvent event) {
+	public synchronized void onKeyEvent(KeyEvent event) {
 		if (event.getType() == Type.RELEASED_CLICKED
 				&& System.currentTimeMillis() - lastKeyReleasedEvent < KEY_DEAD_ZONE)
 			return;
@@ -191,6 +191,16 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 			}
 		}
 		lastKeyReleasedEvent = System.currentTimeMillis();
+	}
+	
+	/**
+	 * Manually Pushing a button at the given id.
+	 * @param no Number of the button to be pushed, 0 - 14, right top to left bottom.
+	 */
+	public void pushButton(int no) {
+		no = no > 14 ? 14 : no < 0 ? 0 : no;
+		KeyEvent evnt = new KeyEvent(streamDeck, no, Type.RELEASED_CLICKED);
+		this.onKeyEvent(evnt);
 	}
 
 	/**

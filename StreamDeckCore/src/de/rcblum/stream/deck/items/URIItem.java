@@ -1,7 +1,6 @@
 package de.rcblum.stream.deck.items;
 
 import java.awt.Desktop;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -12,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import de.rcblum.stream.deck.StreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.util.IconPackage;
+import de.rcblum.stream.deck.util.SDImage;
 
 /**
  * This handle can be registered with the {@link StreamDeck} and will browse
@@ -52,7 +52,7 @@ public class URIItem extends AbstractStreamItem {
 
 	private URI uri = null;
 
-	public URIItem(byte[] img, URI uri) {
+	public URIItem(SDImage img, URI uri) {
 		super(img);
 		this.img = img;
 		this.uri = uri;
@@ -63,7 +63,7 @@ public class URIItem extends AbstractStreamItem {
 		this.uri = new URI(uriString);
 	}
 
-	public URIItem(byte[] img, String uriString, String text) throws URISyntaxException {
+	public URIItem(SDImage img, String uriString, String text) throws URISyntaxException {
 		super(img, null, text);
 		this.uri = new URI(uriString);
 	}

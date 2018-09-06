@@ -6,6 +6,7 @@ import de.rcblum.stream.deck.items.animation.AnimationStack;
 import de.rcblum.stream.deck.items.listeners.IconUpdateListener;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.IconPackage;
+import de.rcblum.stream.deck.util.SDImage;
 
 /**
  * Interface to bind actions to a key of a stream deck. Can also be used with
@@ -93,7 +94,7 @@ public interface StreamItem extends StreamKeyListener {
 	 * 
 	 * @return
 	 */
-	public byte[] getIcon();
+	public SDImage getIcon();
 
 	public boolean hasAnimation();
 
@@ -107,7 +108,7 @@ public interface StreamItem extends StreamKeyListener {
 
 	public void setIconPackage(IconPackage iconPackage);
 
-	public void setIcon(byte[] icon);
+	public void setIcon(SDImage icon);
 
 	public void setAnimation(AnimationStack animation);
 

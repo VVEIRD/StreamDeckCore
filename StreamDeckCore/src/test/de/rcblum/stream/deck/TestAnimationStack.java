@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
+import javax.swing.plaf.synth.SynthSliderUI;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -16,12 +18,13 @@ import de.rcblum.stream.deck.items.StreamItem;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.IconPackage;
+import de.rcblum.stream.deck.util.SDImage;
 
 public class TestAnimationStack {
 	public static void main(String[] args) throws URISyntaxException, IOException {
 		System.setProperty("log4j.configurationFile", TestAnimationStack.class.getResource("/resources/log4j.xml").getFile());
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		AnimationStack as = new AnimationStack(AnimationStack.REPEAT_LOOPING, true, AnimationStack.FRAME_RATE_30, AnimationStack.TRIGGER_PRESSED, new byte[0][0]);
+		AnimationStack as = new AnimationStack(AnimationStack.REPEAT_LOOPING, true, AnimationStack.FRAME_RATE_30, AnimationStack.TRIGGER_PRESSED, new SDImage[0]);
 		System.out.println(gson.toJson(as));
 		IconHelper.createIconPackage("resources" + File.separator + "icon.zip", "resources" + File.separator + "icon.png", "resources" + File.separator + "icon.gif", as);
 		IconPackage ip = IconHelper.loadIconPackage("resources" + File.separator + "icon.zip");

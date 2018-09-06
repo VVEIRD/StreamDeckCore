@@ -7,7 +7,6 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.rcblum.stream.deck.util.IconHelper;
 import purejavahidapi.HidDevice;
 import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.PureJavaHidApi;

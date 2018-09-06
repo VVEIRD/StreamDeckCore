@@ -2,6 +2,7 @@ package de.rcblum.stream.deck.items;
 
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 import de.rcblum.stream.deck.util.IconHelper;
+import de.rcblum.stream.deck.util.SDImage;
 
 public class ProxyItem extends FolderItem {
 
@@ -57,7 +58,7 @@ public class ProxyItem extends FolderItem {
 		}
 
 		@Override
-		public void setIcon(byte[] icon) {
+		public void setIcon(SDImage icon) {
 			this.rawImg = icon;
 			this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
 			if (line1 != null)

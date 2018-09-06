@@ -2,10 +2,11 @@ package de.rcblum.stream.deck.items;
 
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.util.IconHelper;
+import de.rcblum.stream.deck.util.SDImage;
 
 public abstract class ToggleItem extends AbstractStreamItem {
 	
-	byte[] unmodded = null;
+	SDImage unmodded = null;
 	
 	boolean isOn = false;
 
@@ -21,7 +22,7 @@ public abstract class ToggleItem extends AbstractStreamItem {
 		this.updateIcon();
 	}
 
-	public ToggleItem(byte[] icon, boolean selected) {
+	public ToggleItem(SDImage icon, boolean selected) {
 		super(icon);
 		this.unmodded = icon;
 		this.isOn = selected;

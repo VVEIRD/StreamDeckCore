@@ -1,10 +1,9 @@
 package de.rcblum.stream.deck.items;
 
-import java.io.IOException;
-
 import de.rcblum.stream.deck.StreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.util.IconPackage;
+import de.rcblum.stream.deck.util.SDImage;
 
 /**
  * This  handle can be registered with the {@link StreamDeck} and will execute
@@ -42,7 +41,7 @@ public class RunnableItem extends AbstractStreamItem {
 
 	private Runnable runnable = null;
 
-	public RunnableItem(byte[] img, Runnable runnable) {
+	public RunnableItem(SDImage img, Runnable runnable) {
 		super(img);
 		this.img = img;
 		this.runnable = runnable;
@@ -53,15 +52,9 @@ public class RunnableItem extends AbstractStreamItem {
 		this.runnable = runnable;
 	}
 
-	public RunnableItem(byte[] img, Runnable runnable, String text) {
+	public RunnableItem(SDImage img, Runnable runnable, String text) {
 		super(img, null, text);
 		this.runnable = runnable;
-	}
-
-	@Override
-	public byte[] getIcon() {
-		// TODO Auto-generated method stub
-		return this.img;
 	}
 	
 	public void onKeyEvent(KeyEvent event) {
@@ -78,6 +71,8 @@ public class RunnableItem extends AbstractStreamItem {
 		case RELEASED_CLICKED:
 			this.onRelease(event);
 			this.onClick(event);
+			break;
+		default:
 			break;
 		}
 	}

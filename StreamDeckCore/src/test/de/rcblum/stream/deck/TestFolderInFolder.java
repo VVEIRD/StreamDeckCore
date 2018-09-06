@@ -10,6 +10,7 @@ import de.rcblum.stream.deck.items.ExecutableItem;
 import de.rcblum.stream.deck.items.FolderItem;
 import de.rcblum.stream.deck.items.StreamItem;
 import de.rcblum.stream.deck.util.IconHelper;
+import de.rcblum.stream.deck.util.SDImage;
 
 public class TestFolderInFolder {
 	public static void main(String[] args) throws IOException {
@@ -20,7 +21,7 @@ public class TestFolderInFolder {
 		// Level 2
 		StreamItem[] items = new StreamItem[15];
 		for (int i = 0; i < items.length; i++) {
-			byte[] icon = IconHelper.loadImage("resources" + File.separator + "icon" + (i+1) + ".png");
+			SDImage icon = IconHelper.loadImage("resources" + File.separator + "icon" + (i+1) + ".png");
 			ExecutableItem eI = new ExecutableItem(icon, "uplay://launch/635/0");
 			items[i] = eI;
 		}
@@ -30,7 +31,7 @@ public class TestFolderInFolder {
 		items = new StreamItem[15];
 		items[0] = dir;
 		for (int i = 1; i < items.length; i++) {
-			byte[] icon = IconHelper.loadImage("resources" + File.separator + "icon" + (i+1) + ".png");
+			SDImage icon = IconHelper.loadImage("resources" + File.separator + "icon" + (i+1) + ".png");
 			ExecutableItem eI = new ExecutableItem(icon, "uplay://launch/635/0");
 			items[i] = eI;
 		}

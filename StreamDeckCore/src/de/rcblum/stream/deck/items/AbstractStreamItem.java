@@ -7,6 +7,7 @@ import de.rcblum.stream.deck.items.animation.AnimationStack;
 import de.rcblum.stream.deck.items.listeners.IconUpdateListener;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.IconPackage;
+import de.rcblum.stream.deck.util.SDImage;
 
 /**
  * Abstract version of StreamItem, implements al relevant functions for icons
@@ -55,12 +56,12 @@ public abstract class AbstractStreamItem implements StreamItem {
 	/**
 	 * Raw image of the folder
 	 */
-	protected byte[] rawImg = null;
+	protected SDImage rawImg = null;
 
 	/**
 	 * Image with text if present.
 	 */
-	protected byte[] img = null;
+	protected SDImage img = null;
 
 	/**
 	 * Animation for the key, if present
@@ -72,7 +73,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 	 */
 	List<IconUpdateListener> listeners = null;
 
-	public AbstractStreamItem(byte[] img) {
+	public AbstractStreamItem(SDImage img) {
 		this(img, null);
 	}
 
@@ -80,15 +81,15 @@ public abstract class AbstractStreamItem implements StreamItem {
 		this(pkg.icon, pkg.animation, null);
 	}
 
-	public AbstractStreamItem(byte[] img, AnimationStack animation) {
+	public AbstractStreamItem(SDImage img, AnimationStack animation) {
 		this(img, animation, null);
 	}
 
-	public AbstractStreamItem(byte[] img, AnimationStack animation, String text) {
+	public AbstractStreamItem(SDImage img, AnimationStack animation, String text) {
 		this(img, animation, text, StreamItem.TEXT_POS_BOTTOM);
 	}
 
-	public AbstractStreamItem(byte[] rawImg, AnimationStack animation, String text, int textPos) {
+	public AbstractStreamItem(SDImage rawImg, AnimationStack animation, String text, int textPos) {
 		super();
 		this.text = text;
 		this.textPos = textPos;
@@ -103,7 +104,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 	}
 
 	@Override
-	public byte[] getIcon() {
+	public SDImage getIcon() {
 		return this.img;
 	}
 
@@ -129,7 +130,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 	}
 
 	@Override
-	public void setIcon(byte[] icon) {
+	public void setIcon(SDImage icon) {
 		this.rawImg = icon;
 		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
 		this.fireIconUpdate();

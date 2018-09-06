@@ -17,6 +17,7 @@ import de.rcblum.stream.deck.event.KeyEvent.Type;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.StreamItem;
 import de.rcblum.stream.deck.util.IconHelper;
+import de.rcblum.stream.deck.util.SDImage;
 import purejavahidapi.HidDevice;
 import purejavahidapi.InputReportListener;
 
@@ -173,9 +174,9 @@ public class StreamDeck implements InputReportListener {
 	private class IconUpdater implements Runnable {
 
 		int keyIndex;
-		byte[] img;
+		SDImage img;
 
-		public IconUpdater(int keyIndex, byte[] img) {
+		public IconUpdater(int keyIndex, SDImage img) {
 			this.keyIndex = keyIndex;
 			this.img = img;
 		}
@@ -256,9 +257,9 @@ public class StreamDeck implements InputReportListener {
 	/**
 	 * Back image for not used keys
 	 */
-	public final static byte[] BLACK_ICON = createBlackIcon("temp://BLACK_ICON");
+	public final static SDImage BLACK_ICON = createBlackIcon("temp://BLACK_ICON");
 
-	private static byte[] createBlackIcon(String path) {
+	private static SDImage createBlackIcon(String path) {
 		BufferedImage img = new BufferedImage(ICON_SIZE, ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = img.createGraphics();
 		g.setColor(Color.BLACK);
@@ -350,6 +351,7 @@ public class StreamDeck implements InputReportListener {
 	/**
 	 * Sends reset-command to ESD
 	 */
+	@SuppressWarnings("deprecation")
 	private void _reset() {
 		hidDevice.setFeatureReport(RESET_DATA, RESET_DATA.length);
 	}
@@ -358,6 +360,7 @@ public class StreamDeck implements InputReportListener {
 	/**
 	 * Sends brightness-command to ESD
 	 */
+	@SuppressWarnings("deprecation")
 	private void _updateBrightnes() {
 		hidDevice.setFeatureReport(this.brightness, this.brightness.length);
 	}
@@ -399,11 +402,11 @@ public class StreamDeck implements InputReportListener {
 	 * @param keyIndex	Index of ESD (0..14)
 	 * @param imgData	Image in BGR format to be displayed
 	 */
-	public void drawImage(int keyIndex, byte[] imgData) {
+	public void drawImage(int keyIndex, SDImage imgData) {
 		sendPool.add(new IconUpdater(keyIndex, imgData));
 	}
 
-	public synchronized void _drawImage(int keyIndex, byte[] imgData) {
+	public synchronized void _drawImage(int keyIndex, SDImage imgData) {
 		// int[] pixels = ((DataBufferInt)
 		// img.getRaster().getDataBuffer()).getData();
 		// byte[] imgData = new byte[ICON_SIZE * ICON_SIZE * 3];
@@ -415,8 +418,8 @@ public class StreamDeck implements InputReportListener {
 		// imgData[imgDataCount++] = (byte)(pixels[i] & 0xFF);
 		// imgData[imgDataCount++] = (byte)((pixels[i]>>8) & 0xFF);
 		// }
-		byte[] page1 = generatePage1(keyIndex, imgData);
-		byte[] page2 = generatePage2(keyIndex, imgData);
+		byte[] page1 = generatePage1(keyIndex, imgData.sdImage);
+		byte[] page2 = generatePage2(keyIndex, imgData.sdImage);
 		this.hidDevice.setOutputReport((byte) 0x02, page1, page1.length);
 		this.hidDevice.setOutputReport((byte) 0x02, page2, page2.length);
 	}
