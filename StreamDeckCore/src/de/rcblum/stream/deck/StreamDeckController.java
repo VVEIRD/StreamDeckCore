@@ -60,7 +60,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 * Sets the key dead zone. The dead zone defines how much time in milliseconds
 	 * after a Key released event must have passed before another will be forwarded.
 	 * 
-	 * @param KEY_DEAD_ZONE Time in MS between key released events
+	 * @param kEY_DEAD_ZONE Time in MS between key released events
 	 */
 	public static void setKeyDeadzone(long keyDeadZone) {
 		KEY_DEAD_ZONE = keyDeadZone;
@@ -135,8 +135,8 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 */
 	private void fireOffDisplay() {
 		if (this.currentDir != null) {
-			StreamItem[] children = this.currentDir.getChildren();
-			if (children != null)
+			if (!this.currentDir.isLeaf()) {
+				StreamItem[] children = this.currentDir.getChildren();
 				for (int i = 0; i < children.length; i++) {
 					if (children[i] != null) {
 						KeyEvent evnt = new KeyEvent(this.streamDeck, i, Type.OFF_DISPLAY);
@@ -146,6 +146,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 						}
 					}
 				}
+			}
 			KeyEvent evnt = new KeyEvent(streamDeck, -1, Type.CLOSE_FOLDER);
 			this.currentDir.onKeyEvent(evnt);
 		}
@@ -306,8 +307,8 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 * Adds this instance as IconListener to the children of the current folder.
 	 */
 	private void addIconListener() {
-		StreamItem[] children = this.currentDir.getChildren();
-		if (children != null) {
+		if(this.currentDir != null && !this.currentDir.isLeaf()) {
+			StreamItem[] children = this.currentDir.getChildren();
 			for (int i = 0; i < children.length; i++) {
 				if (children[i] != null) {
 					children[i].addIconUpdateListener(this);
@@ -397,6 +398,9 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 				animators[i].stop(immediate);
 			}
 		}
+		this.fireOffDisplay();
+		this.removeIconListener();
+		this.streamDeck.remvoeKeyListener(this);
 		if(shutdownStreamDeck) {
 			this.streamDeck.reset();
 			this.streamDeck.setBrightness(0);
