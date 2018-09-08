@@ -138,8 +138,8 @@ public class IconHelper {
 		g.drawLine(50, 19, 43, 19);
 		g.dispose();
 		FOLDER_ICON = cacheImage("temp://FOLDER", img);
-		loadImageFromResource("/resources/frame.png");
-		SDImage back = loadImageFromResource("/resources/back.png");
+		loadImageFromResource("/resources/icons/frame.png");
+		SDImage back = loadImageFromResource("/resources/icons/back.png");
 		cache("temp://BACK", back);
 	}
 
@@ -354,7 +354,11 @@ public class IconHelper {
 	 */
 	public static SDImage applyImage(SDImage imgData, BufferedImage apply) {
 
-		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
+		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, 
+				StreamDeck.ICON_SIZE, 
+				imgData.
+				image.
+				getType());
 		Graphics2D g2d = img.createGraphics();
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.drawImage(imgData.image, null, 0, 0);
@@ -364,7 +368,7 @@ public class IconHelper {
 	}
 
 	public static BufferedImage applyFrame(BufferedImage img) {
-		BufferedImage frame = getImageFromResource("/resources/frame.png");
+		BufferedImage frame = getImageFromResource("/resources/icons/frame.png");
 		BufferedImage nImg = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
 		if (frame != null) {
 			Graphics2D g = nImg.createGraphics();

@@ -109,7 +109,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 */
 	public StreamDeckController(IStreamDeck streamDeck, StreamItem root) {
 		super();
-		this.back = IconHelper.loadImageFromResource("/resources/back.png");
+		this.back = IconHelper.loadImageFromResource("/resources/icons/back.png");
 		if (this.back == null)
 			this.back = IconHelper.addText(IconHelper.getImage("temp://FOLDER"), "back", StreamItem.TEXT_POS_BOTTOM);
 		this.streamDeck = streamDeck;

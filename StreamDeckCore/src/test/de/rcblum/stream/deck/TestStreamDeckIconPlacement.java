@@ -40,79 +40,77 @@ import de.rcblum.stream.deck.util.IconHelper;
 public class TestStreamDeckIconPlacement {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		// Get StreamDeck
-		StreamDeckDevices.getStreamDeck();
-		for(int i=0; i<StreamDeckDevices.getStreamDeckSize(); i++) {
-			IStreamDeck deck = StreamDeckDevices.getStreamDeck(i);
-			// Create Executable Key with icon
+		IStreamDeck deck = StreamDeckDevices.getStreamDeck();
+		// Create Executable Key with icon
 //			BufferedImage img = ImageIO.read(new File("resources" + File.separator + "icon.png"));
 //			img = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK));
 //			System.out.println(img.getWidth() + ":" + img.getHeight());
-			ExecutableItem executableButton = new ExecutableItem(IconHelper.loadImage("resources" + File.separator + "icon.png"), "java.exe");
-	
-			// Reset stream deck
-			deck.reset();
-			// set brightness to 25%
-			deck.setBrightness(25);
-			Thread.sleep(1000);
-			// set brightness to 50%
-			deck.setBrightness(50);
-			Thread.sleep(1000);
-			// set brightness to 75%
-			deck.setBrightness(75);
-			Thread.sleep(1000);
-			// set brightness to 99%
-			deck.setBrightness(99);
-			Thread.sleep(500);
-			// Move key through 1 - 15 on stream deck
-			deck.addKey(0, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(0);
-			deck.addKey(1, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(1);
-			deck.addKey(2, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(2);
-			deck.addKey(3, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(3);
-			deck.addKey(4, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(4);
-			deck.addKey(5, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(5);
-			deck.addKey(6, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(6);
-			deck.addKey(7, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(7);
-			deck.addKey(8, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(8);
-			deck.addKey(9, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(9);
-			deck.addKey(10, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(10);
-			deck.addKey(11, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(11);
-			deck.addKey(12, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(12);
-			deck.addKey(13, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(13);
-			deck.addKey(14, executableButton);
-			Thread.sleep(500);
-			deck.removeKey(14);
-			deck.reset();
-			deck.setBrightness(0);
-			deck.waitForCompletion();
-			 System.exit(0);
-		}
+		ExecutableItem executableButton = new ExecutableItem(IconHelper.loadImage("resources" + File.separator + "icon.png"), "java.exe");
+
+		// Reset stream deck
+		deck.reset();
+		// set brightness to 25%
+		deck.setBrightness(25);
+		Thread.sleep(1000);
+		// set brightness to 50%
+		deck.setBrightness(50);
+		Thread.sleep(1000);
+		// set brightness to 75%
+		deck.setBrightness(75);
+		Thread.sleep(1000);
+		// set brightness to 99%
+		deck.setBrightness(99);
+		Thread.sleep(500);
+		// Move key through 1 - 15 on stream deck
+		deck.addKey(0, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(0);
+		deck.addKey(1, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(1);
+		deck.addKey(2, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(2);
+		deck.addKey(3, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(3);
+		deck.addKey(4, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(4);
+		deck.addKey(5, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(5);
+		deck.addKey(6, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(6);
+		deck.addKey(7, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(7);
+		deck.addKey(8, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(8);
+		deck.addKey(9, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(9);
+		deck.addKey(10, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(10);
+		deck.addKey(11, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(11);
+		deck.addKey(12, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(12);
+		deck.addKey(13, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(13);
+		deck.addKey(14, executableButton);
+		Thread.sleep(500);
+		deck.removeKey(14);
+		deck.reset();
+		deck.setBrightness(0);
+		deck.waitForCompletion();
+		 System.exit(0);
+		
 	}
 }

@@ -52,7 +52,7 @@ public abstract class ToggleItem extends AbstractStreamItem {
 
 	private void updateIcon() {
 		if (this.isOn) {
-			this.rawImg = IconHelper.applyImage(this.unmodded, IconHelper.getImageFromResource("/resources/selected.png"));
+			this.rawImg = IconHelper.applyImage(this.unmodded, IconHelper.getImageFromResource("/resources/icons/selected.png"));
 		}
 		else {
 			this.rawImg = this.unmodded;
