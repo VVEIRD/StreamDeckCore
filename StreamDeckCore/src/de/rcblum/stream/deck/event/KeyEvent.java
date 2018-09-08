@@ -2,7 +2,7 @@ package de.rcblum.stream.deck.event;
 
 import java.util.EventObject;
 
-import de.rcblum.stream.deck.StreamDeck;
+import de.rcblum.stream.deck.device.IStreamDeck;
 
 /**
  * Event that represents an event triggered by interacting with the stream deck.
@@ -52,7 +52,7 @@ public class KeyEvent extends EventObject{
 	 */
 	private Type type;
 
-	public KeyEvent(StreamDeck source, int keyId, Type type) {
+	public KeyEvent(IStreamDeck source, int keyId, Type type) {
 		super(source);
 		this.keyId =  keyId;
 		this.type = type;
@@ -62,8 +62,8 @@ public class KeyEvent extends EventObject{
 	 * Returns the Stream Deck for which the event was created
 	 */
 	@Override
-	public StreamDeck getSource() {
-		return (StreamDeck)super.getSource();
+	public IStreamDeck getSource() {
+		return (IStreamDeck)super.getSource();
 	}
 	
 	/**

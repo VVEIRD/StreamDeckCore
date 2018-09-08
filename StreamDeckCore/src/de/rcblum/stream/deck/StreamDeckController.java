@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.rcblum.stream.deck.device.IStreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.KeyEvent.Type;
 import de.rcblum.stream.deck.event.StreamKeyListener;
@@ -82,7 +83,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	/**
 	 * Proxy for interacting with the ESD
 	 */
-	private StreamDeck streamDeck = null;
+	private IStreamDeck streamDeck = null;
 
 	/**
 	 * Root folder with the initial items to be dispalyed
@@ -106,7 +107,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 * @param streamDeck
 	 * @param root
 	 */
-	public StreamDeckController(StreamDeck streamDeck, StreamItem root) {
+	public StreamDeckController(IStreamDeck streamDeck, StreamItem root) {
 		super();
 		this.back = IconHelper.loadImageFromResource("/resources/back.png");
 		if (this.back == null)
@@ -178,7 +179,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 * returns the StreamDeck used by the controller.
 	 * @return
 	 */
-	public StreamDeck getStreamDeck() {
+	public IStreamDeck getStreamDeck() {
 		return streamDeck;
 	}
 
@@ -293,8 +294,8 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 * directory.
 	 */
 	private void removeIconListener() {
-		StreamItem[] children = this.currentDir.getChildren();
-		if (children != null) {
+		if(this.currentDir != null && !this.currentDir.isLeaf()) {
+			StreamItem[] children = this.currentDir.getChildren();
 			for (int i = 0; i < children.length; i++) {
 				if (children[i] != null) {
 					children[i].removeIconUpdateListener(this);
@@ -400,7 +401,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 		}
 		this.fireOffDisplay();
 		this.removeIconListener();
-		this.streamDeck.remvoeKeyListener(this);
+		this.streamDeck.removeKeyListener(this);
 		if(shutdownStreamDeck) {
 			this.streamDeck.reset();
 			this.streamDeck.setBrightness(0);

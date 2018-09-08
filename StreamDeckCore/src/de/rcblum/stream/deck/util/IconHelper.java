@@ -4,6 +4,7 @@ import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontFormatException;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -42,7 +43,7 @@ import org.w3c.dom.NodeList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import de.rcblum.stream.deck.StreamDeck;
+import de.rcblum.stream.deck.device.StreamDeck;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 
 /**
@@ -197,15 +198,17 @@ public class IconHelper {
 		default:
 			break;
 		}
+		List<String> lines = splitText(text, g2d.getFontMetrics());
+		
 		if (g2d.getFontMetrics().stringWidth(text) > 71 && text.contains(" ")) {
 			text = text.replaceFirst(" ", "\n");
 		}
 
 		int y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2)
-				- (pos == TEXT_CENTER ? (text.split("\n").length / 2.0) * g2d.getFontMetrics().getHeight()
-						: pos == TEXT_BOTTOM ? (text.split("\n").length - 1) * g2d.getFontMetrics().getHeight() : 0));
+				- (pos == TEXT_CENTER ? (lines.size() / 2.0) * g2d.getFontMetrics().getHeight()
+						: pos == TEXT_BOTTOM ? (lines.size() - 1) * g2d.getFontMetrics().getHeight() : 0));
 		g2d.setColor(new Color(0, 0, 0, 150));
-		for (String line : text.split("\n")) {
+		for (String line : lines) {
 			int width = g2d.getFontMetrics().stringWidth(line);
 			int x = (StreamDeck.ICON_SIZE / 2) - width / 2;
 			g2d.fillRect(x - 1, y - g2d.getFontMetrics().getHeight() + 7, width + 2,
@@ -214,11 +217,12 @@ public class IconHelper {
 		}
 		g2d.setColor(Color.LIGHT_GRAY);
 		y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2)
-				- (pos == TEXT_CENTER ? (text.split("\n").length / 2.0) * g2d.getFontMetrics().getHeight()
-						: pos == TEXT_BOTTOM ? (text.split("\n").length - 1) * g2d.getFontMetrics().getHeight() : 0));
-		for (String line : text.split("\n")) {
+				- (pos == TEXT_CENTER ? (lines.size() / 2.0) * g2d.getFontMetrics().getHeight()
+						: pos == TEXT_BOTTOM ? (lines.size() - 1) * g2d.getFontMetrics().getHeight() : 0));
+		for (String line : lines) {
 			int width = g2d.getFontMetrics().stringWidth(line);
 			int x = (StreamDeck.ICON_SIZE / 2) - width / 2;
+			x = x < 0 ? 0 : x;
 			g2d.drawString(line, x, y);
 			y += g2d.getFontMetrics().getHeight();
 		}
@@ -226,6 +230,45 @@ public class IconHelper {
 		g2d.dispose();
 		SDImage newImage = convertImage(img);
 		return newImage;
+	}
+
+	private static List<String> splitText(String text, FontMetrics fontMetrics) {
+		int width = StreamDeck.ICON_SIZE;
+		List<String> lines = new LinkedList<>();
+		String[] arr = text.split(" ");
+		int[] wordWidth = new int[arr.length];
+		for (int f = 0; f < wordWidth.length; f++) {
+			char[] calcString = arr[f].toCharArray();
+			int stringWidth = 0;
+			for (int i = 0; i < calcString.length; i++) {
+				
+				if (i < calcString.length)
+					stringWidth += fontMetrics.stringWidth(String.valueOf(calcString[i]));
+			}
+			wordWidth[f] = stringWidth;
+		}
+		String line = "";
+		int lineWidth = 0;
+		int spaceWidth = fontMetrics.stringWidth(" ");
+		// Split paragraph into lines depending on Field width
+		for (int i = 0; i < arr.length; i++) {
+			//if (metrics.stringWidth((line + (!line.isEmpty() ? " " : "" )  + arr[i]).replace("\t", TAB_SPACING).replace("-$-", "")) < width) {
+			if (lineWidth + (lineWidth > 0 ? spaceWidth : 0) + wordWidth[i] < width) {
+				line += (!line.isEmpty() ? " " : "" ) + arr[i];
+				lineWidth += (lineWidth > 0 ? spaceWidth : 0) + wordWidth[i];
+			} else {
+				if(!line.isEmpty() && (lines.size()+1)*fontMetrics.getHeight() <= StreamDeck.ICON_SIZE )
+					lines.add(line.charAt(0) == ' ' ? line.substring(1) : line);
+				line = (!line.isEmpty() ? " " : "" ) + arr[i];
+				lineWidth = wordWidth[i];
+			}
+		}
+		if (!line.isEmpty() && !line.equals(" ") && (lines.size()+1)*fontMetrics.getHeight() <= StreamDeck.ICON_SIZE) {
+			lines.add(line.charAt(0) == ' ' ? line.substring(1) : line);
+		}
+		while (lines.size() > 4)
+			lines.remove(lines.size()-1);
+		return lines;
 	}
 
 	/**
@@ -281,13 +324,13 @@ public class IconHelper {
 	 *         stream deck
 	 */
 	public static SDImage convertImage(BufferedImage img) {
-		img = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK));
-		BufferedImage imgSrc = IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK));
+		BufferedImage sdImg = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK), false);
+		BufferedImage imgSrc = IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK), true);
 		if (APPLY_FRAME) {
-			img = applyFrame(img);
+			sdImg = applyFrame(sdImg);
 			imgSrc = applyFrame(imgSrc);
 		}
-		int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
+		int[] pixels = ((DataBufferInt) sdImg.getRaster().getDataBuffer()).getData();
 		byte[] imgData = new byte[StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE * 3];
 		int imgDataCount = 0;
 		// remove the alpha channel
@@ -451,7 +494,7 @@ public class IconHelper {
 		}
 	}
 
-	public static BufferedImage createResizedCopy(BufferedImage originalImage) {
+	public static BufferedImage createResizedCopy(BufferedImage originalImage, boolean preserveType) {
 		int scaledWidth = StreamDeck.ICON_SIZE;
 		int scaledHeight = StreamDeck.ICON_SIZE;
 		if (originalImage.getWidth() != originalImage.getHeight()) {
@@ -463,7 +506,7 @@ public class IconHelper {
 				scaledWidth = Math.round(scalerHeight * originalImage.getWidth());
 
 		}
-		int imageType = BufferedImage.TYPE_INT_ARGB;
+		int imageType = preserveType ? originalImage.getType() : BufferedImage.TYPE_INT_ARGB;
 		BufferedImage scaledBI = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imageType);
 		Graphics2D g = scaledBI.createGraphics();
 		if (true) {
@@ -499,8 +542,13 @@ public class IconHelper {
 		return imageCache.get(string);
 	}
 
+	/**
+	 * Loads an image from the jar file.
+	 * 
+	 * @param fileName Path to image.
+	 * @return A BufferedImage with the image from the jar file or null, if the image could not be loaded.
+	 */
 	public static BufferedImage getImageFromResource(String fileName) {
-
 		BufferedImage buff = null;
 		try (InputStream inS = IconHelper.class.getResourceAsStream(fileName)) {
 			if (inS != null) {
@@ -625,6 +673,11 @@ public class IconHelper {
 		return img;
 	}
 
+	/**
+	 * Loads and converts an image from the jar file ito na dispalyable Icon for the StreamDeck
+	 * @param path	Path to icon
+	 * @return	A SDImage containg a displayabe icon or null, if the image could not be loaded.
+	 */
 	public static SDImage loadImageFromResource(String path) {
 		if (imageCache.containsKey(path))
 			return imageCache.get(path);
@@ -698,7 +751,7 @@ public class IconHelper {
 		}
 		return null;
 	}
-
+	
 	public static BufferedImage rotate180(BufferedImage inputImage) {
 		// The most of code is same as before
 		int width = inputImage.getWidth();

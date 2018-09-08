@@ -1,5 +1,6 @@
-package de.rcblum.stream.deck;
+package de.rcblum.stream.deck.device;
 
+import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,13 @@ import purejavahidapi.PureJavaHidApi;
  */
 public class StreamDeckDevices {
 	
+	/**
+	 * Flag for enabling the software stream deck GUI. <code>true</code> Stream Deck
+	 * devices will be wrapped in a software SD, <code>false</code> the StreamDeck
+	 * will be returned directly.
+	 */
+	public static boolean ENABLE_SOFTWARE_STREAM_DECK = true; 
+	
 	private static Logger logger = LogManager.getLogger(StreamDeckDevices.class);
 	
 	public static final int VENDOR_ID = 4057;
@@ -52,7 +60,9 @@ public class StreamDeckDevices {
 
 	private static List<HidDevice> STREAM_DECK_DEVICES = null;
 
-	private static List<StreamDeck> STREAM_DECKS = null;
+	private static List<IStreamDeck> STREAM_DECKS = null;
+
+	private static List<IStreamDeck> SOFT_STREAM_DECKS = null;
 	
 	
 	public static HidDeviceInfo getStreamDeckInfo() {
@@ -95,7 +105,7 @@ public class StreamDeckDevices {
 		return STREAM_DECK_DEVICES.size() > 0 ? STREAM_DECK_DEVICES.get(0) : null;
 	}
 	
-	public static StreamDeck getStreamDeck() {
+	public static IStreamDeck getStreamDeck() {
 		if (STREAM_DECKS == null || STREAM_DECKS.size() == 0) {
 			HidDevice dev = getStreamDeckDevice();
 			STREAM_DECKS = new ArrayList<>(STREAM_DECK_DEVICES.size());
@@ -105,14 +115,21 @@ public class StreamDeckDevices {
 				}
 			}
 		}
-		return STREAM_DECKS.size() > 0 ? STREAM_DECKS.get(0) : null;
+		if(ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() && SOFT_STREAM_DECKS == null) {
+			SOFT_STREAM_DECKS = new ArrayList<>(STREAM_DECK_DEVICES.size()); 
+			for (int i=0; i<STREAM_DECKS.size(); i++) {
+				IStreamDeck iStreamDeck = STREAM_DECKS.get(i);
+				SOFT_STREAM_DECKS.add(new SoftStreamDeck("Stream Deck " + i, iStreamDeck));
+			}
+		}
+		return STREAM_DECKS.size() > 0 ? (ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() ? SOFT_STREAM_DECKS.get(0) : STREAM_DECKS.get(0)) : null;
 	}
 	
 	public static int getStreamDeckSize() {
 		return STREAM_DECKS != null ? STREAM_DECKS.size() : 0;
 	}
 	
-	public static StreamDeck getStreamDeck(int id) {
+	public static IStreamDeck getStreamDeck(int id) {
 		if (STREAM_DECKS == null || id < 0 || id >= getStreamDeckSize())
 			return null;
 		return STREAM_DECKS.get(id);

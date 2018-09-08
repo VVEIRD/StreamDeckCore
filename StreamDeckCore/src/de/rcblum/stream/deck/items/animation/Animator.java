@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.rcblum.stream.deck.StreamDeck;
+import de.rcblum.stream.deck.device.IStreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.listeners.AnimationListener;
@@ -55,7 +55,7 @@ public class Animator implements StreamKeyListener, Runnable {
 	 * Stream Deck that conatins the key on which the animation should be
 	 * displayed
 	 */
-	private StreamDeck streamDeck = null;
+	private IStreamDeck streamDeck = null;
 
 	/**
 	 * Key on above stream deck on which the animation should be displayed
@@ -109,7 +109,7 @@ public class Animator implements StreamKeyListener, Runnable {
 	 *            {@link AnimationStack} that contains framrate trigger loop
 	 *            behavior and frames of the animation
 	 */
-	public Animator(StreamDeck streamDeck, int keyIndex, AnimationStack animation) {
+	public Animator(IStreamDeck streamDeck, int keyIndex, AnimationStack animation) {
 		logger.debug(keyIndex + ": New animator");
 		this.streamDeck = streamDeck;
 		this.keyIndex = keyIndex;

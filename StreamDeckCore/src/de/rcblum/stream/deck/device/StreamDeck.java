@@ -1,4 +1,4 @@
-package de.rcblum.stream.deck;
+package de.rcblum.stream.deck.device;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -75,7 +75,7 @@ import purejavahidapi.InputReportListener;
  * @version 0.1
  *
  */
-public class StreamDeck implements InputReportListener {
+public class StreamDeck implements InputReportListener, IStreamDeck {
 	
 	private static Logger logger = LogManager.getLogger(StreamDeck.class);
 
@@ -350,6 +350,8 @@ public class StreamDeck implements InputReportListener {
 	 */
 	private List<StreamKeyListener> listerners;
 
+	private Thread shutdownHook = null;
+
 	/**
 	 * Creates a wrapper for the Stream Deck HID
 	 * 
@@ -368,6 +370,15 @@ public class StreamDeck implements InputReportListener {
 		this.sendWorker.start();
 		this.eventDispatcher = new Thread(new EventDispatcher());
 		this.eventDispatcher.start();
+		this.shutdownHook = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				StreamDeck.this.stop();
+				StreamDeck.this.reset();
+				StreamDeck.this.setBrightness(0);
+			}
+		});
+		Runtime.getRuntime().addShutdownHook(this.shutdownHook );
 	}
 
 	/**
@@ -387,12 +398,10 @@ public class StreamDeck implements InputReportListener {
 		hidDevice.setFeatureReport(this.brightness, this.brightness.length);
 	}
 
-	/**
-	 * Adds a {@link StreamKeyListener} to the given index
-	 * @param keyId	Index of the key, 0..14
-	 * @param item StreamItem to be bound to the index
-	 * @throws IndexOutOfBoundsException when keyId is < 0 or > 14.
+	/* (non-Javadoc)
+	 * @see de.rcblum.stream.deck.IStreamDeck#addKey(int, de.rcblum.stream.deck.items.StreamItem)
 	 */
+	@Override
 	public void addKey(int keyId, StreamItem item) {
 		if (keyId < this.keys.length && keyId >= 0) {
 			this.keys[keyId] = item;
@@ -400,30 +409,27 @@ public class StreamDeck implements InputReportListener {
 		}
 	}
 
-	/**
-	 * Adds an StreamKeyListener to the ESD. WHenever a Event is generated, the Listener will be informed.
-	 * @param listener	Listener to be added
-	 * @return	<code>true</code> if listener was added, <code>false</code> if listener is already registered.
+	/* (non-Javadoc)
+	 * @see de.rcblum.stream.deck.IStreamDeck#addKeyListener(de.rcblum.stream.deck.event.StreamKeyListener)
 	 */
+	@Override
 	public boolean addKeyListener(StreamKeyListener listener) {
 		return this.listerners.add(listener);
 	}
 
 
-	/**
-	 * Removes an StreamKeyListener from the ESD.
-	 * @param listener	Listener to be removed
-	 * @return	<code>true</code> if listener was removed, <code>false</code> if listener is not registered.
+	/* (non-Javadoc)
+	 * @see de.rcblum.stream.deck.IStreamDeck#remvoeKeyListener(de.rcblum.stream.deck.event.StreamKeyListener)
 	 */
-	public boolean remvoeKeyListener(StreamKeyListener listener) {
+	@Override
+	public boolean removeKeyListener(StreamKeyListener listener) {
 		return this.listerners.remove(listener);
 	}
 
-	/**
-	 * Creates a Job to send the give icon to the ESD to be displayed on the given keyxIndex
-	 * @param keyIndex	Index of ESD (0..14)
-	 * @param imgData	Image in BGR format to be displayed
+	/* (non-Javadoc)
+	 * @see de.rcblum.stream.deck.IStreamDeck#drawImage(int, de.rcblum.stream.deck.util.SDImage)
 	 */
+	@Override
 	public void drawImage(int keyIndex, SDImage imgData) {
 		sendPool.add(new IconUpdater(keyIndex, imgData));
 	}
@@ -505,11 +511,10 @@ public class StreamDeck implements InputReportListener {
 		return p2;
 	}
 
-	/**
-	 * Returns the Hid Devices representation the stream deck.
-	 * 
-	 * @return HidDevice representation the stream deck.
+	/* (non-Javadoc)
+	 * @see de.rcblum.stream.deck.IStreamDeck#getHidDevice()
 	 */
+	@Override
 	public HidDevice getHidDevice() {
 		return hidDevice;
 	}
@@ -526,12 +531,10 @@ public class StreamDeck implements InputReportListener {
 		}
 	}
 
-	/**
-	 * Removes a registered Key. Queues update to the stream deck
-	 * 
-	 * @param keyId
-	 *            id of the key to be removed
+	/* (non-Javadoc)
+	 * @see de.rcblum.stream.deck.IStreamDeck#removeKey(int)
 	 */
+	@Override
 	public void removeKey(int keyId) {
 		if (keyId < this.keys.length && keyId >= 0 && this.keys[keyId] != null) {
 			this.keys[keyId] = null;
@@ -539,38 +542,42 @@ public class StreamDeck implements InputReportListener {
 		}
 	}
 
-	/**
-	 * Queues a task to reset the stream deck.
+	/* (non-Javadoc)
+	 * @see de.rcblum.stream.deck.IStreamDeck#reset()
 	 */
+	@Override
 	public void reset() {
 		this.sendPool.add(new Resetter());
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i] != null)
 				this.sendPool.add(new IconUpdater(i, keys[i].getIcon()));
+			else
+				this.sendPool.add(new IconUpdater(i, BLACK_ICON));
 		}
 	}
 
-	/**
-	 * Sets the desired brightness from 0 - 100 % and queues the change.
-	 * 
-	 * @param brightness
+	/* (non-Javadoc)
+	 * @see de.rcblum.stream.deck.IStreamDeck#setBrightness(int)
 	 */
+	@Override
 	public void setBrightness(int brightness) {
 		brightness = brightness > 99 ? 99 : brightness < 0 ? 0 : brightness;
 		this.brightness[5] = (byte) brightness;
 		this.sendPool.add(new BrightnessUpdater());
 	}
 
-	/**
-	 * Tells the background task for the stream deck to stop working.
+	/* (non-Javadoc)
+	 * @see de.rcblum.stream.deck.IStreamDeck#stop()
 	 */
+	@Override
 	public void stop() {
 		this.running = false;
 	}
 
-	/**
-	 * Wait for all tasks to be executed
+	/* (non-Javadoc)
+	 * @see de.rcblum.stream.deck.IStreamDeck#waitForCompletion()
 	 */
+	@Override
 	public void waitForCompletion() {
 		long time = 0;
 		while (this.sendPool.size() != 0) {
@@ -586,7 +593,20 @@ public class StreamDeck implements InputReportListener {
 		}
 	}
 
+	/**
+	 * @see de.rcblum.stream.deck.IStreamDeck#clearButton(int)
+	 */
+	@Override
 	public void clearButton(int i) {
 		sendPool.add(new IconUpdater(i, BLACK_ICON));
+	}
+
+	public StreamItem[] getItems() {
+		return this.keys;
+	}
+	
+	@Override
+	public boolean isHardware() {
+		return true;
 	}
 }

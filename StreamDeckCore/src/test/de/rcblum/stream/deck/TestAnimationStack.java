@@ -7,9 +7,9 @@ import java.net.URISyntaxException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import de.rcblum.stream.deck.StreamDeck;
 import de.rcblum.stream.deck.StreamDeckController;
-import de.rcblum.stream.deck.StreamDeckDevices;
+import de.rcblum.stream.deck.device.IStreamDeck;
+import de.rcblum.stream.deck.device.StreamDeckDevices;
 import de.rcblum.stream.deck.items.ExecutableItem;
 import de.rcblum.stream.deck.items.FolderItem;
 import de.rcblum.stream.deck.items.StreamItem;
@@ -36,7 +36,7 @@ public class TestAnimationStack {
 		items[10] = item1;
 		items[14] = item1;
 		FolderItem root = new FolderItem(null, null, items);
-		StreamDeck sd = StreamDeckDevices.getStreamDeck();
+		IStreamDeck sd = StreamDeckDevices.getStreamDeck();
 		sd.reset();
 		sd.setBrightness(90);
 		StreamDeckController sdc = new StreamDeckController(sd, root);

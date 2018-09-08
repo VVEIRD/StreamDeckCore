@@ -3,8 +3,8 @@ package test.de.rcblum.stream.deck;
 import java.io.File;
 import java.io.IOException;
 
-import de.rcblum.stream.deck.StreamDeck;
-import de.rcblum.stream.deck.StreamDeckDevices;
+import de.rcblum.stream.deck.device.IStreamDeck;
+import de.rcblum.stream.deck.device.StreamDeckDevices;
 import de.rcblum.stream.deck.items.ExecutableItem;
 import de.rcblum.stream.deck.util.IconHelper;
 
@@ -42,7 +42,7 @@ public class TestStreamDeckIconPlacement {
 		// Get StreamDeck
 		StreamDeckDevices.getStreamDeck();
 		for(int i=0; i<StreamDeckDevices.getStreamDeckSize(); i++) {
-			StreamDeck deck = StreamDeckDevices.getStreamDeck(i);
+			IStreamDeck deck = StreamDeckDevices.getStreamDeck(i);
 			// Create Executable Key with icon
 //			BufferedImage img = ImageIO.read(new File("resources" + File.separator + "icon.png"));
 //			img = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK));
