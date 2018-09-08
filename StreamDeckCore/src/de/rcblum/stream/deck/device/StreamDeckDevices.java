@@ -122,7 +122,9 @@ public class StreamDeckDevices {
 				SOFT_STREAM_DECKS.add(new SoftStreamDeck("Stream Deck " + i, iStreamDeck));
 			}
 		}
-		return STREAM_DECKS.size() > 0 ? (ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() ? SOFT_STREAM_DECKS.get(0) : STREAM_DECKS.get(0)) : null;
+		return STREAM_DECKS.size() > 0 
+				? (ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() ? SOFT_STREAM_DECKS.get(0) : STREAM_DECKS.get(0)) 
+				: (ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() ? new SoftStreamDeck("Soft Stream Deck", null) : null);
 	}
 	
 	public static int getStreamDeckSize() {

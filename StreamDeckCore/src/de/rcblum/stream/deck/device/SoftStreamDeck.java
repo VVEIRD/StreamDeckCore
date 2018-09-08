@@ -259,7 +259,7 @@ public class SoftStreamDeck implements IStreamDeck {
 			int keyId = getIndex(e.getX(), e.getY());
 			if (keyId >= 0) {
 				for(StreamKeyListener listener : SoftStreamDeck.this.listerners) {
-					KeyEvent evnt = new KeyEvent(streamDeck, keyId, Type.RELEASED_CLICKED);
+					KeyEvent evnt = new KeyEvent( SoftStreamDeck.this, keyId, Type.RELEASED_CLICKED);
 					listener.onKeyEvent(evnt);
 				}
 			}
@@ -270,7 +270,7 @@ public class SoftStreamDeck implements IStreamDeck {
 			int keyId = getIndex(e.getX(), e.getY());
 			if (keyId >= 0) {
 				for(StreamKeyListener listener : SoftStreamDeck.this.listerners) {
-					KeyEvent evnt = new KeyEvent(streamDeck, keyId, Type.PRESSED);
+					KeyEvent evnt = new KeyEvent(SoftStreamDeck.this, keyId, Type.PRESSED);
 					listener.onKeyEvent(evnt);
 				}
 			}

@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/purejavahidapi-0.0.10"/>
 	<classpathentry kind="lib" path="C:/Users/rcBlum/Google Drive/Java/java-libs/gson-2.1.jar"/>
 	<classpathentry kind="lib" path="C:/Users/rcBlum/Google Drive/Java/java-libs/log4j-api-2.9.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/rcBlum/Google Drive/Java/java-libs/log4j-core-2.9.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/purejavahidapi"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
