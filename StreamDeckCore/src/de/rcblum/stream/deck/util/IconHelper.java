@@ -80,10 +80,15 @@ import de.rcblum.stream.deck.items.animation.AnimationStack;
  */
 public class IconHelper {
 
+	private static Logger logger = LogManager.getLogger(IconHelper.class);
+
 	/**
 	 * Switch for drawing a black rounded frame around all images
 	 */
 	public static boolean APPLY_FRAME = true;
+	
+
+	public static BufferedImage FRAME = getImageFromResource("/resources/icons/frame.png");
 
 	/**
 	 * Default font for the text on the ESD FantasqueSansMono-Bold.ttf
@@ -123,8 +128,6 @@ public class IconHelper {
 	 */
 	private static Map<String, IconPackage> packageCache = new HashMap<>();
 
-	private static Logger logger = LogManager.getLogger(IconHelper.class);
-
 	static {
 		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = img.createGraphics();
@@ -145,7 +148,6 @@ public class IconHelper {
 		g.drawLine(50, 19, 43, 19);
 		g.dispose();
 		FOLDER_ICON = cacheImage("temp://FOLDER", img);
-		loadImageFromResource("/resources/icons/frame.png");
 		SDImage back = loadImageFromResource("/resources/icons/back.png");
 		cache("temp://BACK", back);
 	}
@@ -449,12 +451,11 @@ public class IconHelper {
 	}
 
 	public static BufferedImage applyFrame(BufferedImage img) {
-		BufferedImage frame = getImageFromResource("/resources/icons/frame.png");
 		BufferedImage nImg = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
-		if (frame != null) {
+		if (FRAME != null) {
 			Graphics2D g = nImg.createGraphics();
 			g.drawImage(img, 0, 0, null);
-			g.drawImage(frame, 0, 0, null);
+			g.drawImage(FRAME, 0, 0, null);
 			g.dispose();
 		}
 		return nImg;
