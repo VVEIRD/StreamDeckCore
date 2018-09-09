@@ -59,10 +59,17 @@ public class SoftStreamDeck implements IStreamDeck {
 		this.drawBuffer = IconHelper.getImageFromResource("/resources/sd-background.png");
 		this.name = name;
 		this.drawGraphics = this.drawBuffer.createGraphics();
-		this.frame = new JFrame(name);
+		this.frame = new JFrame(name) {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void dispose() {
+				SoftStreamDeck.this.stopThreads();
+				super.dispose();
+			}
+		};
 		this.frame.setSize(new Dimension(486, 330));
 		this.frame.getContentPane().setBackground(Color.BLACK);
-		this.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.frame.setResizable(false);
 		JLabel jl = new JLabel(new ImageIcon(this.drawBuffer));
 		jl.addMouseListener(new KeyListener());
@@ -145,12 +152,12 @@ public class SoftStreamDeck implements IStreamDeck {
 
 	@Override
 	public void stop() {
-		this.stopThrerads();
+		this.stopThreads();
 		if(streamDeck != null)
 			this.streamDeck.stop();
 	}
 
-	private void stopThrerads() {
+	private void stopThreads() {
 		this.run = false;
 		this.drawThread.stop();
 	}
