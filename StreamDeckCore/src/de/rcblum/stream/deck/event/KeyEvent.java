@@ -88,6 +88,6 @@ public class KeyEvent extends EventObject {
 	 *
 	 */
 	public static enum Type {
-		PRESSED, RELEASED_CLICKED, ON_DISPLAY, OFF_DISPLAY, OPEN_FOLDER, CLOSE_FOLDER
+		PRESSED, RELEASED_CLICKED, ON_DISPLAY, OFF_DISPLAY, OPEN_FOLDER, CLOSE_FOLDER;
 	}
 }
