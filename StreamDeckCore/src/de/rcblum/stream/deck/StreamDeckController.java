@@ -288,6 +288,17 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 			this.fireOnDisplay();
 		}
 	}
+	
+	/**
+	 * Sets a new root folder and opens it
+	 * @param root New root folder
+	 */
+	public void setRoot(StreamItem root) {
+		this.root = root;
+		while (this.root.getParent() != null)
+			this.root = this.root.getParent();
+		openFolder(root);
+	}
 
 	/**
 	 * Removes the {@link StreamDeckController} from all cildren of the current

@@ -148,6 +148,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	private class DeckWorker implements Runnable {
 		
+		@SuppressWarnings("unused")
 		@Override
 		public void run() {
 			long actions = 0;
@@ -350,8 +351,6 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	private List<StreamKeyListener> listerners;
 
-	private Thread shutdownHook = null;
-
 	/**
 	 * Creates a wrapper for the Stream Deck HID
 	 * 
@@ -372,15 +371,6 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 		this.eventDispatcher = new Thread(new EventDispatcher());
 		this.eventDispatcher.setDaemon(true);
 		this.eventDispatcher.start();
-		this.shutdownHook = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				StreamDeck.this.stop();
-				StreamDeck.this.reset();
-				StreamDeck.this.setBrightness(0);
-			}
-		});
-//		Runtime.getRuntime().addShutdownHook(this.shutdownHook );
 	}
 
 	/**
