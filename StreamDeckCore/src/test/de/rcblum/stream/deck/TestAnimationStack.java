@@ -29,12 +29,12 @@ public class TestAnimationStack {
 		StreamItem[] items = new StreamItem[15];
 		ExecutableItem item0 = new ExecutableItem(ip, "cmd /c dir");
 		ExecutableItem item1 = item0;
-		item0.setIconPackage(ip);
-		items[7] = item0;
+		ip = new IconPackage(ip.icon, IconHelper.createRollingTextAnimation(ip.icon, "Rolling Text test", StreamItem.TEXT_POS_BOTTOM));
+		ExecutableItem item2 = new ExecutableItem(ip, "cmd /c dir");
+		
 		items[0] = item1;
 		items[4] = item1;
-		items[10] = item1;
-		items[14] = item1;
+		items[12] = item2;
 		FolderItem root = new FolderItem(null, null, items);
 		IStreamDeck sd = StreamDeckDevices.getStreamDeck();
 		sd.reset();

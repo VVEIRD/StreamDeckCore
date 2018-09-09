@@ -67,7 +67,7 @@ public class ProxyItem extends FolderItem {
 				this.img = IconHelper.addText(this.img, line2, TEXT_POS_CENTER);
 			if (line3 != null)
 				this.img = IconHelper.addText(this.img, line3, TEXT_POS_BOTTOM);
-			this.fireIconUpdate();
+			this.fireIconUpdate(false);
 		}
 
 		public void setText(String text) {
@@ -85,7 +85,7 @@ public class ProxyItem extends FolderItem {
 					this.img = IconHelper.addText(this.img, line2, TEXT_POS_CENTER);
 				if (line3 != null)
 					this.img = IconHelper.addText(this.img, line3, TEXT_POS_BOTTOM);
-				this.fireIconUpdate();
+				this.fireIconUpdate(false);
 			}
 		}
 
@@ -102,7 +102,7 @@ public class ProxyItem extends FolderItem {
 				if (this.animation != null) {
 					this.animation.setTextPos(this.textPos);
 				}
-				this.fireIconUpdate();
+				this.fireIconUpdate(false);
 			}
 		}
 		
@@ -116,6 +116,7 @@ public class ProxyItem extends FolderItem {
 				this.img = IconHelper.addText(this.img, line2, TEXT_POS_CENTER, line2FontSize);
 			if (line3 != null)
 				this.img = IconHelper.addText(this.img, line3, TEXT_POS_BOTTOM, line3FontSize);
+			this.fireIconUpdate(false);
 		}
 		
 		public void setTextLine2(String text, int fontSize) {
@@ -128,6 +129,7 @@ public class ProxyItem extends FolderItem {
 				this.img = IconHelper.addText(this.img, line2, TEXT_POS_CENTER, line2FontSize);
 			if (line3 != null)
 				this.img = IconHelper.addText(this.img, line3, TEXT_POS_BOTTOM, line3FontSize);
+			this.fireIconUpdate(false);
 		}
 
 		
@@ -141,5 +143,6 @@ public class ProxyItem extends FolderItem {
 				this.img = IconHelper.addText(this.img, line2, TEXT_POS_CENTER, line2FontSize);
 			if (line3 != null)
 				this.img = IconHelper.addText(this.img, line3, TEXT_POS_BOTTOM, line3FontSize);
+			this.fireIconUpdate(false);
 		}
 	}

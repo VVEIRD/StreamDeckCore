@@ -105,6 +105,13 @@ public class IconHelper {
 	 * Position to place the text bottom the top of the icon
 	 */
 	public static final int TEXT_BOTTOM = 2;
+	
+	/**
+	 * Sets the padding for the rolling text.
+	 */
+	public static int ROLLING_TEXT_PADDING = 10;
+	
+	public static int TEXT_BOX_ALPHA_VALUE = 200;
 
 	/**
 	 * Cache for loaded images
@@ -207,7 +214,7 @@ public class IconHelper {
 		int y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2)
 				- (pos == TEXT_CENTER ? (lines.size() / 2.0) * g2d.getFontMetrics().getHeight()
 						: pos == TEXT_BOTTOM ? (lines.size() - 1) * g2d.getFontMetrics().getHeight() : 0));
-		g2d.setColor(new Color(0, 0, 0, 150));
+		g2d.setColor(new Color(0, 0, 0, TEXT_BOX_ALPHA_VALUE));
 		for (String line : lines) {
 			int width = g2d.getFontMetrics().stringWidth(line);
 			int x = (StreamDeck.ICON_SIZE / 2) - width / 2;
@@ -216,6 +223,7 @@ public class IconHelper {
 			y += g2d.getFontMetrics().getHeight();
 		}
 		g2d.setColor(Color.LIGHT_GRAY);
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2)
 				- (pos == TEXT_CENTER ? (lines.size() / 2.0) * g2d.getFontMetrics().getHeight()
 						: pos == TEXT_BOTTOM ? (lines.size() - 1) * g2d.getFontMetrics().getHeight() : 0));
@@ -231,7 +239,80 @@ public class IconHelper {
 		SDImage newImage = convertImage(img);
 		return newImage;
 	}
+	
+	public static AnimationStack createRollingTextAnimation(SDImage imgData, String text, int pos) {
+		return createRollingTextAnimation(imgData, text, pos, DEFAULT_FONT.getSize());
+	}
 
+	/**
+	 * Creates an animation with running text
+	 * 
+	 * @param imgData
+	 *            Image where the text should be added to.
+	 * @param text
+	 *            Text to be added to the image.
+	 * @param pos
+	 *            Position of the text (Top, Center, Bottom, see
+	 *            {@link #TEXT_TOP}, {@link #TEXT_CENTER}, {@link #TEXT_BOTTOM})
+	 * @param fontSize
+	 *            Size of the font to use
+	 * @return byte array with the image where the text was added
+	 */
+	public static AnimationStack createRollingTextAnimation(SDImage imgData, String text, int pos, float fontSize) {
+		AnimationStack animation = new AnimationStack(AnimationStack.REPEAT_PING_PONG, true, AnimationStack.FRAME_RATE_30, AnimationStack.TRIGGER_AUTO, new SDImage[0]);
+		BufferedImage baseImage = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
+		BufferedImage drawOn = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
+		List<SDImage> frames = new LinkedList<>();
+		Graphics2D g2d = baseImage.createGraphics();
+		g2d.drawImage(imgData.image, 0, 0, null);
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		int yStart = 28;
+		switch (pos) {
+		case TEXT_BOTTOM:
+			yStart = 75;
+			break;
+		case TEXT_CENTER:
+			yStart = 60;
+			break;
+		default:
+			break;
+		}
+		int y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2));
+		g2d.setColor(new Color(0, 0, 0, TEXT_BOX_ALPHA_VALUE));
+		int width = 72;
+		int x = IconHelper.ROLLING_TEXT_PADDING;
+		g2d.fillRect(x - 1, y - g2d.getFontMetrics().getHeight() + 7, width + 2, g2d.getFontMetrics().getHeight() - 4);
+		g2d.dispose();
+		// Draw Frames
+		g2d = drawOn.createGraphics();
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
+		g2d.setColor(Color.LIGHT_GRAY);
+		g2d.drawImage(baseImage, 0, 0, null);
+		do {
+			g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
+			g2d.setColor(Color.LIGHT_GRAY);
+			g2d.drawString(text, x, y);
+			x--;
+			BufferedImage frame = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
+			Graphics2D g = frame.createGraphics();
+			g.drawImage(drawOn, 0, 0, null);
+			g.dispose();
+			frames.add(convertImage(frame));
+			g2d.drawImage(baseImage, 0, 0, null);
+		} while(x+g2d.getFontMetrics().stringWidth(text) > StreamDeck.ICON_SIZE - IconHelper.ROLLING_TEXT_PADDING);
+		g2d.dispose();
+		SDImage[] frameArray = frames.toArray(new SDImage[0]);
+		animation.setFrames(frameArray);
+		return animation;
+	}
+
+	/**
+	 * Splits the text so no line is longer than an icon is wide
+	 * @param text			Text to be split
+	 * @param fontMetrics	Font Metric to be used for the split
+	 * @return	List with lines(max 4)
+	 */
 	private static List<String> splitText(String text, FontMetrics fontMetrics) {
 		int width = StreamDeck.ICON_SIZE;
 		List<String> lines = new LinkedList<>();

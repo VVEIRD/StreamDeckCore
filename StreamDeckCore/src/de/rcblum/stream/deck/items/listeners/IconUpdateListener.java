@@ -35,5 +35,5 @@ import de.rcblum.stream.deck.items.StreamItem;
  *
  */
 public interface IconUpdateListener {
-	public void onIconUpdate(StreamItem source);
+	public void onIconUpdate(StreamItem source, boolean newAnimationObject);
 }

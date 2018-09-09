@@ -116,7 +116,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 			this.animation.setTextPos(this.textPos);
 			this.animation.setText(this.text);
 		}
-		this.fireIconUpdate();
+		this.fireIconUpdate(true);
 	}
 
 	@Override
@@ -126,14 +126,14 @@ public abstract class AbstractStreamItem implements StreamItem {
 			this.animation.setTextPos(this.textPos);
 			this.animation.setText(this.text);
 		}
-		this.fireIconUpdate();
+		this.fireIconUpdate(true);
 	}
 
 	@Override
 	public void setIcon(SDImage icon) {
 		this.rawImg = icon;
 		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
-		this.fireIconUpdate();
+		this.fireIconUpdate(false);
 	}
 
 	@Override
@@ -159,7 +159,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 				this.animation.setText(this.text);
 			}
 			this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
-			this.fireIconUpdate();
+			this.fireIconUpdate(false);
 		}
 	}
 
@@ -170,7 +170,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 			if (this.animation != null) {
 				this.animation.setTextPos(this.textPos);
 			}
-			this.fireIconUpdate();
+			this.fireIconUpdate(false);
 		}
 	}
 
@@ -192,10 +192,11 @@ public abstract class AbstractStreamItem implements StreamItem {
 		this.listeners.remove(listener);
 	}
 
-	protected void fireIconUpdate() {
+	protected void fireIconUpdate(boolean animationChanged) {
 		for (int i = 0; i < this.listeners.size(); i++) {
-			if (this.listeners != null)
-				this.listeners.get(i).onIconUpdate(this);
+			if (this.listeners != null) {
+				this.listeners.get(i).onIconUpdate(this, animationChanged);
+			}
 		}
 	}
 }

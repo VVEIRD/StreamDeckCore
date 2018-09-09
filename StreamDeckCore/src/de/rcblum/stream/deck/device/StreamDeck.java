@@ -378,7 +378,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 				StreamDeck.this.setBrightness(0);
 			}
 		});
-		Runtime.getRuntime().addShutdownHook(this.shutdownHook );
+//		Runtime.getRuntime().addShutdownHook(this.shutdownHook );
 	}
 
 	/**

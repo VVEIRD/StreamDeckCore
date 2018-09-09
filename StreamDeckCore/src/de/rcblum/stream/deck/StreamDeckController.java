@@ -264,11 +264,11 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 * item(s))
 	 */
 	@Override
-	public void onIconUpdate(StreamItem source) {
+	public void onIconUpdate(StreamItem source, boolean animationChanged) {
 		if (this.currentDir != null && this.currentDir.getChildId(source) >= 0) {
 			int childIndex = this.currentDir.getChildId(source);
 			logger.debug("Updating key " + childIndex);
-			this.updateKey(childIndex, false);
+			this.updateKey(childIndex, animationChanged);
 		}
 	}
 

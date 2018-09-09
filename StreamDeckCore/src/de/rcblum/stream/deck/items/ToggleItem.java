@@ -58,7 +58,7 @@ public abstract class ToggleItem extends AbstractStreamItem {
 			this.rawImg = this.unmodded;
 		}
 		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
-		this.fireIconUpdate();
+		this.fireIconUpdate(false);
 	}
 	
 	public void setSelected(boolean selected) {
