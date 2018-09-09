@@ -407,7 +407,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	public void addKey(int keyId, StreamItem item) {
 		if (keyId < this.keys.length && keyId >= 0) {
 			this.keys[keyId] = item;
-			sendPool.add(new IconUpdater(keyId, item.getIcon()));
+			queue(new IconUpdater(keyId, item.getIcon()));
 		}
 	}
 
@@ -433,7 +433,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	@Override
 	public void drawImage(int keyIndex, SDImage imgData) {
-		sendPool.add(new IconUpdater(keyIndex, imgData));
+		queue(new IconUpdater(keyIndex, imgData));
 	}
 
 	public synchronized void _drawImage(int keyIndex, SDImage imgData) {
@@ -540,7 +540,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	public void removeKey(int keyId) {
 		if (keyId < this.keys.length && keyId >= 0 && this.keys[keyId] != null) {
 			this.keys[keyId] = null;
-			sendPool.add(new IconUpdater(keyId, BLACK_ICON));
+			queue(new IconUpdater(keyId, BLACK_ICON));
 		}
 	}
 
@@ -549,12 +549,12 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	@Override
 	public void reset() {
-		this.sendPool.add(new Resetter());
+		this.queue(new Resetter());
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i] != null)
-				this.sendPool.add(new IconUpdater(i, keys[i].getIcon()));
+				this.queue(new IconUpdater(i, keys[i].getIcon()));
 			else
-				this.sendPool.add(new IconUpdater(i, BLACK_ICON));
+				this.queue(new IconUpdater(i, BLACK_ICON));
 		}
 	}
 
@@ -565,7 +565,12 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	public void setBrightness(int brightness) {
 		brightness = brightness > 99 ? 99 : brightness < 0 ? 0 : brightness;
 		this.brightness[5] = (byte) brightness;
-		this.sendPool.add(new BrightnessUpdater());
+		this.queue(new BrightnessUpdater());
+	}
+
+	private void queue(Runnable payload) {
+		if(this.running)
+			this.sendPool.add(payload);
 	}
 
 	/* (non-Javadoc)
@@ -573,6 +578,12 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	@Override
 	public void stop() {
+		this.queue(new Runnable() {
+			@Override
+			public void run() {
+				StreamDeck.this.hidDevice.close();
+			}
+		});
 		this.running = false;
 	}
 
@@ -600,7 +611,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	@Override
 	public void clearButton(int i) {
-		sendPool.add(new IconUpdater(i, BLACK_ICON));
+		queue(new IconUpdater(i, BLACK_ICON));
 	}
 
 	public StreamItem[] getItems() {

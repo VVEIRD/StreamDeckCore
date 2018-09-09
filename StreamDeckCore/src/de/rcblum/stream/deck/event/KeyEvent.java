@@ -35,7 +35,7 @@ import de.rcblum.stream.deck.device.IStreamDeck;
  * @version 0.1
  *
  */
-public class KeyEvent extends EventObject{
+public class KeyEvent extends EventObject {
 	
 	/**
 	 * 

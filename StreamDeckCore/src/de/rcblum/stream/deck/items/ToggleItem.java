@@ -14,7 +14,7 @@ public abstract class ToggleItem extends AbstractStreamItem {
 		super(IconHelper.BLACK_ICON);
 		this.unmodded = this.rawImg;
 	}
-
+ 
 	public ToggleItem(boolean selected) {
 		super(IconHelper.BLACK_ICON);
 		this.unmodded = this.rawImg;

@@ -10,12 +10,16 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.Timer;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.StreamKeyListener;
@@ -26,6 +30,8 @@ import de.rcblum.stream.deck.util.SDImage;
 import purejavahidapi.HidDevice;
 
 public class SoftStreamDeck implements IStreamDeck {
+	
+	private static Logger logger = LogManager.getLogger(SoftStreamDeck.class);
 
 	private String name = null;
 		
@@ -47,7 +53,17 @@ public class SoftStreamDeck implements IStreamDeck {
 	
 	private Timer drawThread = null;
 	
-	private boolean run = true;
+	private boolean running = true;
+
+	/**
+	 * Daemon that sends received {@link KeyEvent}s  to the affected listeners.
+	 */
+	private Thread eventDispatcher = null;
+
+	/**
+	 * Queue for {@link KeyEvent}s that are triggered by the ESD
+	 */
+	Queue<KeyEvent> recievePool = new ConcurrentLinkedQueue<>();
 	
 	private ConcurrentLinkedQueue<IconUpdate> updateQueue = new ConcurrentLinkedQueue<>();
 
@@ -86,6 +102,9 @@ public class SoftStreamDeck implements IStreamDeck {
 		this.writeThread.start();
 		this.drawThread = new Timer(33, new DrawDaemon());
 		this.drawThread.start();
+		this.eventDispatcher = new Thread(new EventDispatcher());
+		this.eventDispatcher.setDaemon(true);
+		this.eventDispatcher.start();
 	}
 
 	@Override
@@ -153,12 +172,14 @@ public class SoftStreamDeck implements IStreamDeck {
 	@Override
 	public void stop() {
 		this.stopThreads();
+		this.frame.setVisible(false);
+		this.frame.dispose();
 		if(streamDeck != null)
 			this.streamDeck.stop();
 	}
 
 	private void stopThreads() {
-		this.run = false;
+		this.running = false;
 		this.drawThread.stop();
 	}
 
@@ -205,7 +226,7 @@ public class SoftStreamDeck implements IStreamDeck {
 	private class WriteDaemon implements Runnable  {
 		@Override
 		public void run() {
-			while(SoftStreamDeck.this.run) {
+			while(SoftStreamDeck.this.running) {
 				Graphics2D g = SoftStreamDeck.this.writeBuffer.createGraphics();
 				while(!SoftStreamDeck.this.updateQueue.isEmpty()) {
 					IconUpdate iu = SoftStreamDeck.this.updateQueue.poll();
@@ -263,12 +284,10 @@ public class SoftStreamDeck implements IStreamDeck {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			int keyId = getIndex(e.getX(), e.getY());
+			int keyId = getIndex(e.getX(), e.getY()); 
 			if (keyId >= 0) {
-				for(StreamKeyListener listener : SoftStreamDeck.this.listerners) {
-					KeyEvent evnt = new KeyEvent( SoftStreamDeck.this, keyId, Type.RELEASED_CLICKED);
-					listener.onKeyEvent(evnt);
-				}
+				KeyEvent evnt = new KeyEvent( SoftStreamDeck.this, keyId, Type.RELEASED_CLICKED);
+				SoftStreamDeck.this.recievePool.add(evnt);
 			}
 		}
 
@@ -276,16 +295,14 @@ public class SoftStreamDeck implements IStreamDeck {
 		public void mousePressed(MouseEvent e) {
 			int keyId = getIndex(e.getX(), e.getY());
 			if (keyId >= 0) {
-				for(StreamKeyListener listener : SoftStreamDeck.this.listerners) {
-					KeyEvent evnt = new KeyEvent(SoftStreamDeck.this, keyId, Type.PRESSED);
-					listener.onKeyEvent(evnt);
-				}
+				KeyEvent evnt = new KeyEvent(SoftStreamDeck.this, keyId, Type.PRESSED);
+				SoftStreamDeck.this.recievePool.add(evnt);
 			}
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			this.mouseClicked(e);
+//			this.mouseClicked(e);
 		}
 
 		@Override
@@ -294,6 +311,48 @@ public class SoftStreamDeck implements IStreamDeck {
 		@Override
 		public void mouseExited(MouseEvent e) {}
 		
+	}
+
+	/**
+	 * Dispatcher that asynchronously sends out all issued {@link KeyEvent}s.
+	 * @author Roland von Werden
+	 *
+	 */
+	private class EventDispatcher implements Runnable {
+
+		@Override
+		public void run() {
+			while (SoftStreamDeck.this.running || !SoftStreamDeck.this.running && !recievePool.isEmpty()) {
+				if (!SoftStreamDeck.this.recievePool.isEmpty()) {
+					KeyEvent event = SoftStreamDeck.this.recievePool.poll();
+					int i = event.getKeyId();
+					if (i < SoftStreamDeck.this.keys.length && SoftStreamDeck.this.keys[i] != null) {
+						SoftStreamDeck.this.keys[i].onKeyEvent(event);
+					}
+					SoftStreamDeck.this.listerners.stream().forEach(l -> 
+						{
+							try {
+								l.onKeyEvent(event);
+							} 
+							catch (Exception e) {
+								logger.error("Error sending out KeyEvents");
+								logger.error(e);
+								e.printStackTrace();
+							}
+						}
+					);
+				}
+				if (SoftStreamDeck.this.recievePool.isEmpty()) {
+					try {
+						Thread.sleep(1);
+					} catch (InterruptedException e) {
+						logger.error("EventDispatcher sleep interrupted");
+						logger.error(e);
+					}
+				}
+			}
+		}
+
 	}
 
 }
