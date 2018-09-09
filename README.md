@@ -21,6 +21,12 @@ StreamDeckCore provides the following features as of now:
 2. Document everything
 3. Create tutorial & example programs
 
+## StreamDeckController
+StreamDeckController is an easy way to display content and create folder structures without the need of developing the code for folders etc yourself.
+
+## Soft Deck
+If you have no Stream Deck yourself, but still want to develop for the plattform, you can use the software implementation to do that. Its a simple JFrame of all 15 "buttons" displayed. Its activated on default and can be disabled at the start of your program by setting de.rcblum.stream.deck.device.StreamDeckDevices.ENABLE_SOFTWARE_STREAM_DECK to false.
+
 ## Dependencies
 This uses the github project https://github.com/nyholku/purejavahidapi (forked to https://github.com/WElRD/purejavahidapi), jna 4.0, gson and log4j, which can be downloaded through maven:
 
