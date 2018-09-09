@@ -147,7 +147,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 *
 	 */
 	private class DeckWorker implements Runnable {
-
+		
 		@Override
 		public void run() {
 			long actions = 0;
@@ -367,8 +367,10 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 		this.brightness[5] = (byte) brightness;
 		listerners = new ArrayList<>(5);
 		this.sendWorker = new Thread(new DeckWorker());
+		this.sendWorker.setDaemon(true);
 		this.sendWorker.start();
 		this.eventDispatcher = new Thread(new EventDispatcher());
+		this.eventDispatcher.setDaemon(true);
 		this.eventDispatcher.start();
 		this.shutdownHook = new Thread(new Runnable() {
 			@Override
