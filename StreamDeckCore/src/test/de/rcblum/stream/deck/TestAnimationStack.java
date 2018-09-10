@@ -19,7 +19,7 @@ import de.rcblum.stream.deck.util.IconPackage;
 import de.rcblum.stream.deck.util.SDImage;
 
 public class TestAnimationStack {
-	public static void main(String[] args) throws URISyntaxException, IOException {
+	public static void main(String[] args) throws URISyntaxException, IOException, InterruptedException {
 		System.setProperty("log4j.configurationFile", TestAnimationStack.class.getResource("/resources/log4j.xml").getFile());
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		AnimationStack as = new AnimationStack(AnimationStack.REPEAT_LOOPING, true, AnimationStack.FRAME_RATE_30, AnimationStack.TRIGGER_PRESSED, new SDImage[0]);
@@ -78,12 +78,13 @@ public class TestAnimationStack {
 		sdc.pressButton(10);
 		sdc.pressButton(14);
 		try {
-			Thread.sleep(30_000);
+			Thread.sleep(10_000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		sdc.releaseButton(7);
+		sd.reset();
 		sd.setBrightness(0);
 		sdc.stop(true, true);
 		sd.waitForCompletion();

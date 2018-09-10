@@ -376,18 +376,17 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Sends reset-command to ESD
 	 */
-	@SuppressWarnings("deprecation")
+	
 	private void _reset() {
-		hidDevice.setFeatureReport(RESET_DATA, RESET_DATA.length);
+		hidDevice.setFeatureReport(RESET_DATA[0], Arrays.copyOfRange(RESET_DATA, 1, RESET_DATA.length), RESET_DATA.length-1);
 	}
 
 
 	/**
 	 * Sends brightness-command to ESD
 	 */
-	@SuppressWarnings("deprecation")
 	private void _updateBrightnes() {
-		hidDevice.setFeatureReport(this.brightness, this.brightness.length);
+		hidDevice.setFeatureReport(this.brightness[0], Arrays.copyOfRange(this.brightness, 1, this.brightness.length), this.brightness.length-1);
 	}
 
 	/* (non-Javadoc)

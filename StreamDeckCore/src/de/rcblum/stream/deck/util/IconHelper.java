@@ -155,6 +155,30 @@ public class IconHelper {
 	public final static SDImage BLACK_ICON;
 
 	public final static SDImage FOLDER_ICON;
+	
+	public static SDImage createFolderImage(Color background, boolean applyFrame) {
+		if(imageCache.containsKey("temp://FOLDER_" + background.getRGB()))
+			return imageCache.get("temp://FOLDER_" + background.getRGB());
+		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = img.createGraphics();
+		g = img.createGraphics();
+		g.setColor(background);
+		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
+		g.setColor(new Color(132, 132, 132));
+		g.drawRect(15, 23, 42, 29);
+		g.drawRect(16, 24, 40, 27);
+		g.drawLine(53, 22, 40, 22);
+		g.drawLine(52, 21, 41, 21);
+		g.drawLine(51, 20, 42, 20);
+		g.drawLine(50, 19, 43, 19);
+		g.dispose();
+		boolean oldVal = APPLY_FRAME;
+		APPLY_FRAME = applyFrame;
+		SDImage sdImage = cacheImage("temp://FOLDER_" + background.getRGB(), img);
+		APPLY_FRAME = oldVal;
+		return sdImage;
+		
+	}
 
 	/**
 	 * Adds a text to a copy of the given image. Position of the text can be
@@ -407,9 +431,26 @@ public class IconHelper {
 	 *         stream deck
 	 */
 	public static SDImage convertImage(BufferedImage img) {
+		return convertImage(img, APPLY_FRAME);
+	}
+
+	/**
+	 * Converts the given image to the stream deck format.<br>
+	 * Format is:<br>
+	 * Color Schema: BGR<br>
+	 * Image size: 72 x 72 pixel<br>
+	 * Stored in an array with each byte stored seperatly (Size of each array is
+	 * 72 x 72 x 3 = 15_552).
+	 * 
+	 * @param img
+	 *            Image to be converted
+	 * @return Byte arraythat contains the given image, ready to be sent to the
+	 *         stream deck
+	 */
+	public static SDImage convertImage(BufferedImage img, boolean applyFrame) {
 		BufferedImage sdImg = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK), false);
 		BufferedImage imgSrc = IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK), true);
-		if (APPLY_FRAME) {
+		if (applyFrame) {
 			sdImg = applyFrame(sdImg);
 			imgSrc = applyFrame(imgSrc);
 		}
@@ -636,6 +677,11 @@ public class IconHelper {
 	 */
 	public static BufferedImage getImageFromResource(String fileName) {
 		BufferedImage buff = null;
+		File f = new File( IconHelper.class.getResource("/").getFile());
+		File[] fs = f.listFiles();
+		for (File file : fs) {
+			System.out.println(file);
+		}
 		try (InputStream inS = IconHelper.class.getResourceAsStream(fileName)) {
 			if (inS != null) {
 				logger.debug("Loading image as resource: " + fileName);
