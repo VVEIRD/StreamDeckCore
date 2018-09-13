@@ -171,11 +171,11 @@ public class SoftStreamDeck implements IStreamDeck {
 
 	@Override
 	public void stop() {
+		if(streamDeck != null)
+			this.streamDeck.stop();
 		this.stopThreads();
 		this.frame.setVisible(false);
 		this.frame.dispose();
-		if(streamDeck != null)
-			this.streamDeck.stop();
 	}
 
 	private void stopThreads() {

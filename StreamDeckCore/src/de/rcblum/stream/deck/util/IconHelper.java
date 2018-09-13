@@ -87,6 +87,8 @@ public class IconHelper {
 	 */
 	public static boolean APPLY_FRAME = true;
 	
+	public static Color FRAME_COLOR = Color.BLACK;
+	
 
 	public static BufferedImage FRAME = getImageFromResource("/resources/icons/frame.png");
 
@@ -150,6 +152,7 @@ public class IconHelper {
 		FOLDER_ICON = cacheImage("temp://FOLDER", img);
 		SDImage back = loadImageFromResource("/resources/icons/back.png");
 		cache("temp://BACK", back);
+		cache("FRAME_" + FRAME_COLOR.getRGB(), new SDImage(null, FRAME));
 	}
 
 	public final static SDImage BLACK_ICON;
@@ -178,6 +181,37 @@ public class IconHelper {
 		APPLY_FRAME = oldVal;
 		return sdImage;
 		
+	}
+	
+	public static SDImage createColoredFrame(Color borderColor) {
+		if(imageCache.containsKey("FOLDER_" + borderColor.getRGB()))
+			return imageCache.get("FOLDER_" + borderColor.getRGB());
+		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = img.createGraphics();
+		g.setColor(borderColor);;
+		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
+		g.dispose();
+		applyAlpha(img, FRAME);
+		SDImage sdImage = cacheImage("FOLDER_" + borderColor.getRGB(), img);
+		return sdImage;
+	}
+	
+	public static void applyAlpha(BufferedImage image, BufferedImage mask)
+	{
+	    int width = image.getWidth();
+	    int height = image.getHeight();
+
+	    int[] imagePixels = image.getRGB(0, 0, width, height, null, 0, width);
+	    int[] maskPixels = mask.getRGB(0, 0, width, height, null, 0, width);
+
+	    for (int i = 0; i < imagePixels.length; i++)
+	    {
+	        int color = imagePixels[i] & 0x00ffffff; // Mask preexisting alpha
+	        int alpha = maskPixels[i] & 0xff000000; // Mask color values of the mask image
+	        imagePixels[i] = color | alpha;
+	    }
+
+	    image.setRGB(0, 0, width, height, imagePixels, 0, width);
 	}
 
 	/**
@@ -496,7 +530,7 @@ public class IconHelper {
 		if (FRAME != null) {
 			Graphics2D g = nImg.createGraphics();
 			g.drawImage(img, 0, 0, null);
-			g.drawImage(FRAME, 0, 0, null);
+			g.drawImage(createColoredFrame(FRAME_COLOR).image, 0, 0, null);
 			g.dispose();
 		}
 		return nImg;
@@ -774,7 +808,7 @@ public class IconHelper {
 		if (imageCache.containsKey(path.getFileSystem().toString() + path.toAbsolutePath().toString()))
 			return imageCache.get(path.getFileSystem().toString() + path.toAbsolutePath().toString());
 		try (InputStream inputStream = Files.newInputStream(path)) {
-			return loadImage(path.getFileSystem().toString() + path.toAbsolutePath().toString(), inputStream);
+			return loadImage(path.getFileSystem().toString() + path.toAbsolutePath().toString(), inputStream, false);
 		}
 	}
 
@@ -782,15 +816,16 @@ public class IconHelper {
 		if (imageCache.containsKey(path))
 			return imageCache.get(path);
 		FileInputStream fIn = new FileInputStream(new File(path));
-		return loadImage(path, fIn);
+		return loadImage(path, fIn, false);
 	}
 
-	public static SDImage loadImage(String path, InputStream inputStream) throws IOException {
-		if (imageCache.containsKey(path))
+	public static SDImage loadImage(String path, InputStream inputStream, boolean disableCache) throws IOException {
+		if (imageCache.containsKey(path) && !disableCache)
 			return imageCache.get(path);
 		BufferedImage img = ImageIO.read(inputStream);
 		SDImage imgData = convertImage(img); 
-		cache(path, imgData);
+		if(!disableCache)
+			cache(path, imgData);
 		return imgData;
 	}
 

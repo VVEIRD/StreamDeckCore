@@ -422,8 +422,8 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 		if(shutdownStreamDeck) {
 			this.streamDeck.reset();
 			this.streamDeck.setBrightness(0);
-			this.streamDeck.waitForCompletion();
 			this.streamDeck.stop();
+			this.streamDeck.waitForCompletion();
 		}
 			
 	}

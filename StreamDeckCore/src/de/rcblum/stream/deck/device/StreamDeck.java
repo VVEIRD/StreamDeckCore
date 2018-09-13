@@ -567,12 +567,6 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	@Override
 	public void stop() {
-		this.queue(new Runnable() {
-			@Override
-			public void run() {
-				StreamDeck.this.hidDevice.close();
-			}
-		});
 		this.running = false;
 	}
 
@@ -586,7 +580,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 			try {
 				Thread.sleep(50);
 				time += 50;
-				if (time > 20_000)
+				if (time > 2_000)
 					return;
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
