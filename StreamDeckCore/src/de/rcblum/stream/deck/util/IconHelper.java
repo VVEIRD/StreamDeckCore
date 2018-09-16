@@ -89,7 +89,6 @@ public class IconHelper {
 	
 	public static Color FRAME_COLOR = Color.BLACK;
 	
-
 	public static BufferedImage FRAME = getImageFromResource("/resources/icons/frame.png");
 
 	/**
@@ -169,7 +168,7 @@ public class IconHelper {
 		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
 		g.setColor(new Color(132, 132, 132));
 		g.drawRect(15, 23, 42, 29);
-		g.drawRect(16, 24, 40, 27);
+		g.drawRect(16, 24, 40, 27); 
 		g.drawLine(53, 22, 40, 22);
 		g.drawLine(52, 21, 41, 21);
 		g.drawLine(51, 20, 42, 20);
@@ -244,14 +243,52 @@ public class IconHelper {
 	 * @param pos
 	 *            Position of the text (Top, Center, Bottom, see
 	 *            {@link #TEXT_TOP}, {@link #TEXT_CENTER}, {@link #TEXT_BOTTOM})
+	 * @return byte array with the image where the text was added
+	 */
+	public static SDImage addText(BufferedImage imgData, String text, int pos) {
+		return addText(imgData, text, pos, DEFAULT_FONT.getSize());
+	}
+
+	/**
+	 * Adds a text to a copy of the given image. Position of the text can be
+	 * influenced by <code>pos</code>. Text will be wrapped around the first
+	 * space, if the text is to wide.
+	 * 
+	 * @param imgData
+	 *            Image where the text should be added to.
+	 * @param text
+	 *            Text to be added to the image.
+	 * @param pos
+	 *            Position of the text (Top, Center, Bottom, see
+	 *            {@link #TEXT_TOP}, {@link #TEXT_CENTER}, {@link #TEXT_BOTTOM})
 	 * @param fontSize
 	 *            Size of the font to use
 	 * @return byte array with the image where the text was added
 	 */
 	public static SDImage addText(SDImage imgData, String text, int pos, float fontSize) {
-		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
+		return addText(imgData.image, text, pos, fontSize);
+	}
+	
+	/**
+	 * Adds a text to a copy of the given image. Position of the text can be
+	 * influenced by <code>pos</code>. Text will be wrapped around the first
+	 * space, if the text is to wide.
+	 * 
+	 * @param imgData
+	 *            Image where the text should be added to.
+	 * @param text
+	 *            Text to be added to the image.
+	 * @param pos
+	 *            Position of the text (Top, Center, Bottom, see
+	 *            {@link #TEXT_TOP}, {@link #TEXT_CENTER}, {@link #TEXT_BOTTOM})
+	 * @param fontSize
+	 *            Size of the font to use
+	 * @return byte array with the image where the text was added
+	 */
+	public static SDImage addText(BufferedImage imgData, String text, int pos, float fontSize) {
+		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = img.createGraphics();
-		g2d.drawImage(imgData.image, 0, 0, null);
+		g2d.drawImage(imgData, 0, 0, null);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
 		int yStart = 28;
@@ -711,11 +748,6 @@ public class IconHelper {
 	 */
 	public static BufferedImage getImageFromResource(String fileName) {
 		BufferedImage buff = null;
-		File f = new File( IconHelper.class.getResource("/").getFile());
-		File[] fs = f.listFiles();
-		for (File file : fs) {
-			System.out.println(file);
-		}
 		try (InputStream inS = IconHelper.class.getResourceAsStream(fileName)) {
 			if (inS != null) {
 				logger.debug("Loading image as resource: " + fileName);

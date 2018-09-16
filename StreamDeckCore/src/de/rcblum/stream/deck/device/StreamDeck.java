@@ -156,6 +156,30 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 			long t = 0;
 			int a = 0;
 			while (running || !running && !sendPool.isEmpty()) {
+				if(sendPool.size() > 100) {
+					Runnable[] keys = new Runnable[15];
+					Runnable reset = null;
+					Runnable brightness = null;
+					Runnable task = null;
+					while ((task = sendPool.poll()) != null) {
+						if (task instanceof IconUpdater) {
+							IconUpdater iu = (IconUpdater)task;
+							keys[iu.keyIndex] = iu;
+						}
+						else if(task instanceof Resetter)
+							reset = task;
+						else if (task instanceof BrightnessUpdater) 
+							brightness = task;
+					}
+					if(brightness != null)
+						sendPool.add(brightness);
+					if(reset != null)
+						sendPool.add(reset);
+					for (int i = 0; i < keys.length; i++) {
+						if(keys[i] != null)
+							sendPool.add(keys[i]);
+					}
+				}
 				t = System.nanoTime();
 				Runnable task = sendPool.poll();
 				if (task != null) {

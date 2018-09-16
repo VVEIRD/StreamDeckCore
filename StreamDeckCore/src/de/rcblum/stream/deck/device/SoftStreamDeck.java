@@ -1,8 +1,10 @@
 package de.rcblum.stream.deck.device;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -17,6 +19,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.Timer;
+import javax.swing.event.MouseInputAdapter;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +33,20 @@ import de.rcblum.stream.deck.util.SDImage;
 import purejavahidapi.HidDevice;
 
 public class SoftStreamDeck implements IStreamDeck {
+	
+	private static List<SoftStreamDeck> instances = new ArrayList<>(5);
+	
+	public static void showDecks() {
+		for (SoftStreamDeck softStreamDeck : instances) {
+			softStreamDeck.frame.setVisible(true);
+		}
+	}
+	
+	public static void hideDecks() {
+		for (SoftStreamDeck softStreamDeck : instances) {
+			softStreamDeck.frame.setVisible(false);
+		}
+	}
 	
 	private static Logger logger = LogManager.getLogger(SoftStreamDeck.class);
 
@@ -85,16 +102,20 @@ public class SoftStreamDeck implements IStreamDeck {
 		};
 		this.frame.setSize(new Dimension(486, 330));
 		this.frame.getContentPane().setBackground(Color.BLACK);
-		this.frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		this.frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.frame.setResizable(false);
 		JLabel jl = new JLabel(new ImageIcon(this.drawBuffer));
 		jl.addMouseListener(new KeyListener());
 		jl.setBounds(0, 0, 470, 295);
+		DragListener dl = new DragListener();
+		jl.addMouseListener(dl);
+		jl.addMouseMotionListener(dl);
 		this.frame.setLayout(null);
 		this.frame.add(jl);
 		this.frame.setVisible(true);
 		this.frame.setAlwaysOnTop (true);
 		this.startThreads();
+		instances.add(this);
 	}
 
 	private void startThreads() {
@@ -284,11 +305,7 @@ public class SoftStreamDeck implements IStreamDeck {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			int keyId = getIndex(e.getX(), e.getY()); 
-			if (keyId >= 0) {
-				KeyEvent evnt = new KeyEvent( SoftStreamDeck.this, keyId, Type.RELEASED_CLICKED);
-				SoftStreamDeck.this.recievePool.add(evnt);
-			}
+			
 		}
 
 		@Override
@@ -302,7 +319,11 @@ public class SoftStreamDeck implements IStreamDeck {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-//			this.mouseClicked(e);
+			int keyId = getIndex(e.getX(), e.getY()); 
+			if (keyId >= 0) {
+				KeyEvent evnt = new KeyEvent( SoftStreamDeck.this, keyId, Type.RELEASED_CLICKED);
+				SoftStreamDeck.this.recievePool.add(evnt);
+			}
 		}
 
 		@Override
@@ -353,6 +374,26 @@ public class SoftStreamDeck implements IStreamDeck {
 			}
 		}
 
+	}
+	
+	public class DragListener extends MouseInputAdapter
+	{
+	    Point location;
+	    MouseEvent pressed;
+	 
+	    public void mousePressed(MouseEvent me)
+	    {
+	        pressed = me;
+	    }
+	 
+	    public void mouseDragged(MouseEvent me)
+	    {
+	        Component component = frame;
+	        location = component.getLocation(location);
+	        int x = location.x - pressed.getX() + me.getX();
+	        int y = location.y - pressed.getY() + me.getY();
+	        frame.setLocation(x, y);
+	     }
 	}
 
 }

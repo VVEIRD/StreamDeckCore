@@ -78,7 +78,7 @@ public class TestAnimationStack {
 		sdc.pressButton(10);
 		sdc.pressButton(14);
 		try {
-			Thread.sleep(10_000);
+			Thread.sleep(90_000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
