@@ -14,7 +14,7 @@ public class PagedFolderItem extends FolderItem {
 	public PagedFolderItem(String folderName, StreamItem parent, PagedFolderItem previous, StreamItem[] children) {
 		super(folderName, parent, new StreamItem[15]);
 		children = children != null ? children : new StreamItem[15];
-		int maxItems = 9;
+		int maxItems = children.length - 6;
 		// Create Sub-folder for more then 9/10 children (with parent/without parent)
 		int countTotal=0;
 		for (StreamItem streamItem : children) {

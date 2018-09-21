@@ -157,7 +157,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 			int a = 0;
 			while (running || !running && !sendPool.isEmpty()) {
 				if(sendPool.size() > 100) {
-					Runnable[] keys = new Runnable[15];
+					Runnable[] keys = new Runnable[StreamDeck.this.getKeySize()];
 					Runnable reset = null;
 					Runnable brightness = null;
 					Runnable task = null;
@@ -328,12 +328,17 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Keys set to be displayed on the StreamDeck
 	 */
-	private StreamItem[] keys = new StreamItem[15];
+	private StreamItem[] keys = new StreamItem[StreamDeck.this.getKeySize()];
 
 	/**
 	 * current values if a key on a certain index is pressed or not
 	 */
-	private boolean[] keysPressed = new boolean[15];
+	private boolean[] keysPressed = new boolean[StreamDeck.this.getKeySize()];
+	
+	/**
+	 * Amount of keys present in the stream deck.
+	 */
+	private int keyCount =  BUTTON_COUNT;
 
 	/**
 	 * Queue for commands to be sent to the ESD
@@ -383,8 +388,11 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 * @param brightness
 	 *            Brightness from 0 .. 99
 	 */
-	public StreamDeck(HidDevice streamDeck, int brightness) {
+	public StreamDeck(HidDevice streamDeck, int brightness, int keyCount) {
 		super();
+		this.keyCount = keyCount;
+		this.keys = new StreamItem[this.getKeySize()];
+		this.keysPressed = new boolean[this.getKeySize()];
 		this.hidDevice = streamDeck;
 		this.hidDevice.setInputReportListener(this);
 		this.brightness[5] = (byte) brightness;
@@ -411,6 +419,11 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	private void _updateBrightnes() {
 		hidDevice.setFeatureReport(this.brightness[0], Arrays.copyOfRange(this.brightness, 1, this.brightness.length), this.brightness.length-1);
+	}
+	
+	@Override
+	public int getKeySize() {
+		return this.keyCount;
 	}
 
 	/* (non-Javadoc)
@@ -537,7 +550,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	@Override
 	public void onInputReport(HidDevice source, byte reportID, byte[] reportData, int reportLength) {
 		if (reportID == 1) {
-			for (int i = 0; i < 15 && i < reportLength; i++) {
+			for (int i = 0; i < StreamDeck.this.getKeySize() && i < reportLength; i++) {
 				if (keysPressed[i] != (reportData[i] == 0x01)) {
 					fireKeyChangedEvent(i, reportData[i] == 0x01);
 					keysPressed[i] = reportData[i] == 0x01;

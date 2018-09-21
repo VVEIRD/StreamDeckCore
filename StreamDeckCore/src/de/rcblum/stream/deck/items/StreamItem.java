@@ -67,6 +67,8 @@ public interface StreamItem extends StreamKeyListener {
 	public default StreamItem[] getChildren() {
 		return null;
 	}
+	
+	public int getChildCount();
 
 	public default StreamItem getChild(int i) {
 		return null;

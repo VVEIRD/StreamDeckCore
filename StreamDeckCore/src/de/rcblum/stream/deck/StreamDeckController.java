@@ -118,7 +118,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 		while (this.root.getParent() != null)
 			this.root = this.root.getParent();
 		this.currentDir = root;
-		this.animators = new Animator[15];
+		this.animators = new Animator[this.streamDeck.getKeySize()];
 		this.updateDisplay();
 		this.addIconListener();
 		this.fireOnDisplay();

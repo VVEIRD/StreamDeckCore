@@ -54,7 +54,7 @@ public class SoftStreamDeck implements IStreamDeck {
 		
 	private IStreamDeck streamDeck = null;
 	
-	StreamItem[] keys = new StreamItem[15];
+	StreamItem[] keys = null;
 	
 	private List<StreamKeyListener> listerners;
 	
@@ -87,6 +87,7 @@ public class SoftStreamDeck implements IStreamDeck {
 	
 	public SoftStreamDeck(String name, IStreamDeck streamDeck) {
 		this.streamDeck = streamDeck;
+		this.keys = new StreamItem[streamDeck != null ? this.streamDeck.getKeySize() : 15];
 		listerners = new ArrayList<>(4);
 		this.writeBuffer = IconHelper.getImageFromResource("/resources/sd-background.png");
 		this.drawBuffer = IconHelper.getImageFromResource("/resources/sd-background.png");
@@ -116,6 +117,11 @@ public class SoftStreamDeck implements IStreamDeck {
 		this.frame.setAlwaysOnTop (true);
 		this.startThreads();
 		instances.add(this);
+	}
+	
+	@Override
+	public int getKeySize() {
+		return this.keys.length;
 	}
 
 	private void startThreads() {

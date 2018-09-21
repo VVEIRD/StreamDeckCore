@@ -111,7 +111,7 @@ public class StreamDeckDevices {
 			STREAM_DECKS = new ArrayList<>(STREAM_DECK_DEVICES.size());
 			if (dev != null) {
 				for (HidDevice hidDevice : STREAM_DECK_DEVICES) {
-					STREAM_DECKS.add(new StreamDeck(hidDevice, 99));
+					STREAM_DECKS.add(new StreamDeck(hidDevice, 99, StreamDeck.BUTTON_COUNT));
 				}
 			}
 		}

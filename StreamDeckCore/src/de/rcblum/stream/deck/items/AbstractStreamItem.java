@@ -3,6 +3,8 @@ package de.rcblum.stream.deck.items;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.rcblum.stream.deck.device.StreamDeck;
+import de.rcblum.stream.deck.device.StreamDeckDevices;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 import de.rcblum.stream.deck.items.listeners.IconUpdateListener;
 import de.rcblum.stream.deck.util.IconHelper;
@@ -72,30 +74,45 @@ public abstract class AbstractStreamItem implements StreamItem {
 	 * Listeners for updates to the icons
 	 */
 	List<IconUpdateListener> listeners = null;
+	
+	protected int buttonCount = StreamDeck.BUTTON_COUNT;
 
 	public AbstractStreamItem(SDImage img) {
-		this(img, null);
+		this(img, null, StreamDeck.BUTTON_COUNT);
 	}
 
 	public AbstractStreamItem(IconPackage pkg) {
-		this(pkg.icon, pkg.animation, null);
+		this(pkg.icon, pkg.animation, null, StreamItem.TEXT_POS_BOTTOM, StreamDeck.BUTTON_COUNT);
 	}
 
 	public AbstractStreamItem(SDImage img, AnimationStack animation) {
-		this(img, animation, null);
+		this(img, animation, null, StreamItem.TEXT_POS_BOTTOM, StreamDeck.BUTTON_COUNT);
 	}
 
 	public AbstractStreamItem(SDImage img, AnimationStack animation, String text) {
-		this(img, animation, text, StreamItem.TEXT_POS_BOTTOM);
+		this(img, animation, text, StreamItem.TEXT_POS_BOTTOM, StreamDeck.BUTTON_COUNT);
+	}
+	
+	public AbstractStreamItem(SDImage img, int buttonCount) {
+		this(img, null, buttonCount);
 	}
 
-	public AbstractStreamItem(SDImage rawImg, AnimationStack animation, String text, int textPos) {
+	public AbstractStreamItem(IconPackage pkg, int buttonCount) {
+		this(pkg.icon, pkg.animation, null, StreamItem.TEXT_POS_BOTTOM, buttonCount);
+	}
+
+	public AbstractStreamItem(SDImage img, AnimationStack animation, int buttonCount) {
+		this(img, animation, null, StreamItem.TEXT_POS_BOTTOM, buttonCount);
+	}
+
+	public AbstractStreamItem(SDImage rawImg, AnimationStack animation, String text, int textPos, int buttonCount) {
 		super();
 		this.text = text;
 		this.textPos = textPos;
 		this.rawImg = rawImg;
 		this.animation = animation;
 		this.listeners = new LinkedList<>();
+		this.buttonCount = buttonCount;
 		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
 		if (this.text != null && this.animation != null) {
 			this.animation.setTextPos(this.textPos);
@@ -117,6 +134,11 @@ public abstract class AbstractStreamItem implements StreamItem {
 			this.animation.setText(this.text);
 		}
 		this.fireIconUpdate(true);
+	}
+	
+	@Override
+	public int getChildCount() {
+		return 0;
 	}
 
 	@Override
