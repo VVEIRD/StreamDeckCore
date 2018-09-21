@@ -11,10 +11,10 @@ public class PagedFolderItem extends FolderItem {
 
 	private static Logger logger = LogManager.getLogger(PagedFolderItem.class);
 
-	public PagedFolderItem(String folderName, StreamItem parent, PagedFolderItem previous, StreamItem[] children) {
+	public PagedFolderItem(String folderName, StreamItem parent, PagedFolderItem previous, StreamItem[] children, int keyCount) {
 		super(folderName, parent, new StreamItem[15]);
 		children = children != null ? children : new StreamItem[15];
-		int maxItems = children.length - 6;
+		int maxItems = keyCount - 6;
 		// Create Sub-folder for more then 9/10 children (with parent/without parent)
 		int countTotal=0;
 		for (StreamItem streamItem : children) {
@@ -41,7 +41,7 @@ public class PagedFolderItem extends FolderItem {
 			// Create children for next page
 			StreamItem[] nextPageChildren = Arrays.copyOfRange(children, childIndex, children.length);
 			// Create next page
-			PagedFolderItem next = new PagedFolderItem(folderName, parent, this, nextPageChildren);
+			PagedFolderItem next = new PagedFolderItem(folderName, parent, this, nextPageChildren, keyCount);
 			next.setTextPosition(TEXT_POS_CENTER);
 			next.setText("Next");
 			this.getChildren()[10] = new NextItem(next);
