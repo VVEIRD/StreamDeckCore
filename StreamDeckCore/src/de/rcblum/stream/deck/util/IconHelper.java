@@ -823,14 +823,14 @@ public class IconHelper {
 	}
 
 	public static SDImage loadImageSafe(String path) {
-		return loadImageSafe(Paths.get(path));
+		return loadImageSafe(Paths.get(path != null ? path : "."));
 	}
 
 	public static SDImage loadImageSafe(Path path) {
 		SDImage icon = null;
 		try {
 			icon = loadImage(path);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			icon = IconHelper.getImage("temp://BLACK_ICON");
 		}
 		return icon;

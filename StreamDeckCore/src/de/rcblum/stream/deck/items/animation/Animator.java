@@ -1,7 +1,9 @@
 package de.rcblum.stream.deck.items.animation;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -50,6 +52,8 @@ import de.rcblum.stream.deck.util.SDImage;
 public class Animator implements StreamKeyListener, Runnable {
 
 	Logger logger = LogManager.getLogger(Animator.class);
+	
+	Map<IStreamDeck, Animator[]> animators = new HashMap<>();
 
 	/**
 	 * Stream Deck that conatins the key on which the animation should be
@@ -113,6 +117,11 @@ public class Animator implements StreamKeyListener, Runnable {
 		logger.debug(keyIndex + ": New animator");
 		this.streamDeck = streamDeck;
 		this.keyIndex = keyIndex;
+		if(animators.get(streamDeck) == null)
+			animators.put(streamDeck, new Animator[streamDeck.getKeySize()]);
+		if (animators.get(streamDeck)[this.keyIndex] != null)
+			animators.get(streamDeck)[this.keyIndex].stop(true);
+		animators.get(streamDeck)[this.keyIndex] = this;
 		this.animation = animation;
 		logger.debug(this.keyIndex + ": Autoplay: " + this.animation.autoPlay());
 		if (this.animation.autoPlay())
