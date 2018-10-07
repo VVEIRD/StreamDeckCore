@@ -54,6 +54,8 @@ public class Animator implements StreamKeyListener, Runnable {
 	Logger logger = LogManager.getLogger(Animator.class);
 	
 	Map<IStreamDeck, Animator[]> animators = new HashMap<>();
+	
+	private static Object syncLock = new Object(); 
 
 	/**
 	 * Stream Deck that conatins the key on which the animation should be
@@ -117,11 +119,13 @@ public class Animator implements StreamKeyListener, Runnable {
 		logger.debug(keyIndex + ": New animator");
 		this.streamDeck = streamDeck;
 		this.keyIndex = keyIndex;
-		if(animators.get(streamDeck) == null)
-			animators.put(streamDeck, new Animator[streamDeck.getKeySize()]);
-		if (animators.get(streamDeck)[this.keyIndex] != null)
-			animators.get(streamDeck)[this.keyIndex].stop(true);
-		animators.get(streamDeck)[this.keyIndex] = this;
+		synchronized (syncLock) {
+			if(animators.get(streamDeck) == null)
+				animators.put(streamDeck, new Animator[streamDeck.getKeySize()]);
+			if (animators.get(streamDeck)[this.keyIndex] != null)
+				animators.get(streamDeck)[this.keyIndex].stop(true);
+			animators.get(streamDeck)[this.keyIndex] = this;
+		}
 		this.animation = animation;
 		logger.debug(this.keyIndex + ": Autoplay: " + this.animation.autoPlay());
 		if (this.animation.autoPlay())
