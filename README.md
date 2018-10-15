@@ -32,7 +32,7 @@ If you have no Stream Deck yourself, but still want to develop for the plattform
 ### Github
 This uses the github project https://github.com/nyholku/purejavahidapi (forked to https://github.com/WElRD/purejavahidapi).
 
-__I'd recommend using the following fork for now, as the current version of nyholku's library introduces some errors that breaks this library: https://github.com/AlainCo/purejavahidapi/archive/ac5a23f9adcd6332fe2ae8ad5b3c293c5a8c2cab.zip__. This version is also included in the releases.
+__I'd recommend using the following fork for now, as the current version of nyholku's library introduces some errors that breaks this library: https://github.com/WElRD/purejavahidapi__. This version is also included in the releases.
 
 ### Maven
 jna 4.0, gson and log4j, which can be downloaded through maven:
