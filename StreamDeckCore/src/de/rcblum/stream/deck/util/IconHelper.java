@@ -519,7 +519,7 @@ public class IconHelper {
 	 *         stream deck
 	 */
 	public static SDImage convertImage(BufferedImage img, boolean applyFrame) {
-		BufferedImage sdImg = IconHelper.createResizedCopy(IconHelper.fillBackground(IconHelper.rotate180(img), Color.BLACK), false);
+		BufferedImage sdImg = IconHelper.rotate180(IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK), false));
 		BufferedImage imgSrc = IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK), true);
 		if (applyFrame) {
 			sdImg = applyFrame(sdImg);
