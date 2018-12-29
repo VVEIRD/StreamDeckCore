@@ -29,7 +29,7 @@ package de.rcblum.stream.deck.items.listeners;
  * SOFTWARE.<br>
  * 
  * @author Roland von Werden
- * @version 0.1
+ * @version 1.0.0
  *
  */
 public interface AnimationListener {

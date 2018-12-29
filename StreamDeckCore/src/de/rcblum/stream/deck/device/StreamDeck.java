@@ -72,7 +72,7 @@ import purejavahidapi.InputReportListener;
  * SOFTWARE.<br>
  * 
  * @author Roland von Werden
- * @version 0.1
+ * @version 1.0.0
  *
  */
 public class StreamDeck implements InputReportListener, IStreamDeck {
@@ -82,7 +82,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Job that is submitted, when the Method {@link StreamDeck#setBrightness(int)} is called.<br>
 	 * When executed it will call the Method {@link StreamDeck#_updateBrightnes()}, which will send the brightness command to the stream deck.
-	 * @author rcBlum
+	 * @author Roland von Werden
 	 *
 	 */
 	private class BrightnessUpdater implements Runnable {
@@ -143,7 +143,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 * If the execution of one command is completed in less tha on ms the thread is put to sleep for 1 ms.
 	 * As long as one loop takes up less then 2 ms the rest of the time is actively wated
 	 * 
-	 * @author rcRoland von Werden
+	 * @author Roland von Werden
 	 *
 	 */
 	private class DeckWorker implements Runnable {
@@ -215,7 +215,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 
 	/**
 	 * Sends an Icon to a given key on the ESD.
-	 * @author rcBlum
+	 * @author Roland von Werden
 	 *
 	 */
 	private class IconUpdater implements Runnable {
@@ -238,7 +238,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 
 	/**
 	 * Sends the reset command to the ESD.
-	 * @author rcBlum
+	 * @author Roland von Werden
 	 *
 	 */
 	private class Resetter implements Runnable {

@@ -34,7 +34,7 @@ import de.rcblum.stream.deck.util.IconHelper;
  * SOFTWARE.
  * 
  * @author Roland von Werden
- * @version 0.1
+ * @version 1.0.0
  *
  */
 public class TestStreamDeckIconPlacement {

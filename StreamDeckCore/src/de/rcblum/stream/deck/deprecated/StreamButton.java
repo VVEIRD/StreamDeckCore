@@ -34,7 +34,7 @@ import purejavahidapi.HidDevice;
  * SOFTWARE.
  * 
  * @author Roland von Werden
- * @version 0.1
+ * @version 1.0.0
  *
  */
 @Deprecated

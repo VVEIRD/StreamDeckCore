@@ -29,7 +29,7 @@ import de.rcblum.stream.deck.items.animation.AnimationStack;
  * SOFTWARE.
  * 
  * @author Roland von Werden
- * @version 0.1
+ * @version 1.0.0
  *
  */
 public class IconPackage {

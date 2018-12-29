@@ -43,7 +43,7 @@ import de.rcblum.stream.deck.util.SDImage;
  * SOFTWARE.
  * 
  * @author Roland von Werden
- * @version 0.1
+ * @version 1.0.0
  *
  */
 public class URIItem extends AbstractStreamItem {

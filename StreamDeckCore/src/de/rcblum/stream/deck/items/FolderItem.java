@@ -8,7 +8,7 @@ import de.rcblum.stream.deck.util.SDImage;
 /**
  * Simple Stream Item that can contain other stream items.
  * 
- * @author rcBlum
+ * @author Roland von Werden
  *
  */
 public class FolderItem extends AbstractStreamItem {

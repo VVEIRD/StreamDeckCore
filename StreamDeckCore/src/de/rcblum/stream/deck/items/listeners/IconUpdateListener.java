@@ -31,7 +31,7 @@ import de.rcblum.stream.deck.items.StreamItem;
  * SOFTWARE.<br>
  * 
  * @author Roland von Werden
- * @version 0.1
+ * @version 1.0.0
  *
  */
 public interface IconUpdateListener {
