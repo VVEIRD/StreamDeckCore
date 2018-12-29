@@ -215,8 +215,8 @@ public class AnimationStack {
 	/**
 	 * Returns the at the position given by the index
 	 * 
-	 * @param frameNo
-	 * @return
+	 * @param frameNo Frame number to be returned
+	 * @return Frame for the given frameNo.
 	 */
 	public SDImage getFrame(int frameNo) {
 		return this.frames[frameNo];
