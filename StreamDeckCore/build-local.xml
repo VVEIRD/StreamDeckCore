@@ -82,7 +82,9 @@
 		<property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter" />
 		<antcall target="build" />
 	</target>
-	<target name="create_jar"> 
+	<target name="create_jar">
+		<delete dir="${dir.jarfile.latest}" />
+		<mkdir dir="${dir.jarfile.latest}" />
 		<jar destfile="${dir.jarfile}/StreamDeckCore.jar">
 			<fileset dir="${dir.buildfile}/target/classes" />
 		</jar>
