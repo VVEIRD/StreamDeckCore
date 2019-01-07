@@ -119,7 +119,7 @@ public class IconHelper {
 	/**
 	 * Sets the padding for the rolling text.
 	 */
-	public static int rollingTextPadding = 10;
+	private static int rollingTextPadding = 10;
 	
 	/**
 	 * Alpha value for the textbox background
@@ -189,15 +189,15 @@ public class IconHelper {
 	}
 	
 	public static SDImage createColoredFrame(Color borderColor) {
-		if(imageCache.containsKey("FOLDER_" + borderColor.getRGB()))
-			return imageCache.get("FOLDER_" + borderColor.getRGB());
+		if(imageCache.containsKey(FOLDER_IMAGE_PREFIX + borderColor.getRGB()))
+			return imageCache.get(FOLDER_IMAGE_PREFIX + borderColor.getRGB());
 		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = img.createGraphics();
 		g.setColor(borderColor);;
 		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
 		g.dispose();
 		applyAlpha(img, FRAME);
-		return cacheImage("FOLDER_" + borderColor.getRGB(), img);
+		return cacheImage(FOLDER_IMAGE_PREFIX + borderColor.getRGB(), img);
 	}
 	
 	public static void applyAlpha(BufferedImage image, BufferedImage mask)
