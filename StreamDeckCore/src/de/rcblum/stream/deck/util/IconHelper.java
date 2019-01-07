@@ -329,9 +329,13 @@ public class IconHelper {
 		if (g2d.getFontMetrics().stringWidth(text) > 71 && text.contains(" ")) {
 			text = text.replaceFirst(" ", "\n");
 		}
-		int yOffset = (int) (pos == TEXT_CENTER ? (lines.size() / 2.0) * g2d.getFontMetrics().getHeight()
-				: pos == TEXT_BOTTOM ? (lines.size() - 1) * g2d.getFontMetrics().getHeight() : 0);
+		// Calculate y-offset for placing the text in the center, if applicable 
+		int	yOffset = (int) (pos == TEXT_CENTER ? (lines.size() / 2.0) * g2d.getFontMetrics().getHeight() : 0);
+		// Calculate y-offset for placing the text in the bottom, if applicable
+		yOffset +=  (pos == TEXT_BOTTOM ? (lines.size() - 1) * g2d.getFontMetrics().getHeight() : 0);
+		
 		int y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2) - yOffset);
+		
 		g2d.setColor(new Color(0, 0, 0, textBoxAlphaValue));
 		for (String line : lines) {
 			int width = g2d.getFontMetrics().stringWidth(line);
@@ -342,9 +346,14 @@ public class IconHelper {
 		}
 		g2d.setColor(Color.LIGHT_GRAY);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		yOffset = (int) (pos == TEXT_CENTER ? (lines.size() / 2.0) * g2d.getFontMetrics().getHeight()
-				: pos == TEXT_BOTTOM ? (lines.size() - 1) * g2d.getFontMetrics().getHeight() : 0);
+		
+		// Calculate y-offset for placing the text in the center, if applicable 
+		yOffset = (int) (pos == TEXT_CENTER ? (lines.size() / 2.0) * g2d.getFontMetrics().getHeight() : 0);
+		// Calculate y-offset for placing the text in the bottom, if applicable
+		yOffset +=  (pos == TEXT_BOTTOM ? (lines.size() - 1) * g2d.getFontMetrics().getHeight() : 0);
+		
 		y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2) - yOffset);
+		
 		for (String line : lines) {
 			int width = g2d.getFontMetrics().stringWidth(line);
 			int x = (StreamDeck.ICON_SIZE / 2) - width / 2;
