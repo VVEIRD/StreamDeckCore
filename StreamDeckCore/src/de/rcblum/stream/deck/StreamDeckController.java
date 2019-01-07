@@ -368,18 +368,16 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 			}
 			if (this.currentDir.getParent() != null && i == 4) {
 				streamDeck.drawImage(i, this.back);
-			} else if (children[i] != null) {
-				if (this.animators[i] == null || !this.animators[i].isActive()) {
-					if (this.animators[i] != null && this.animators[i].isActive()) {
-						streamDeck.drawImage(i, this.animators[i].getCurrentIcon());
-					} else {
-						streamDeck.drawImage(i, children[i].getIcon());
-					}
-					if (updateAnimators && children[i].hasAnimation()) {
-						Animator a = new Animator(streamDeck, i, children[i].getAnimation());
-						this.animators[i] = a;
-						this.animators[i].addAnimationListener(this);
-					}
+			} else if (children[i] != null && (this.animators[i] == null || !this.animators[i].isActive())) {
+				if (this.animators[i] != null && this.animators[i].isActive()) {
+					streamDeck.drawImage(i, this.animators[i].getCurrentIcon());
+				} else {
+					streamDeck.drawImage(i, children[i].getIcon());
+				}
+				if (updateAnimators && children[i].hasAnimation()) {
+					Animator a = new Animator(streamDeck, i, children[i].getAnimation());
+					this.animators[i] = a;
+					this.animators[i].addAnimationListener(this);
 				}
 			} else {
 				streamDeck.clearButton(i);
