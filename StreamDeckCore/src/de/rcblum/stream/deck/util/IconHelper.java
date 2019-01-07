@@ -80,12 +80,16 @@ import de.rcblum.stream.deck.items.animation.AnimationStack;
  */
 public class IconHelper {
 
+	private static final String FOLDER_IMAGE_PREFIX = "temp://FOLDER_";
+
+	private static final String TEMP_BLACK_ICON = "temp://BLACK_ICON";
+
 	private static Logger logger = LogManager.getLogger(IconHelper.class);
 
 	/**
 	 * Switch for drawing a black rounded frame around all images
 	 */
-	public static boolean APPLY_FRAME = true;
+	public static boolean applyFrame = true;
 	
 	public static Color FRAME_COLOR = Color.BLACK;
 	
@@ -115,9 +119,12 @@ public class IconHelper {
 	/**
 	 * Sets the padding for the rolling text.
 	 */
-	public static int ROLLING_TEXT_PADDING = 10;
+	public static int rollingTextPadding = 10;
 	
-	public static int TEXT_BOX_ALPHA_VALUE = 200;
+	/**
+	 * Alpha value for the textbox background
+	 */	
+	public static int textBoxAlphaValue = 200;
 
 	/**
 	 * Cache for loaded images
@@ -135,7 +142,7 @@ public class IconHelper {
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
 		g.dispose();
-		BLACK_ICON = cacheImage("temp://BLACK_ICON", img);
+		BLACK_ICON = cacheImage(TEMP_BLACK_ICON, img);
 		img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
 		g = img.createGraphics();
 		g.setColor(Color.BLACK);
@@ -153,17 +160,16 @@ public class IconHelper {
 		cache("temp://BACK", back);
 		cache("FRAME_" + FRAME_COLOR.getRGB(), new SDImage(null, FRAME));
 	}
+	
+	public static final SDImage BLACK_ICON;
 
-	public final static SDImage BLACK_ICON;
-
-	public final static SDImage FOLDER_ICON;
+	public static final SDImage FOLDER_ICON;
 	
 	public static SDImage createFolderImage(Color background, boolean applyFrame) {
-		if(imageCache.containsKey("temp://FOLDER_" + background.getRGB()))
-			return imageCache.get("temp://FOLDER_" + background.getRGB());
+		if(imageCache.containsKey(FOLDER_IMAGE_PREFIX + background.getRGB()))
+			return imageCache.get(FOLDER_IMAGE_PREFIX + background.getRGB());
 		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = img.createGraphics();
-		g = img.createGraphics();
 		g.setColor(background);
 		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
 		g.setColor(new Color(132, 132, 132));
@@ -174,10 +180,10 @@ public class IconHelper {
 		g.drawLine(51, 20, 42, 20);
 		g.drawLine(50, 19, 43, 19);
 		g.dispose();
-		boolean oldVal = APPLY_FRAME;
-		APPLY_FRAME = applyFrame;
-		SDImage sdImage = cacheImage("temp://FOLDER_" + background.getRGB(), img);
-		APPLY_FRAME = oldVal;
+		boolean oldVal = IconHelper.applyFrame;
+		IconHelper.applyFrame = applyFrame;
+		SDImage sdImage = cacheImage(FOLDER_IMAGE_PREFIX + background.getRGB(), img);
+		IconHelper.applyFrame = oldVal;
 		return sdImage;
 		
 	}
@@ -191,8 +197,7 @@ public class IconHelper {
 		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
 		g.dispose();
 		applyAlpha(img, FRAME);
-		SDImage sdImage = cacheImage("FOLDER_" + borderColor.getRGB(), img);
-		return sdImage;
+		return cacheImage("FOLDER_" + borderColor.getRGB(), img);
 	}
 	
 	public static void applyAlpha(BufferedImage image, BufferedImage mask)
@@ -307,11 +312,10 @@ public class IconHelper {
 		if (g2d.getFontMetrics().stringWidth(text) > 71 && text.contains(" ")) {
 			text = text.replaceFirst(" ", "\n");
 		}
-
-		int y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2)
-				- (pos == TEXT_CENTER ? (lines.size() / 2.0) * g2d.getFontMetrics().getHeight()
-						: pos == TEXT_BOTTOM ? (lines.size() - 1) * g2d.getFontMetrics().getHeight() : 0));
-		g2d.setColor(new Color(0, 0, 0, TEXT_BOX_ALPHA_VALUE));
+		int yOffset = (int) (pos == TEXT_CENTER ? (lines.size() / 2.0) * g2d.getFontMetrics().getHeight()
+				: pos == TEXT_BOTTOM ? (lines.size() - 1) * g2d.getFontMetrics().getHeight() : 0);
+		int y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2) - yOffset);
+		g2d.setColor(new Color(0, 0, 0, textBoxAlphaValue));
 		for (String line : lines) {
 			int width = g2d.getFontMetrics().stringWidth(line);
 			int x = (StreamDeck.ICON_SIZE / 2) - width / 2;
@@ -321,9 +325,9 @@ public class IconHelper {
 		}
 		g2d.setColor(Color.LIGHT_GRAY);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2)
-				- (pos == TEXT_CENTER ? (lines.size() / 2.0) * g2d.getFontMetrics().getHeight()
-						: pos == TEXT_BOTTOM ? (lines.size() - 1) * g2d.getFontMetrics().getHeight() : 0));
+		yOffset = (int) (pos == TEXT_CENTER ? (lines.size() / 2.0) * g2d.getFontMetrics().getHeight()
+				: pos == TEXT_BOTTOM ? (lines.size() - 1) * g2d.getFontMetrics().getHeight() : 0);
+		y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2) - yOffset);
 		for (String line : lines) {
 			int width = g2d.getFontMetrics().stringWidth(line);
 			int x = (StreamDeck.ICON_SIZE / 2) - width / 2;
@@ -331,10 +335,8 @@ public class IconHelper {
 			g2d.drawString(line, x, y);
 			y += g2d.getFontMetrics().getHeight();
 		}
-		// g2d.drawString(text, x, y);
 		g2d.dispose();
-		SDImage newImage = convertImage(img);
-		return newImage;
+		return convertImage(img);
 	}
 	
 	public static AnimationStack createRollingTextAnimation(SDImage imgData, String text, int pos) {
@@ -374,10 +376,10 @@ public class IconHelper {
 		default:
 			break;
 		}
-		int y = (int) (yStart - (g2d.getFontMetrics().getHeight() / 2));
-		g2d.setColor(new Color(0, 0, 0, TEXT_BOX_ALPHA_VALUE));
+		int y = (yStart - (g2d.getFontMetrics().getHeight() / 2));
+		g2d.setColor(new Color(0, 0, 0, textBoxAlphaValue));
 		int width = 72;
-		int x = IconHelper.ROLLING_TEXT_PADDING;
+		int x = IconHelper.rollingTextPadding;
 		g2d.fillRect(x - 1, y - g2d.getFontMetrics().getHeight() + 7, width + 2, g2d.getFontMetrics().getHeight() - 4);
 		g2d.dispose();
 		// Draw Frames
@@ -397,7 +399,7 @@ public class IconHelper {
 			g.dispose();
 			frames.add(convertImage(frame));
 			g2d.drawImage(baseImage, 0, 0, null);
-		} while(x+g2d.getFontMetrics().stringWidth(text) > StreamDeck.ICON_SIZE - IconHelper.ROLLING_TEXT_PADDING);
+		} while(x+g2d.getFontMetrics().stringWidth(text) > StreamDeck.ICON_SIZE - IconHelper.rollingTextPadding);
 		g2d.dispose();
 		SDImage[] frameArray = frames.toArray(new SDImage[0]);
 		animation.setFrames(frameArray);
@@ -415,11 +417,12 @@ public class IconHelper {
 		List<String> lines = new LinkedList<>();
 		String[] arr = text.split(" ");
 		int[] wordWidth = new int[arr.length];
+		// Calculate the length of each word and save the length into the array
+		// wordWidth
 		for (int f = 0; f < wordWidth.length; f++) {
 			char[] calcString = arr[f].toCharArray();
 			int stringWidth = 0;
 			for (int i = 0; i < calcString.length; i++) {
-				
 				if (i < calcString.length)
 					stringWidth += fontMetrics.stringWidth(String.valueOf(calcString[i]));
 			}
@@ -430,7 +433,6 @@ public class IconHelper {
 		int spaceWidth = fontMetrics.stringWidth(" ");
 		// Split paragraph into lines depending on Field width
 		for (int i = 0; i < arr.length; i++) {
-			//if (metrics.stringWidth((line + (!line.isEmpty() ? " " : "" )  + arr[i]).replace("\t", TAB_SPACING).replace("-$-", "")) < width) {
 			if (lineWidth + (lineWidth > 0 ? spaceWidth : 0) + wordWidth[i] < width) {
 				line += (!line.isEmpty() ? " " : "" ) + arr[i];
 				lineWidth += (lineWidth > 0 ? spaceWidth : 0) + wordWidth[i];
@@ -502,7 +504,7 @@ public class IconHelper {
 	 *         stream deck
 	 */
 	public static SDImage convertImage(BufferedImage img) {
-		return convertImage(img, APPLY_FRAME);
+		return convertImage(img, applyFrame);
 	}
 
 	/**
@@ -831,7 +833,7 @@ public class IconHelper {
 		try {
 			icon = loadImage(path);
 		} catch (Exception e) {
-			icon = IconHelper.getImage("temp://BLACK_ICON");
+			icon = IconHelper.getImage(TEMP_BLACK_ICON);
 		}
 		return icon;
 	}
@@ -898,7 +900,7 @@ public class IconHelper {
 			cache(path, imgData);
 			return imgData;
 		}
-		return IconHelper.getImage("temp://BLACK_ICON");
+		return IconHelper.getImage(TEMP_BLACK_ICON);
 	}
 
 	public static SDImage[] loadImagesFromGif(String pathToGif) {
@@ -971,4 +973,6 @@ public class IconHelper {
 		}
 		return returnImage;
 	}
+	
+	private IconHelper() {}
 }
