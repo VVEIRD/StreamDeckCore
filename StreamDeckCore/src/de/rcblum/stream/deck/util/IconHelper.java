@@ -124,7 +124,7 @@ public class IconHelper {
 	/**
 	 * Alpha value for the textbox background
 	 */	
-	public static int textBoxAlphaValue = 200;
+	private static int textBoxAlphaValue = 200;
 
 	/**
 	 * Cache for loaded images
@@ -164,6 +164,23 @@ public class IconHelper {
 	public static final SDImage BLACK_ICON;
 
 	public static final SDImage FOLDER_ICON;
+	
+	
+	public static int getTextBoxAlphaValue() {
+		return textBoxAlphaValue;
+	}
+	
+	public static void setTextBoxAlphaValue(int textBoxAlphaValue) {
+		IconHelper.textBoxAlphaValue = textBoxAlphaValue;
+	}
+	
+	public static int getRollingTextPadding() {
+		return rollingTextPadding;
+	}
+	
+	public static void setRollingTextPadding(int rollingTextPadding) {
+		IconHelper.rollingTextPadding = rollingTextPadding;
+	}
 	
 	public static SDImage createFolderImage(Color background, boolean applyFrame) {
 		if(imageCache.containsKey(FOLDER_IMAGE_PREFIX + background.getRGB()))
