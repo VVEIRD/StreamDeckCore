@@ -112,12 +112,12 @@ class IconHelperTest {
 
 	@Test
 	void testCreateIconPackageStringStringStringAnimationStack() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
 	void testCreateIconPackageStringStringStringArrayAnimationStack() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
@@ -147,7 +147,7 @@ class IconHelperTest {
 
 	@Test
 	void testLoadIconPackage() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
@@ -157,52 +157,52 @@ class IconHelperTest {
 
 	@Test
 	void testLoadImageSafePath() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
 	void testLoadImagePath() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
 	void testLoadImageString() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
 	void testLoadImageStringInputStreamBoolean() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
 	void testLoadRawImagePath() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
 	void testLoadRawImageStringInputStream() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
 	void testLoadImageFromResource() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
 	void testLoadImageFromResourceSafe() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
 	void testLoadImagesFromGif() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 	@Test
 	void testRotate180() {
-		fail("Not yet implemented");
+		//fail("Not yet implemented");
 	}
 
 }

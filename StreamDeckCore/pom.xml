@@ -5,6 +5,11 @@
 	<groupId>io.github.vveird.StreamDeckCore</groupId>
 	<artifactId>StreamDeckCore</artifactId>
 	<version>1.0.0</version>
+	<properties>
+		<sonar.dynamicAnalysis>true</sonar.dynamicAnalysis>
+		<!-- Tells Sonar to use JaCoCo as the code coverage tool -->
+		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+	</properties>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
 		<testSourceDirectory>src/test/java</testSourceDirectory>
@@ -39,9 +44,27 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.2</version>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.13</version>
+				<version>2.22.1</version>
+				<configuration>
+					<!-- <argLine>-XX:-UseSplitVerifier</argLine> -->
+					<includes>
+						<include>**/*Test.java</include>
+						<include>**/*Tests.java</include>
+					</includes>
+					<properties>
+						<property>
+							<name>listener</name>
+							<value>org.sonar.java.jacoco.JUnitListener</value>
+						</property>
+					</properties>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
@@ -52,20 +75,21 @@
 			<build>
 				<plugins>
 					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>0.8.2</version>
+					</plugin>
+					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-surefire-plugin</artifactId>
-						<version>2.13</version>
+						<version>2.22.1</version>
 						<configuration>
-							<!-- same configuration as in the regular test execution goal -->
-							<!-- plus argLine parameter configured by JaCoCo prepare-agent -->
-							<argLine>${argLine} -XX:-UseSplitVerifier</argLine>
-							<includes>
-								<include>**/*Test.java</include>
-								<include>**/*Tests.java</include>
-							</includes>
-							<excludes>
-								<exclude>**/it/*IT.java</exclude>
-							</excludes>
+							<configuration>
+								<includes>
+									<include>**/*Spec.*</include>
+									<include>**/*Test.*</include>
+								</includes>
+							</configuration>
 							<!-- new configuration needed for coverage per test -->
 							<properties>
 								<property>
@@ -108,35 +132,17 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.junit.vintage</groupId>
-			<artifactId>junit-vintage-engine</artifactId>
-			<version>5.1.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-launcher</artifactId>
-			<version>1.1.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.platform</groupId>
-			<artifactId>junit-platform-runner</artifactId>
-			<version>1.1.0</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>purejavahidapi</groupId>
-			<artifactId>purejavahidapi</artifactId>
-			<version>0.0.3-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>io.github.vveird.StreamDeckCore</groupId>
 			<artifactId>StreamDeckCore</artifactId>
 			<version>1.0.0</version>
 			<classifier>tests</classifier>
 			<type>test-jar</type>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>purejavahidapi</groupId>
+			<artifactId>purejavahidapi</artifactId>
+			<version>0.0.3-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
