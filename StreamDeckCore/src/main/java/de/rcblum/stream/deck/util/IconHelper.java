@@ -82,7 +82,7 @@ public class IconHelper {
 
 	private static final String FOLDER_IMAGE_PREFIX = "temp://FOLDER_";
 
-	private static final String TEMP_BLACK_ICON = "temp://BLACK_ICON";
+	public static final String TEMP_BLACK_ICON = "temp://BLACK_ICON";
 
 	private static Logger logger = LogManager.getLogger(IconHelper.class);
 
