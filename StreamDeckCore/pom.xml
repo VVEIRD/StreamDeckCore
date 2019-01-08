@@ -7,6 +7,7 @@
 	<version>1.0.0</version>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
+		<testSourceDirectory>src/test/java</testSourceDirectory>
 		<directory>target/main/java</directory>
 		<resources>
 			<resource>
@@ -44,8 +45,8 @@
 				<configuration>
 					<argLine>-XX:-UseSplitVerifier</argLine>
 					<includes>
-						<include>**/*Test.java</include>
-						<include>**/*Tests.java</include>
+						<include>src/test/**/*Test.java</include>
+						<include>src/test/**/*Tests.java</include>
 					</includes>
 					<excludes>
 						<exclude>**/it/*IT.java</exclude>
