@@ -7,7 +7,7 @@ StreamDeckCore provides the following basic features:
 2. Recognizing a connected ESD
 3. Retriving all connected ESDs
 4. Resetting the connected ESD
-5 Setting the icons of the keys (0 - 14)
+5. Setting the icons of the keys (0 - 14)
 6. Setting the brightness of the ESD (0 - 99)
 7. Recieving key pressed, released, clicked events from the ESD
 8. Recieving events for key binds that are beeing displayed and when they are taken off through KeyEvents.
