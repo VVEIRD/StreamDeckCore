@@ -85,7 +85,7 @@ public interface StreamItem extends StreamKeyListener {
 	}
 
 	/**
-	 * Returns whether this item has children --> is a folder, or if it is a simple
+	 * Returns whether this item has children --&#62; is a folder, or if it is a simple
 	 * key.
 	 * 
 	 * @return <code>true</code> if the Streamitem has children, <code>false</code>

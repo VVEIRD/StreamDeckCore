@@ -61,7 +61,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 * Sets the key dead zone. The dead zone defines how much time in milliseconds
 	 * after a Key released event must have passed before another will be forwarded.
 	 * 
-	 * @param kEY_DEAD_ZONE Time in MS between key released events
+	 * @param keyDeadZone Time in MS between key released events
 	 */
 	public static void setKeyDeadzone(long keyDeadZone) {
 		KEY_DEAD_ZONE = keyDeadZone;

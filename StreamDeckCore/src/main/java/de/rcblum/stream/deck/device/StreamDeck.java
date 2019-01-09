@@ -627,7 +627,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	}
 
 	/**
-	 * @see de.rcblum.stream.deck.IStreamDeck#clearButton(int)
+	 * @see IStreamDeck#clearButton(int)
 	 */
 	@Override
 	public void clearButton(int i) {

@@ -37,7 +37,7 @@ public interface IStreamDeck {
 	 * Adds a {@link StreamKeyListener} to the given index
 	 * @param keyId	Index of the key, 0..14
 	 * @param item StreamItem to be bound to the index
-	 * @throws IndexOutOfBoundsException when keyId is < 0 or > 14.
+	 * @throws IndexOutOfBoundsException when keyId is &#60; 0 or &#62; 14.
 	 */
 	void addKey(int keyId, StreamItem item);
 
@@ -85,7 +85,7 @@ public interface IStreamDeck {
 	/**
 	 * Sets the desired brightness from 0 - 100 % and queues the change.
 	 * 
-	 * @param brightness
+	 * @param brightness	Brightness in percentile
 	 */
 	void setBrightness(int brightness);
 
