@@ -22,15 +22,15 @@ public class Example1_Displaying_A_Key {
 		// cached in memory by IconHelper to reduce load times when on icon is used multiple times.
 
 		//If the image is already available as BufferedImage, the BufferedImage can be converted to the ESD format:
-		//SDImage iconData = IconHelper.convertImage(bufferedImage);
+		// SDImage iconData = IconHelper.convertImage(bufferedImage);
 
 		//Send the image data to the first key of the ESD:
 		streamDeck.drawImage(0,  iconData);
 		try {
 			Thread.sleep(10_000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
 		// Reset the stream deck to display nothing
 		streamDeck.reset();

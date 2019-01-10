@@ -292,6 +292,7 @@ public class SoftStreamDeck implements IStreamDeck {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+					Thread.currentThread().interrupt();
 				}
 			}
 		}
@@ -401,6 +402,7 @@ public class SoftStreamDeck implements IStreamDeck {
 					} catch (InterruptedException e) {
 						logger.error("EventDispatcher sleep interrupted");
 						logger.error(e);
+						Thread.currentThread().interrupt();
 					}
 				}
 			}

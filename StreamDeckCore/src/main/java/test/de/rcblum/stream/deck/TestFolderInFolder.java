@@ -50,10 +50,9 @@ public class TestFolderInFolder {
 			Thread.sleep(60_000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
 		controller.stop(true, true);
-//		sd.setBrightness(0);
-//		sd.waitForCompletion();
 		System.exit(0);
 	}
 }

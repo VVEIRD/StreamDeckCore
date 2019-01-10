@@ -665,7 +665,7 @@ public class IconHelper {
 										Node attnode = attr.getNamedItem(imageatt[k]);
 										imageAttr.put(imageatt[k], Integer.valueOf(attnode.getNodeValue()));
 									}
-									if (i == 0) {
+									if (master == null) {
 										master = new BufferedImage(imageAttr.get("imageWidth"),
 												imageAttr.get("imageHeight"), BufferedImage.TYPE_INT_ARGB);
 									}

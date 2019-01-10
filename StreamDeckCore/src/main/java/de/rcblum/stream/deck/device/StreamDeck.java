@@ -130,6 +130,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 					} catch (InterruptedException e) {
 						logger.error("EventDispatcher sleep interrupted");
 						logger.error(e);
+						Thread.currentThread().interrupt();
 					}
 				}
 			}
@@ -195,6 +196,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 						Thread.sleep(1);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
+						Thread.currentThread().interrupt();
 					}
 				if(logger.isDebugEnabled()) {
 					actions++;
@@ -620,8 +622,8 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 				if (time > 2_000)
 					return;
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				Thread.currentThread().interrupt();
 			}
 		}
 	}

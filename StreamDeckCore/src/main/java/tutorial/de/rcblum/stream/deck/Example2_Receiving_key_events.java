@@ -21,8 +21,8 @@ public class Example2_Receiving_key_events {
 		try {
 			Thread.sleep(30_000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
 		// Reset the stream deck to display nothing
 		streamDeck.reset();

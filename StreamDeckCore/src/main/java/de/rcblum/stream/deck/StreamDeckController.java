@@ -127,6 +127,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 			Thread.sleep(200);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
 	}
 

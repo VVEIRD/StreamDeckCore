@@ -48,8 +48,8 @@ public class TestAnimationStack {
 		try {
 			Thread.sleep(15_000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
 		item0.setText("Hello");
 		sdc.releaseButton(0);
@@ -60,15 +60,15 @@ public class TestAnimationStack {
 		try {
 			Thread.sleep(5_000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
 		item0.setTextPosition(StreamItem.TEXT_POS_TOP);
 		try {
 			Thread.sleep(5_000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
 		sd.setBrightness(50);
 		item0.setTextPosition(StreamItem.TEXT_POS_CENTER);
@@ -80,8 +80,8 @@ public class TestAnimationStack {
 		try {
 			Thread.sleep(90_000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
 		sdc.releaseButton(7);
 		sd.reset();

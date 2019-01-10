@@ -39,8 +39,8 @@ public class Example3_Binding_a_build_in_StreamItem_to_the_StreamDeck {
 		try {
 			Thread.sleep(30_000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Thread.currentThread().interrupt();
 		}
 		// Reset the stream deck to display nothing
 		streamDeck.reset();
