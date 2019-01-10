@@ -252,12 +252,12 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Reset command
 	 */
-	private final static byte[] RESET_DATA = new byte[] { 0x0B, 0x63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	private static final byte[] RESET_DATA = new byte[] { 0x0B, 0x63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	/**
 	 * Brightness command
 	 */
-	private final static byte[] BRIGHTNES_DATA = new byte[] { 0x05, 0x55, (byte) 0xAA, (byte) 0xD1, 0x01, 0x63, 0x00,
+	private static final byte[] BRIGHTNES_DATA = new byte[] { 0x05, 0x55, (byte) 0xAA, (byte) 0xD1, 0x01, 0x63, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 	/**
@@ -278,32 +278,32 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Number of buttons on the ESD
 	 */
-	public final static int BUTTON_COUNT = 15;
+	public static final int BUTTON_COUNT = 15;
 
 	/**
 	 * Icon size of one key
 	 */
-	public final static int ICON_SIZE = 72;
+	public static final int ICON_SIZE = 72;
 
 	/**
 	 * Page size that can be sent to the ESD at once
 	 */
-	public final static int PAGE_PACKET_SIZE = 8190;
+	public static final int PAGE_PACKET_SIZE = 8190;
 
 	/**
 	 * Pixels(times 3 to get the amount of bytes) of an icon that can be sent with page 1 of the image command
 	 */
-	public final static int NUM_FIRST_PAGE_PIXELS = 2583;
+	public static final int NUM_FIRST_PAGE_PIXELS = 2583;
 
 	/**
 	 * Pixels(times 3 to get the amount of bytes) of an icon that can be sent with page 2 of the image command
 	 */
-	public final static int NUM_SECOND_PAGE_PIXELS = 2601;
+	public static final int NUM_SECOND_PAGE_PIXELS = 2601;
 
 	/**
 	 * Back image for not used keys
 	 */
-	public final static SDImage BLACK_ICON = createBlackIcon("temp://BLACK_ICON");
+	public static final SDImage BLACK_ICON = createBlackIcon("temp://BLACK_ICON");
 
 	private static SDImage createBlackIcon(String path) {
 		BufferedImage img = new BufferedImage(ICON_SIZE, ICON_SIZE, BufferedImage.TYPE_INT_ARGB);

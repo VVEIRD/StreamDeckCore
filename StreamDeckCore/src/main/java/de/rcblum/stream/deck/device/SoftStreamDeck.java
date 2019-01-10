@@ -76,8 +76,6 @@ public class SoftStreamDeck implements IStreamDeck {
 		}
 	}
 	
-	private static Logger logger = LogManager.getLogger(SoftStreamDeck.class);
-
 	private String name = null;
 		
 	private IStreamDeck streamDeck = null;
@@ -393,7 +391,7 @@ public class SoftStreamDeck implements IStreamDeck {
 								l.onKeyEvent(event);
 							} 
 							catch (Exception e) {
-								logger.error("Error sending out KeyEvents", e);
+								LOGGER.error("Error sending out KeyEvents", e);
 							}
 						}
 					);
@@ -402,7 +400,7 @@ public class SoftStreamDeck implements IStreamDeck {
 					try {
 						Thread.sleep(1);
 					} catch (InterruptedException e) {
-						logger.error("EventDispatcher sleep interrupted", e);
+						LOGGER.error("EventDispatcher sleep interrupted", e);
 						Thread.currentThread().interrupt();
 					}
 				}
