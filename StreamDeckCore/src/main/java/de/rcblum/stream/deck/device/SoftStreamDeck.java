@@ -92,16 +92,9 @@ public class SoftStreamDeck implements IStreamDeck {
 	
 	private Graphics2D drawGraphics = null;
 
-	private Thread writeThread = null;
-	
 	private Timer drawThread = null;
 	
 	private boolean running = true;
-
-	/**
-	 * Daemon that sends received {@link KeyEvent}s  to the affected listeners.
-	 */
-	private Thread eventDispatcher = null;
 
 	/**
 	 * Queue for {@link KeyEvent}s that are triggered by the ESD
@@ -151,13 +144,14 @@ public class SoftStreamDeck implements IStreamDeck {
 	}
 
 	private void startThreads() {
-		this.writeThread = new Thread(new WriteDaemon());
-		this.writeThread.start();
+		Thread writeThread = new Thread(new WriteDaemon());
+		writeThread.setDaemon(true);
+		writeThread.start();
 		this.drawThread = new Timer(33, new DrawDaemon());
 		this.drawThread.start();
-		this.eventDispatcher = new Thread(new EventDispatcher());
-		this.eventDispatcher.setDaemon(true);
-		this.eventDispatcher.start();
+		Thread eventDispatcher = new Thread(new EventDispatcher());
+		eventDispatcher.setDaemon(true);
+		eventDispatcher.start();
 	}
 
 	@Override
@@ -251,7 +245,7 @@ public class SoftStreamDeck implements IStreamDeck {
 
 	@Override
 	public boolean isHardware() {
-		return this.streamDeck != null ? this.streamDeck.isHardware() : false;
+		return this.streamDeck != null && this.streamDeck.isHardware();
 	}
 	
 	public String getName() {
@@ -340,7 +334,7 @@ public class SoftStreamDeck implements IStreamDeck {
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
-			
+			// Nothing to do
 		}
 
 		@Override
@@ -362,10 +356,14 @@ public class SoftStreamDeck implements IStreamDeck {
 		}
 
 		@Override
-		public void mouseEntered(MouseEvent e) {}
+		public void mouseEntered(MouseEvent e) {
+			// Nothing to do
+		}
 
 		@Override
-		public void mouseExited(MouseEvent e) {}
+		public void mouseExited(MouseEvent e) {
+			// Nothing to do			
+		}
 		
 	}
 

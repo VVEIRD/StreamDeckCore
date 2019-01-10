@@ -111,6 +111,6 @@ public interface IStreamDeck {
 	 * Returns the amount of keys on the StreamDeck.
 	 * @return Numbers of keys on the deck (Default 15).
 	 */
-	public default int getKeySize() { return 15;};
+	public default int getKeySize() { return 15;}
 
 }

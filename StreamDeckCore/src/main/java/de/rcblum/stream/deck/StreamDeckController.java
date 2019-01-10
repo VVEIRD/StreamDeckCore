@@ -376,9 +376,12 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 		}
 		StreamItem[] children = this.currentDir.getChildren();
 		if (children != null) {
+			// draw back icon if the current fodler hjas a parent
 			if (this.currentDir.getParent() != null && keyId == 4) {
 				streamDeck.drawImage(keyId, this.back);
-			} else if (children[keyId] != null && (this.animators[keyId] == null || !this.animators[keyId].isActive())) {
+			}
+			// Draw the icon or the current animation frame
+			else if (children[keyId] != null && (this.animators[keyId] == null || !this.animators[keyId].isActive())) {
 				if (this.animators[keyId] != null && this.animators[keyId].isActive()) {
 					streamDeck.drawImage(keyId, this.animators[keyId].getCurrentIcon());
 				} else {
@@ -389,7 +392,9 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 					this.animators[keyId] = a;
 					this.animators[keyId].addAnimationListener(this);
 				}
-			} else {
+			}
+			// Clear the button with a black image
+			else {
 				streamDeck.clearButton(keyId);
 			}
 		}
