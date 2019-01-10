@@ -81,7 +81,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 
 	/**
 	 * Job that is submitted, when the Method {@link StreamDeck#setBrightness(int)} is called.<br>
-	 * When executed it will call the Method {@link StreamDeck#_updateBrightnes()}, which will send the brightness command to the stream deck.
+	 * When executed it will call the Method {@link StreamDeck#internalUpdateBrightnes()}, which will send the brightness command to the stream deck.
 	 * @author Roland von Werden
 	 *
 	 */
@@ -91,7 +91,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 
 		@Override
 		public void run() {
-			StreamDeck.this._updateBrightnes();
+			StreamDeck.this.internalUpdateBrightnes();
 		}
 	}
 
@@ -229,7 +229,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 
 		@Override
 		public void run() {
-			StreamDeck.this._drawImage(keyIndex, img);
+			StreamDeck.this.internalDrawImage(keyIndex, img);
 //			StreamDeck.this.drawImage(keyIndex, img);
 		}
 
@@ -245,7 +245,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 
 		@Override
 		public void run() {
-			StreamDeck.this._reset();
+			StreamDeck.this.internalReset();
 		}
 	}
 
@@ -407,7 +407,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Sends reset-command to ESD
 	 */
-	private void _reset() {
+	private void internalReset() {
 		hidDevice.setFeatureReport(RESET_DATA[0], Arrays.copyOfRange(RESET_DATA, 1, RESET_DATA.length), RESET_DATA.length-1);
 	}
 
@@ -415,7 +415,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Sends brightness-command to ESD
 	 */
-	private void _updateBrightnes() {
+	private void internalUpdateBrightnes() {
 		hidDevice.setFeatureReport(this.brightness[0], Arrays.copyOfRange(this.brightness, 1, this.brightness.length), this.brightness.length-1);
 	}
 	
@@ -460,7 +460,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 		queue(new IconUpdater(keyIndex, imgData));
 	}
 
-	public synchronized void _drawImage(int keyIndex, SDImage imgData) {
+	public synchronized void internalDrawImage(int keyIndex, SDImage imgData) {
 		// int[] pixels = ((DataBufferInt)
 		// img.getRaster().getDataBuffer()).getData();
 		// byte[] imgData = new byte[ICON_SIZE * ICON_SIZE * 3];

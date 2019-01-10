@@ -60,7 +60,7 @@ import purejavahidapi.HidDevice;
  */
 public class SoftStreamDeck implements IStreamDeck {
 	
-	private final static Logger LOGGER = LogManager.getLogger(SoftStreamDeck.class);
+	private static final Logger LOGGER = LogManager.getLogger(SoftStreamDeck.class);
 	
 	private static List<SoftStreamDeck> instances = new ArrayList<>(5);
 	
