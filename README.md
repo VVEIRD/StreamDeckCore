@@ -28,39 +28,23 @@ If you have no Stream Deck yourself, but still want to develop for the plattform
 2. Document everything
 3. Create tutorial & example programs
 
-## Dependencies
+## Integration
 ### Github
 This uses the github project https://github.com/nyholku/purejavahidapi (forked to https://github.com/WElRD/purejavahidapi).
 
 __I'd recommend using the following fork for now, as the current version of nyholku's library introduces some errors that breaks this library: https://github.com/WElRD/purejavahidapi__. This version is also included in the releases.
 
-### Maven
-jna 4.0, gson and log4j, which can be downloaded through maven:
+The maven dependencies of the project reference the appropriate libaries.
 
-    <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
+### Maven
+
+If you want to use this library in your maven project, just add the following dependency to you pom.xml:
+
     <dependency>
-        <groupId>net.java.dev.jna</groupId>
-        <artifactId>jna</artifactId>
-        <version>4.0.0</version>
+      <groupId>io.github.vveird</groupId>
+      <artifactId>StreamDeckCore</artifactId>
+      <version>1.0.0</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
-	<dependency>
-	    <groupId>com.google.code.gson</groupId>
-	    <artifactId>gson</artifactId>
-	    <version>2.8.1</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api -->
-	<dependency>
-		<groupId>org.apache.logging.log4j</groupId>
-		<artifactId>log4j-api</artifactId>
-		<version>2.9.0</version>
-	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
-	<dependency>
-		<groupId>org.apache.logging.log4j</groupId>
-		<artifactId>log4j-core</artifactId>
-		<version>2.9.0</version>
-	</dependency>
 	
     
 
