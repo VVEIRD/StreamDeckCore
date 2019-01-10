@@ -60,6 +60,8 @@ import purejavahidapi.HidDevice;
  */
 public class SoftStreamDeck implements IStreamDeck {
 	
+	private final static Logger LOGGER = LogManager.getLogger(SoftStreamDeck.class);
+	
 	private static List<SoftStreamDeck> instances = new ArrayList<>(5);
 	
 	public static void showDecks() {
@@ -277,6 +279,8 @@ public class SoftStreamDeck implements IStreamDeck {
 	}
 	
 	private class WriteDaemon implements Runnable  {
+		
+		private final Logger logger = LogManager.getLogger(WriteDaemon.class);
 		@Override
 		public void run() {
 			while(SoftStreamDeck.this.running) {
@@ -291,7 +295,7 @@ public class SoftStreamDeck implements IStreamDeck {
 				try {
 					Thread.sleep(1);
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					logger.error("SoftStreamDeck.WriteDaemon interrupted", e);
 					Thread.currentThread().interrupt();
 				}
 			}
@@ -389,9 +393,7 @@ public class SoftStreamDeck implements IStreamDeck {
 								l.onKeyEvent(event);
 							} 
 							catch (Exception e) {
-								logger.error("Error sending out KeyEvents");
-								logger.error(e);
-								e.printStackTrace();
+								logger.error("Error sending out KeyEvents", e);
 							}
 						}
 					);
@@ -400,8 +402,7 @@ public class SoftStreamDeck implements IStreamDeck {
 					try {
 						Thread.sleep(1);
 					} catch (InterruptedException e) {
-						logger.error("EventDispatcher sleep interrupted");
-						logger.error(e);
+						logger.error("EventDispatcher sleep interrupted", e);
 						Thread.currentThread().interrupt();
 					}
 				}

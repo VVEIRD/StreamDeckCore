@@ -51,9 +51,10 @@ public class StreamDeckDevices {
 	 */
 	public static boolean ENABLE_SOFTWARE_STREAM_DECK = true; 
 	
-	private static Logger logger = LogManager.getLogger(StreamDeckDevices.class);
+	private static final Logger LOGGER = LogManager.getLogger(StreamDeckDevices.class);
 	
 	public static final int VENDOR_ID = 4057;
+	
 	public static final int PRODUCT_ID = 96;
 
 	private static List<HidDeviceInfo> STREAM_DECK_INFOS = null;
@@ -68,12 +69,12 @@ public class StreamDeckDevices {
 	public static HidDeviceInfo getStreamDeckInfo() {
 		if (STREAM_DECK_INFOS == null) {
 			STREAM_DECK_INFOS = new ArrayList<>(5);
-			logger.info("Scanning for devices");
+			LOGGER.info("Scanning for devices");
 			List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
 			for (HidDeviceInfo info : devList) {
-				logger.debug("Vendor-ID: " + info.getVendorId() + ", Product-ID: " + info.getProductId());
+				LOGGER.debug("Vendor-ID: " + info.getVendorId() + ", Product-ID: " + info.getProductId());
 				if (info.getVendorId() == VENDOR_ID && info.getProductId() == PRODUCT_ID) {
-					logger.info("Found ESD ["+info.getVendorId()+":"+info.getProductId()+"]");
+					LOGGER.info("Found ESD ["+info.getVendorId()+":"+info.getProductId()+"]");
 					STREAM_DECK_INFOS.add(info);
 				}
 			}
@@ -87,18 +88,18 @@ public class StreamDeckDevices {
 			STREAM_DECK_DEVICES = new ArrayList<>(STREAM_DECK_INFOS.size());
 			if (info != null) {
 				try {
-					logger.info("Connected Stream Decks:");
+					LOGGER.info("Connected Stream Decks:");
 					for (HidDeviceInfo hidDeviceinfo : STREAM_DECK_INFOS) {
-						logger.info("  Manufacurer: " + hidDeviceinfo.getManufacturerString());
-						logger.info("  Product:     " + hidDeviceinfo.getProductString());
-						logger.info("  Device-Id:   " + hidDeviceinfo.getDeviceId());
-						logger.info("  Serial-No:   " + hidDeviceinfo.getSerialNumberString());
-						logger.info("  Path:        " + hidDeviceinfo.getPath());
-						logger.info("");
+						LOGGER.info("  Manufacurer: " + hidDeviceinfo.getManufacturerString());
+						LOGGER.info("  Product:     " + hidDeviceinfo.getProductString());
+						LOGGER.info("  Device-Id:   " + hidDeviceinfo.getDeviceId());
+						LOGGER.info("  Serial-No:   " + hidDeviceinfo.getSerialNumberString());
+						LOGGER.info("  Path:        " + hidDeviceinfo.getPath());
+						LOGGER.info("");
 						STREAM_DECK_DEVICES.add(PureJavaHidApi.openDevice(hidDeviceinfo));
 					}
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOGGER.error("IO Error occured while searching for devices: ", e);
 				}
 			}
 		}

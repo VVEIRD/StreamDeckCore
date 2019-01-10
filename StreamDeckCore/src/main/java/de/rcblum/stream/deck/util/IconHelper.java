@@ -89,11 +89,11 @@ public class IconHelper {
 	/**
 	 * Switch for drawing a black rounded frame around all images
 	 */
-	public static boolean applyFrame = true;
+	private static boolean applyFrame = true;
 	
-	public static Color FRAME_COLOR = Color.BLACK;
+	private static Color frameColor = Color.BLACK;
 	
-	public static BufferedImage FRAME = getImageFromResource("/resources/icons/frame.png");
+	public static final BufferedImage FRAME = getImageFromResource("/resources/icons/frame.png");
 
 	/**
 	 * Default font for the text on the ESD FantasqueSansMono-Bold.ttf
@@ -135,6 +135,10 @@ public class IconHelper {
 	 * cache for loaded IconPackages
 	 */
 	private static Map<String, IconPackage> packageCache = new HashMap<>();
+	
+	public static final SDImage BLACK_ICON;
+
+	public static final SDImage FOLDER_ICON;
 
 	static {
 		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
@@ -158,13 +162,24 @@ public class IconHelper {
 		FOLDER_ICON = cacheImage("temp://FOLDER", img);
 		SDImage back = loadImageFromResource("/resources/icons/back.png");
 		cache("temp://BACK", back);
-		cache("FRAME_" + FRAME_COLOR.getRGB(), new SDImage(null, FRAME));
+		cache("FRAME_" + frameColor.getRGB(), new SDImage(null, FRAME));
 	}
 	
-	public static final SDImage BLACK_ICON;
-
-	public static final SDImage FOLDER_ICON;
+	public static void setFrameColor(Color frameColor) {
+		IconHelper.frameColor = frameColor;
+	}
 	
+	public static Color getFrameColor() {
+		return frameColor;
+	}
+	
+	public static boolean getApplyFrame() {
+		return applyFrame;
+	}
+	
+	public static void setApplyFrame(boolean applyFrame) {
+		IconHelper.applyFrame = applyFrame;
+	}
 	
 	public static int getTextBoxAlphaValue() {
 		return textBoxAlphaValue;
@@ -595,7 +610,7 @@ public class IconHelper {
 		if (FRAME != null) {
 			Graphics2D g = nImg.createGraphics();
 			g.drawImage(img, 0, 0, null);
-			g.drawImage(createColoredFrame(FRAME_COLOR).image, 0, 0, null);
+			g.drawImage(createColoredFrame(frameColor).image, 0, 0, null);
 			g.dispose();
 		}
 		return nImg;
@@ -679,7 +694,8 @@ public class IconHelper {
 							Files.copy(tmpImgFile.toPath(), iconTargetPath, StandardCopyOption.REPLACE_EXISTING);
 						}
 					} catch (IOException e) {
-						e.printStackTrace();
+						logger.error("Encountered an IO Error while creating the icon package", e);
+						throw e;
 					}
 				}
 			}
@@ -785,9 +801,7 @@ public class IconHelper {
 				return null;
 			}
 		} catch (IOException e) {
-			logger.error("Couldn't load image as resource: " + fileName);
-			logger.error(e);
-			e.printStackTrace();
+			logger.error("Couldn't load image as resource: " + fileName, e);
 			return null;
 		}
 		return buff;
@@ -929,7 +943,7 @@ public class IconHelper {
 		return IconHelper.getImage(TEMP_BLACK_ICON);
 	}
 
-	public static SDImage[] loadImagesFromGif(String pathToGif) {
+	public static SDImage[] loadImagesFromGif(String pathToGif) throws IOException {
 		try {
 			String[] imageatt = new String[] { "imageLeftPosition", "imageTopPosition", "imageWidth", "imageHeight" };
 
@@ -974,9 +988,9 @@ public class IconHelper {
 			}
 			return images;
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Error loeading gif", e);
+			throw e;
 		}
-		return null;
 	}
 	
 	public static BufferedImage rotate180(BufferedImage inputImage) {

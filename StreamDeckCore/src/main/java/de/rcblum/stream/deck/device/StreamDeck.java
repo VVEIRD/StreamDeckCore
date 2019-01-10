@@ -77,7 +77,7 @@ import purejavahidapi.InputReportListener;
  */
 public class StreamDeck implements InputReportListener, IStreamDeck {
 	
-	private static Logger logger = LogManager.getLogger(StreamDeck.class);
+	private static final Logger LOGGER = LogManager.getLogger(StreamDeck.class);
 
 	/**
 	 * Job that is submitted, when the Method {@link StreamDeck#setBrightness(int)} is called.<br>
@@ -117,9 +117,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 								l.onKeyEvent(event);
 							} 
 							catch (Exception e) {
-								logger.error("Error sending out KeyEvents");
-								logger.error(e);
-								e.printStackTrace();
+								LOGGER.error("Error sending out KeyEvents", e);
 							}
 						}
 					);
@@ -128,8 +126,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 					try {
 						Thread.sleep(1);
 					} catch (InterruptedException e) {
-						logger.error("EventDispatcher sleep interrupted");
-						logger.error(e);
+						LOGGER.error("EventDispatcher sleep interrupted", e);
 						Thread.currentThread().interrupt();
 					}
 				}
@@ -187,22 +184,22 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 					try {
 						task.run();
 					} catch (Exception e) {
-						logger.error("Error sending the following command-class th the esd: " + task.getClass() );
-						logger.error(e);
+						LOGGER.error("Error sending the following command-class th the esd: " + task.getClass() );
+						LOGGER.error(e);
 					}
 				}
 				if (System.nanoTime()-t < 1_000)
 					try {
 						Thread.sleep(1);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						LOGGER.error("DeckWorker interrupted", e);
 						Thread.currentThread().interrupt();
 					}
-				if(logger.isDebugEnabled()) {
+				if(LOGGER.isDebugEnabled()) {
 					actions++;
 					if(System.currentTimeMillis() - time > 30_000) {
-						logger.debug("Commands send per one second: " + (actions/10));
-						logger.debug("Commands send per 30 seconds: " + actions);
+						LOGGER.debug("Commands send per one second: " + (actions/10));
+						LOGGER.debug("Commands send per 30 seconds: " + actions);
 						time = System.currentTimeMillis();
 						actions = 0;
 					}
@@ -255,12 +252,12 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Reset command
 	 */
-	public final static byte[] RESET_DATA = new byte[] { 0x0B, 0x63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	private final static byte[] RESET_DATA = new byte[] { 0x0B, 0x63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	/**
 	 * Brightness command
 	 */
-	public final static byte[] BRIGHTNES_DATA = new byte[] { 0x05, 0x55, (byte) 0xAA, (byte) 0xD1, 0x01, 0x63, 0x00,
+	private final static byte[] BRIGHTNES_DATA = new byte[] { 0x05, 0x55, (byte) 0xAA, (byte) 0xD1, 0x01, 0x63, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 	/**
@@ -345,12 +342,12 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Queue for commands to be sent to the ESD
 	 */
-	Queue<Runnable> sendPool = new ConcurrentLinkedQueue<>();
+	private Queue<Runnable> sendPool = new ConcurrentLinkedQueue<>();
 
 	/**
 	 * Queue for {@link KeyEvent}s that are triggered by the ESD
 	 */
-	Queue<KeyEvent> recievePool = new ConcurrentLinkedQueue<>();
+	private Queue<KeyEvent> recievePool = new ConcurrentLinkedQueue<>();
 
 	/**
 	 * Page 1 for the image command
@@ -410,7 +407,6 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Sends reset-command to ESD
 	 */
-	
 	private void _reset() {
 		hidDevice.setFeatureReport(RESET_DATA[0], Arrays.copyOfRange(RESET_DATA, 1, RESET_DATA.length), RESET_DATA.length-1);
 	}
@@ -622,7 +618,8 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 				if (time > 2_000)
 					return;
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+
+				LOGGER.error("StreamDeck was interrupted", e);
 				Thread.currentThread().interrupt();
 			}
 		}
