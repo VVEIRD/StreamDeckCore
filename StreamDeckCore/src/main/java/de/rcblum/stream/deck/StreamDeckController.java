@@ -57,7 +57,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	/**
 	 * Sets the key dead zone for key events, default 25 ms.
 	 */
-	private static long KEY_DEAD_ZONE = 25;
+	private static long keyDeadZone = 25;
 
 	/**
 	 * Sets the key dead zone. The dead zone defines how much time in milliseconds
@@ -66,7 +66,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 * @param keyDeadZone Time in MS between key released events
 	 */
 	public static void setKeyDeadzone(long keyDeadZone) {
-		KEY_DEAD_ZONE = keyDeadZone;
+		StreamDeckController.keyDeadZone = keyDeadZone;
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	private synchronized void onKeyEvent(KeyEvent event, boolean useDeadzone) {
 		LOGGER.debug(String.format("New Key event: Key-ID: %s, Type: %s", event.getKeyId(), event.getType()));
 		if (event.getType() == Type.RELEASED_CLICKED
-				&& System.currentTimeMillis() - lastKeyReleasedEvent < KEY_DEAD_ZONE && useDeadzone)
+				&& System.currentTimeMillis() - lastKeyReleasedEvent < keyDeadZone && useDeadzone)
 			return;
 		StreamItem[] children = this.currentDir.getChildren();
 		int id = event.getKeyId();
@@ -365,29 +365,32 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 * Updates a key on the stream deck with current icon data
 	 */
 	private void updateKey(int keyId, boolean updateAnimators) {
+		// check for out of bounds KeyId
+		if(keyId < 0 || keyId >= this.streamDeck.getKeySize())
+			throw new IndexOutOfBoundsException(String.format("Key Id (%d) must be between 0 and 14(inclusive)", keyId));
+		// Remove animator if it should be updated and one exists
+		if (updateAnimators && this.animators[keyId] != null) {
+			this.animators[keyId].removeAnimationListener(this);
+			this.animators[keyId].stop(true);
+			this.animators[keyId] = null;
+		}
 		StreamItem[] children = this.currentDir.getChildren();
 		if (children != null) {
-			int i = keyId;
-			if (updateAnimators && this.animators[i] != null) {
-				this.animators[i].removeAnimationListener(this);
-				this.animators[i].stop(true);
-				this.animators[i] = null;
-			}
-			if (this.currentDir.getParent() != null && i == 4) {
-				streamDeck.drawImage(i, this.back);
-			} else if (children[i] != null && (this.animators[i] == null || !this.animators[i].isActive())) {
-				if (this.animators[i] != null && this.animators[i].isActive()) {
-					streamDeck.drawImage(i, this.animators[i].getCurrentIcon());
+			if (this.currentDir.getParent() != null && keyId == 4) {
+				streamDeck.drawImage(keyId, this.back);
+			} else if (children[keyId] != null && (this.animators[keyId] == null || !this.animators[keyId].isActive())) {
+				if (this.animators[keyId] != null && this.animators[keyId].isActive()) {
+					streamDeck.drawImage(keyId, this.animators[keyId].getCurrentIcon());
 				} else {
-					streamDeck.drawImage(i, children[i].getIcon());
+					streamDeck.drawImage(keyId, children[keyId].getIcon());
 				}
-				if (updateAnimators && children[i].hasAnimation()) {
-					Animator a = new Animator(streamDeck, i, children[i].getAnimation());
-					this.animators[i] = a;
-					this.animators[i].addAnimationListener(this);
+				if (updateAnimators && children[keyId].hasAnimation()) {
+					Animator a = new Animator(streamDeck, keyId, children[keyId].getAnimation());
+					this.animators[keyId] = a;
+					this.animators[keyId].addAnimationListener(this);
 				}
 			} else {
-				streamDeck.clearButton(i);
+				streamDeck.clearButton(keyId);
 			}
 		}
 	}
@@ -435,6 +438,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 
 	@Override
 	public void onAnimationStart(int keyIndex) {
+		// Nothing to be done on animation start
 	}
 
 	@Override
