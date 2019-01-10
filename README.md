@@ -43,7 +43,7 @@ If you want to use this library in your maven project, just add the following de
     <dependency>
       <groupId>io.github.vveird</groupId>
       <artifactId>StreamDeckCore</artifactId>
-      <version>1.0.0</version>
+      <version>1.0.1</version>
     </dependency>
 	
     
