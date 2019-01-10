@@ -152,30 +152,29 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 			long actions = 0;
 			long time = System.currentTimeMillis();
 			long t = 0;
-			int a = 0;
 			while (running || !running && !sendPool.isEmpty()) {
 				if(sendPool.size() > 100) {
-					Runnable[] keys = new Runnable[StreamDeck.this.getKeySize()];
-					Runnable reset = null;
-					Runnable brightness = null;
+					Runnable[] payloads = new Runnable[StreamDeck.this.getKeySize()];
+					Runnable resetTask = null;
+					Runnable brightnessTask = null;
 					Runnable task = null;
 					while ((task = sendPool.poll()) != null) {
 						if (task instanceof IconUpdater) {
 							IconUpdater iu = (IconUpdater)task;
-							keys[iu.keyIndex] = iu;
+							payloads[iu.keyIndex] = iu;
 						}
 						else if(task instanceof Resetter)
-							reset = task;
+							resetTask = task;
 						else if (task instanceof BrightnessUpdater) 
-							brightness = task;
+							brightnessTask = task;
 					}
-					if(brightness != null)
-						sendPool.add(brightness);
-					if(reset != null)
-						sendPool.add(reset);
-					for (int i = 0; i < keys.length; i++) {
-						if(keys[i] != null)
-							sendPool.add(keys[i]);
+					if(brightnessTask != null)
+						sendPool.add(brightnessTask);
+					if(resetTask != null)
+						sendPool.add(resetTask);
+					for (int i = 0; i < payloads.length; i++) {
+						if(payloads[i] != null)
+							sendPool.add(payloads[i]);
 					}
 				}
 				t = System.nanoTime();
@@ -204,8 +203,9 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 						actions = 0;
 					}
 				}
-				while(System.nanoTime()-t < 2_000)
-					a = 1+1;
+				while(System.nanoTime()-t < 2_000) {
+					int a = 1+1;
+				}
 				
 			}
 		}
@@ -230,7 +230,6 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 		@Override
 		public void run() {
 			StreamDeck.this.internalDrawImage(keyIndex, img);
-//			StreamDeck.this.drawImage(keyIndex, img);
 		}
 
 	}
@@ -263,7 +262,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Header for Page 1 of the image command
 	 */
-	private static byte[] PAGE_1_HEADER = new byte[] { 0x01, 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	private static final byte[] PAGE_1_HEADER = new byte[] { 0x01, 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x42, 0x4D, (byte) 0xF6, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00,
 			0x00, 0x28, 0x00, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00,
 			0x00, 0x00, 0x00, (byte) 0xC0, 0x3C, 0x00, 0x00, (byte) 0xC4, 0x0E, 0x00, 0x00, (byte) 0xC4, 0x0E, 0x00,
@@ -272,7 +271,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Header for Page 2 of the image command
 	 */
-	private static byte[] PAGE_2_HEADER = new byte[] { 0x01, 0x02, 0x00, 0x01, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	private static final byte[] PAGE_2_HEADER = new byte[] { 0x01, 0x02, 0x00, 0x01, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 	/**
@@ -461,17 +460,6 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	}
 
 	public synchronized void internalDrawImage(int keyIndex, SDImage imgData) {
-		// int[] pixels = ((DataBufferInt)
-		// img.getRaster().getDataBuffer()).getData();
-		// byte[] imgData = new byte[ICON_SIZE * ICON_SIZE * 3];
-		// int imgDataCount=0;
-		// // remove the alpha channel
-		// for(int i=0;i<ICON_SIZE*ICON_SIZE; i++) {
-		// //RGB -> BGR
-		// imgData[imgDataCount++] = (byte)((pixels[i]>>16) & 0xFF);
-		// imgData[imgDataCount++] = (byte)(pixels[i] & 0xFF);
-		// imgData[imgDataCount++] = (byte)((pixels[i]>>8) & 0xFF);
-		// }
 		byte[] page1 = generatePage1(keyIndex, imgData.sdImage);
 		byte[] page2 = generatePage2(keyIndex, imgData.sdImage);
 		this.hidDevice.setOutputReport((byte) 0x02, page1, page1.length);
@@ -481,10 +469,6 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	private void fireKeyChangedEvent(int i, boolean keyPressed) {
 		KeyEvent event = new KeyEvent(this, i, keyPressed ? Type.PRESSED : Type.RELEASED_CLICKED);
 		this.recievePool.add(event);
-//		if (i < this.keys.length && this.keys[i] != null) {
-//			this.keys[i].onKeyEvent(event);
-//		}
-//		this.listerners.stream().forEach(l -> l.onKeyEvent(event));
 	}
 
 	/**
@@ -501,8 +485,6 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 			p1[i] = PAGE_1_HEADER[i];
 		}
 		if (imgData != null) {
-			// byte[] imgDataPage1 = Arrays.copyOf(imgData,
-			// NUM_FIRST_PAGE_PIXELS * 3);
 			for (int i = 0; i < imgData.length && i < NUM_FIRST_PAGE_PIXELS * 3; i++) {
 				p1[PAGE_1_HEADER.length + i] = imgData[i];
 			}
@@ -525,10 +507,6 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 			p2[i] = PAGE_2_HEADER[i];
 		}
 		if (imgData != null) {
-			// byte[] imgDataPage2 = Arrays.copyOfRange(imgData,
-			// NUM_FIRST_PAGE_PIXELS * 3, (NUM_FIRST_PAGE_PIXELS * 3) +
-			// (NUM_SECOND_PAGE_PIXELS * 3));
-			// for (int i = 0; i < imgDataPage2.length; i++) {
 			for (int i = 0; i < NUM_SECOND_PAGE_PIXELS * 3 && i < imgData.length; i++) {
 				p2[PAGE_2_HEADER.length + i] = imgData[(NUM_FIRST_PAGE_PIXELS * 3) + i];
 			}
