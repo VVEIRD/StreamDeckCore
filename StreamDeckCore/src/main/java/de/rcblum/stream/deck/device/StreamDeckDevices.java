@@ -49,7 +49,7 @@ public class StreamDeckDevices {
 	 * devices will be wrapped in a software SD, <code>false</code> the StreamDeck
 	 * will be returned directly.
 	 */
-	public static boolean ENABLE_SOFTWARE_STREAM_DECK = true; 
+	private static boolean enableSoftwareStreamDeck = true; 
 	
 	private static final Logger LOGGER = LogManager.getLogger(StreamDeckDevices.class);
 	
@@ -64,6 +64,19 @@ public class StreamDeckDevices {
 	private static List<IStreamDeck> decks = null;
 
 	private static List<IStreamDeck> softDecks = null;
+	
+	
+	public static void enableSoftwareStreamDeck() {
+		StreamDeckDevices.enableSoftwareStreamDeck = true;
+	}
+	
+	public static void disableSoftwareStreamDeck() {
+		StreamDeckDevices.enableSoftwareStreamDeck = false;
+	}
+	
+	public static boolean isSoftwareStreamDeckEnabled() {
+		return StreamDeckDevices.enableSoftwareStreamDeck;
+	}
 	
 	
 	public static HidDeviceInfo getStreamDeckInfo() {
@@ -116,7 +129,7 @@ public class StreamDeckDevices {
 				}
 			}
 		}
-		if(ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() && softDecks == null) {
+		if(enableSoftwareStreamDeck && !GraphicsEnvironment.isHeadless() && softDecks == null) {
 			softDecks = new ArrayList<>(deckDevices.size()); 
 			for (int i=0; i<decks.size(); i++) {
 				IStreamDeck iStreamDeck = decks.get(i);
@@ -124,8 +137,8 @@ public class StreamDeckDevices {
 			}
 		}
 		return !decks.isEmpty()
-				? (ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() ? softDecks.get(0) : decks.get(0)) 
-				: (ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() ? new SoftStreamDeck("Soft Stream Deck", null) : null);
+				? (enableSoftwareStreamDeck && !GraphicsEnvironment.isHeadless() ? softDecks.get(0) : decks.get(0)) 
+				: (enableSoftwareStreamDeck && !GraphicsEnvironment.isHeadless() ? new SoftStreamDeck("Soft Stream Deck", null) : null);
 	}
 	
 	public static int getStreamDeckSize() {
