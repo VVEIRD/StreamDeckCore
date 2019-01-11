@@ -37,7 +37,7 @@ class IconHelperTest {
 
 	@Test
 	void testCreateFolderImage() {
-		assertTrue(IconHelper.createFolderImage(Color.GREEN, true) instanceof SDImage);
+		assertTrue(IconHelper.createFolderImage(Color.GREEN, true, Color.GREEN.darker()) instanceof SDImage);
 	}
 
 	@Test
@@ -53,61 +53,61 @@ class IconHelperTest {
 
 	@Test
 	void testAddTextSDImageStringInt() {
-		assertTrue(IconHelper.addText(IconHelper.createFolderImage(Color.GREEN, true), "Test", IconHelper.TEXT_BOTTOM) instanceof SDImage);
+		assertTrue(IconHelper.addText(IconHelper.createFolderImage(Color.GREEN, true, Color.GREEN.darker()), "Test", IconHelper.TEXT_BOTTOM) instanceof SDImage);
 	}
 
 	@Test
 	void testAddTextBufferedImageStringInt() {
-		assertTrue(IconHelper.addText(IconHelper.createFolderImage(Color.GREEN, true).image, "Test", IconHelper.TEXT_BOTTOM) instanceof SDImage);
+		assertTrue(IconHelper.addText(IconHelper.createFolderImage(Color.GREEN, true, Color.GREEN.darker()).image, "Test", IconHelper.TEXT_BOTTOM) instanceof SDImage);
 	}
 
 	@Test
 	void testAddTextSDImageStringIntFloat() {
-		assertTrue(IconHelper.addText(IconHelper.createFolderImage(Color.GREEN, true), "Test", IconHelper.TEXT_BOTTOM, 20.0f) instanceof SDImage);
+		assertTrue(IconHelper.addText(IconHelper.createFolderImage(Color.GREEN, true, Color.GREEN.darker()), "Test", IconHelper.TEXT_BOTTOM, 20.0f) instanceof SDImage);
 	}
 
 	@Test
 	void testAddTextBufferedImageStringIntFloat() {
-		assertTrue(IconHelper.addText(IconHelper.createFolderImage(Color.GREEN, true).image, "Test", IconHelper.TEXT_BOTTOM, 20.0f) instanceof SDImage);
+		assertTrue(IconHelper.addText(IconHelper.createFolderImage(Color.GREEN, true, Color.GREEN.darker()).image, "Test", IconHelper.TEXT_BOTTOM, 20.0f) instanceof SDImage);
 	}
 
 	@Test
 	void testCreateRollingTextAnimationSDImageStringInt() {
-		assertTrue(IconHelper.createRollingTextAnimation(IconHelper.createFolderImage(Color.GREEN, true),
+		assertTrue(IconHelper.createRollingTextAnimation(IconHelper.createFolderImage(Color.GREEN, true, Color.GREEN.darker()),
 				"Long Test Text to create animations", IconHelper.TEXT_BOTTOM) instanceof AnimationStack);
 	}
 
 	@Test
 	void testCreateRollingTextAnimationSDImageStringIntFloat() {
-		assertTrue(IconHelper.createRollingTextAnimation(IconHelper.createFolderImage(Color.GREEN, true),
+		assertTrue(IconHelper.createRollingTextAnimation(IconHelper.createFolderImage(Color.GREEN, true, Color.GREEN.darker()),
 				"Long Test Text to create animations", IconHelper.TEXT_BOTTOM, 20.0f) instanceof AnimationStack);
 	}
 
 	@Test
 	void testCacheImage() {
-		assertTrue(IconHelper.cacheImage("TEST-PATH", IconHelper.createFolderImage(Color.GREEN, true).image) instanceof SDImage);
+		assertTrue(IconHelper.cacheImage("TEST-PATH", IconHelper.createFolderImage(Color.GREEN, true, Color.GREEN.darker()).image) instanceof SDImage);
 	}
 
 	@Test
 	void testConvertImageBufferedImage() {
-		assertTrue(IconHelper.convertImage(IconHelper.createFolderImage(Color.GREEN, true).image) instanceof SDImage);
+		assertTrue(IconHelper.convertImage(IconHelper.createFolderImage(Color.GREEN, true, Color.GREEN.darker()).image) instanceof SDImage);
 	}
 
 	@Test
 	void testConvertImageBufferedImageBoolean() {
-		assertTrue(IconHelper.convertImage(IconHelper.createFolderImage(Color.GREEN, true).image, true) instanceof SDImage);
+		assertTrue(IconHelper.convertImage(IconHelper.createFolderImage(Color.GREEN, true, Color.GREEN.darker()).image) instanceof SDImage);
 	}
 
 	@Test
 	void testApplyImage() {
-		SDImage b1 = IconHelper.createFolderImage(Color.GREEN, true);
-		BufferedImage b2 = IconHelper.createFolderImage(Color.GREEN, true).image;
+		SDImage b1 = IconHelper.createFolderImage(Color.GREEN, true, Color.GREEN.darker());
+		BufferedImage b2 = IconHelper.createFolderImage(Color.GREEN, true, Color.GREEN.darker()).image;
 		assertTrue(IconHelper.applyImage(b1, b2) instanceof SDImage);
 	}
 
 	@Test
 	void testApplyFrame() {
-		assertTrue(IconHelper.applyFrame(IconHelper.createColoredFrame(Color.GREEN).image) instanceof BufferedImage);
+		assertTrue(IconHelper.applyFrame(IconHelper.createColoredFrame(Color.GREEN).image, Color.GREEN.darker()) instanceof BufferedImage);
 	}
 
 	@Test

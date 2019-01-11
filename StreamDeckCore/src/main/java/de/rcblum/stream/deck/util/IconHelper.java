@@ -93,8 +93,6 @@ public class IconHelper {
 	 */
 	private static boolean applyFrame = true;
 	
-	private static Color frameColor = Color.BLACK;
-	
 	public static final BufferedImage FRAME = getImageFromResource("/resources/icons/frame.png");
 
 	/**
@@ -164,15 +162,7 @@ public class IconHelper {
 		FOLDER_ICON = cacheImage("temp://FOLDER", img);
 		SDImage back = loadImageFromResource("/resources/icons/back.png");
 		cache("temp://BACK", back);
-		cache(FRAME_IMAGE_PREFIX + frameColor.getRGB(), new SDImage(null, FRAME));
-	}
-	
-	public static void setFrameColor(Color frameColor) {
-		IconHelper.frameColor = frameColor;
-	}
-	
-	public static Color getFrameColor() {
-		return frameColor;
+		cache(FRAME_IMAGE_PREFIX + Color.BLACK.getRGB(), new SDImage(null, FRAME));
 	}
 	
 	public static boolean getApplyFrame() {
@@ -198,14 +188,12 @@ public class IconHelper {
 	public static void setRollingTextPadding(int rollingTextPadding) {
 		IconHelper.rollingTextPadding = rollingTextPadding;
 	}
-	
-	public static SDImage createFolderImage(Color background, boolean applyFrame) {
-		return createFolderImage(background, applyFrame, frameColor);
-	}
 		
 	public static SDImage createFolderImage(Color background, boolean applyFrame, Color frameColor) {
-		if(imageCache.containsKey(FOLDER_IMAGE_PREFIX + background.getRGB()))
-			return imageCache.get(FOLDER_IMAGE_PREFIX + background.getRGB());
+		String folderKey = FOLDER_IMAGE_PREFIX
+				+ String.format("#%02x%02x%02x", background.getRed(), background.getGreen(), background.getBlue());
+		if(imageCache.containsKey(folderKey))
+			return imageCache.get(folderKey);
 		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = img.createGraphics();
 		g.setColor(background);
@@ -218,25 +206,26 @@ public class IconHelper {
 		g.drawLine(51, 20, 42, 20);
 		g.drawLine(50, 19, 43, 19);
 		g.dispose();
-		if(applyFrame)
+		if(applyFrame) 
 			img = applyFrame(img, frameColor);
-		return cacheImage(FOLDER_IMAGE_PREFIX + background.getRGB(), img);
+		return cacheImage(folderKey, img);
 	}
 	
 	public static SDImage createColoredFrame(Color borderColor) {
-		if(imageCache.containsKey(FRAME_IMAGE_PREFIX + borderColor.getRGB()))
-			return imageCache.get(FRAME_IMAGE_PREFIX + borderColor.getRGB());
+		String frameKey = FRAME_IMAGE_PREFIX
+				+ String.format("#%02x%02x%02x", borderColor.getRed(), borderColor.getGreen(), borderColor.getBlue());
+		if(imageCache.containsKey(frameKey))
+			return imageCache.get(frameKey);
 		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = img.createGraphics();
 		g.setColor(borderColor);
 		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
 		g.dispose();
 		applyAlpha(img, FRAME);
-		return cacheImage(FOLDER_IMAGE_PREFIX + borderColor.getRGB(), img);
+		return cacheImage(frameKey, img);
 	}
 	
-	public static void applyAlpha(BufferedImage image, BufferedImage mask)
-	{
+	public static void applyAlpha(BufferedImage image, BufferedImage mask) {
 	    int width = image.getWidth();
 	    int height = image.getHeight();
 
@@ -539,41 +528,6 @@ public class IconHelper {
 	 * Format is:<br>
 	 * Color Schema: BGR<br>
 	 * Image size: 72 x 72 pixel<br>
-	 * Stored in an array with each byte stored seperatly (Size of each array is
-	 * 72 x 72 x 3 = 15_552).
-	 * 
-	 * @param img
-	 *            Image to be converted
-	 * @return Byte arraythat contains the given image, ready to be sent to the
-	 *         stream deck
-	 */
-	public static SDImage convertImage(BufferedImage img) {
-		return convertImage(img, applyFrame, getFrameColor());
-	}
-
-	/**
-	 * Converts the given image to the stream deck format.<br>
-	 * Format is:<br>
-	 * Color Schema: BGR<br>
-	 * Image size: 72 x 72 pixel<br>
-	 * Stored in an array with each byte stored seperatly (Size of each array is 72
-	 * x 72 x 3 = 15_552).
-	 * 
-	 * @param img        Image to be converted
-	 * @param applyFrame <code>true</code> if a frame with the default color should
-	 *                   be applied, <code>false</code> if not
-	 * @return Byte arraythat contains the given image, ready to be sent to the
-	 *         stream deck
-	 */
-	public static SDImage convertImage(BufferedImage img, boolean applyFrame) {
-		return convertImage(img, applyFrame, getFrameColor());
-	}
-
-	/**
-	 * Converts the given image to the stream deck format.<br>
-	 * Format is:<br>
-	 * Color Schema: BGR<br>
-	 * Image size: 72 x 72 pixel<br>
 	 * Stored in an array with each byte stored seperatly (Size of each array is 72
 	 * x 72 x 3 = 15_552).
 	 * 
@@ -584,15 +538,11 @@ public class IconHelper {
 	 * @return Byte arraythat contains the given image, ready to be sent to the
 	 *         stream deck
 	 */
-	public static SDImage convertImage(BufferedImage img, boolean applyFrame, Color frameColor) {
+	public static SDImage convertImage(BufferedImage img) {
 		// Image for the Stream Deck
 		BufferedImage sdImg = IconHelper.rotate180(IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK), false));
 		// Resized image for use in Java
 		BufferedImage imgSrc = IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK), true);
-		if (applyFrame) {
-			sdImg = applyFrame(sdImg, frameColor);
-			imgSrc = applyFrame(imgSrc, frameColor);
-		}
 		int[] pixels = ((DataBufferInt) sdImg.getRaster().getDataBuffer()).getData();
 		byte[] imgData = new byte[StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE * 3];
 		int imgDataCount = 0;
@@ -604,6 +554,12 @@ public class IconHelper {
 			imgData[imgDataCount++] = (byte) ((pixels[i] >> 8) & 0xFF);
 		}
 		return new SDImage(imgData, imgSrc);
+	}
+	
+	public static SDImage convertImageAndApplyFrame(BufferedImage src, Color frameColor) {
+		// Image for the Stream Deck
+		BufferedImage img = applyFrame(IconHelper.createResizedCopy(IconHelper.fillBackground(src, Color.BLACK), true), frameColor);
+		return convertImage(img);
 	}
 
 	/**
@@ -631,21 +587,16 @@ public class IconHelper {
 	}
 
 	/**
-	 * Applies a frame with the default frame color.
-	 * @param img Image to apply the frame to.
-	 * @return Image with the frame applied.
-	 */
-	public static BufferedImage applyFrame(BufferedImage img) {
-		return applyFrame(img, getFrameColor());
-	}
-
-	/**
-	 * Applies a frame with the default frame color.
-	 * @param img Image to apply the frame to.
+	 * Applies a frame with the default frame color. Will resize any image that is
+	 * bigger than the bounds of the icons.
+	 * 
+	 * @param img        Image to apply the frame to.
 	 * @param frameColor Color of the frame.
 	 * @return Image with the frame applied.
 	 */
 	public static BufferedImage applyFrame(BufferedImage img, Color frameColor) {
+		if(img.getWidth() > StreamDeck.ICON_SIZE || img.getHeight() > StreamDeck.ICON_SIZE)
+			img = createResizedCopy(img, true);
 		BufferedImage nImg = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
 		Graphics2D g = nImg.createGraphics();
 		g.drawImage(img, 0, 0, null);
@@ -899,13 +850,21 @@ public class IconHelper {
 	}
 
 	public static SDImage loadImageSafe(String path) {
-		return loadImageSafe(Paths.get(path != null ? path : "."));
+		return loadImageSafe(path, false, null);
+	}
+	
+	public static SDImage loadImageSafe(Path path) {
+		return loadImageSafe(path, false, null);
+	}
+	
+	public static SDImage loadImageSafe(String path, boolean applyFrame, Color frameColor) {
+		return loadImageSafe(Paths.get(path != null ? path : "."), applyFrame, frameColor);
 	}
 
-	public static SDImage loadImageSafe(Path path) {
+	public static SDImage loadImageSafe(Path path, boolean applyFrame, Color frameColor) {
 		SDImage icon = null;
 		try {
-			icon = loadImage(path);
+			icon = loadImage(path, applyFrame, frameColor);
 		} catch (Exception e) {
 			icon = IconHelper.getImage(TEMP_BLACK_ICON);
 		}
@@ -913,24 +872,34 @@ public class IconHelper {
 	}
 
 	public static SDImage loadImage(Path path) throws IOException {
-		if (imageCache.containsKey(path.getFileSystem().toString() + path.toAbsolutePath().toString()))
-			return imageCache.get(path.getFileSystem().toString() + path.toAbsolutePath().toString());
-		try (InputStream inputStream = Files.newInputStream(path)) {
-			return loadImage(path.getFileSystem().toString() + path.toAbsolutePath().toString(), inputStream, false);
-		}
+		return loadImage(path, false, null);
 	}
 
 	public static SDImage loadImage(String path) throws IOException {
+		return loadImage(path, false, null);
+	}
+
+	public static SDImage loadImage(Path path, boolean applyFrame, Color frameColor) throws IOException {
+		if (imageCache.containsKey(path.getFileSystem().toString() + path.toAbsolutePath().toString()))
+			return imageCache.get(path.getFileSystem().toString() + path.toAbsolutePath().toString());
+		try (InputStream inputStream = Files.newInputStream(path)) {
+			return loadImage(path.getFileSystem().toString() + path.toAbsolutePath().toString(), inputStream, false, applyFrame, frameColor);
+		}
+	}
+
+	public static SDImage loadImage(String path, boolean applyFrame, Color frameColor) throws IOException {
 		if (imageCache.containsKey(path))
 			return imageCache.get(path);
 		FileInputStream fIn = new FileInputStream(new File(path));
-		return loadImage(path, fIn, false);
+		return loadImage(path, fIn, false, applyFrame, frameColor);
 	}
 
-	public static SDImage loadImage(String path, InputStream inputStream, boolean disableCache) throws IOException {
+	public static SDImage loadImage(String path, InputStream inputStream, boolean disableCache, boolean applyFrame, Color frameColor) throws IOException {
 		if (imageCache.containsKey(path) && !disableCache)
 			return imageCache.get(path);
 		BufferedImage img = ImageIO.read(inputStream);
+		if(applyFrame)
+			img = applyFrame(img, frameColor);
 		SDImage imgData = convertImage(img); 
 		if(!disableCache)
 			cache(path, imgData);
