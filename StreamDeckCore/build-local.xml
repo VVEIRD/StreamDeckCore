@@ -32,7 +32,7 @@
 	<target name="init">
 		<mkdir dir="target/classes" />
 		<copy includeemptydirs="false" todir="target/classes">
-			<fileset dir="src">
+			<fileset dir="src/main/java">
 				<include name="**/*.java" />
 				<exclude name="**/*.launch" />
 				<exclude name="**/*.java" />
@@ -56,7 +56,7 @@
 	<target depends="init" name="build-project">
 		<echo message="${ant.project.name}: ${ant.file}" />
 		<javac debug="true" debuglevel="${debuglevel}" destdir="target/classes" includeantruntime="false" source="${source}" target="${target}">
-			<src path="src" />
+			<src path="src/main/java" />
 			<include name="**/*.java" />
 			<classpath refid="StreamDeckCore.classpath" />
 		</javac>
@@ -87,6 +87,9 @@
 		<mkdir dir="${dir.jarfile.latest}" />
 		<jar destfile="${dir.jarfile}/StreamDeckCore.jar">
 			<fileset dir="${dir.buildfile}/target/classes" />
+			<fileset dir="${dir.buildfile}">
+				<exclude name="resource/**" />
+			</fileset>
 		</jar>
 		<copy file="../../../.m2/repository/org/apache/logging/log4j/log4j-core/2.11.1/log4j-core-2.11.1.jar" todir="${dir.jarfile}" />
 		<copy file="../../../.m2/repository/org/apache/logging/log4j/log4j-api/2.11.1/log4j-api-2.11.1.jar" todir="${dir.jarfile}" />
@@ -95,6 +98,9 @@
 		<copy file="${dir.purejavahid.latest}/jna-4.0.0.jar" todir="${dir.jarfile}" />
 		<jar destfile="${dir.jarfile.latest}/StreamDeckCore.jar">
 			<fileset dir="${dir.buildfile}/target/classes" />
+			<fileset dir="${dir.buildfile}">
+				<exclude name="resource/**" />
+			</fileset>
 		</jar>
 		<copy file="../../../.m2/repository/org/apache/logging/log4j/log4j-core/2.11.1/log4j-core-2.11.1.jar" todir="${dir.jarfile.latest}" />
 		<copy file="../../../.m2/repository/org/apache/logging/log4j/log4j-api/2.11.1/log4j-api-2.11.1.jar" todir="${dir.jarfile.latest}" />
