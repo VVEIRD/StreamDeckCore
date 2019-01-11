@@ -87,7 +87,7 @@ public class KeyEvent extends EventObject {
 	 * @author Roland von Werden
 	 *
 	 */
-	public static enum Type {
+	public enum Type {
 		PRESSED, RELEASED_CLICKED, ON_DISPLAY, OFF_DISPLAY, OPEN_FOLDER, CLOSE_FOLDER;
 	}
 }

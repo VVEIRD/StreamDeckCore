@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -101,7 +102,7 @@ public class Animator implements StreamKeyListener, Runnable {
 	/**
 	 * Listeners for when animation state changes
 	 */
-	private List<AnimationListener> listeners = new LinkedList<AnimationListener>();
+	private List<AnimationListener> listeners = new LinkedList<>();
 
 	/**
 	 * Creates an animator for the given stream deck key and
@@ -117,11 +118,10 @@ public class Animator implements StreamKeyListener, Runnable {
 	 */
 	public Animator(IStreamDeck streamDeck, int keyIndex, AnimationStack animation) {
 		logger.debug(keyIndex + ": New animator");
-		this.streamDeck = streamDeck;
+		this.streamDeck = Objects.requireNonNull(streamDeck);
 		this.keyIndex = keyIndex;
 		synchronized (syncLock) {
-			if(animators.get(streamDeck) == null)
-				animators.put(streamDeck, new Animator[streamDeck.getKeySize()]);
+			animators.computeIfAbsent(streamDeck, k -> new Animator[k.getKeySize()]);
 			if (animators.get(streamDeck)[this.keyIndex] != null)
 				animators.get(streamDeck)[this.keyIndex].stop(true);
 			animators.get(streamDeck)[this.keyIndex] = this;

@@ -84,9 +84,11 @@ public class ExecutableItem extends AbstractStreamItem {
 	}
 
 	public void onClick(KeyEvent event) {
+		// Nothing to do
 	}
 
 	public void onPress(KeyEvent event) {
+		// Nothing to do
 	}
 
 	/**
@@ -107,8 +109,10 @@ public class ExecutableItem extends AbstractStreamItem {
 	}
 
 	public void onDisplay(KeyEvent event) {
+		// Nothing to do
 	}
 
 	public void offDisplay(KeyEvent event) {
+		// Nothing to do
 	}
 }

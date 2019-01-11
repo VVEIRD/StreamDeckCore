@@ -54,7 +54,7 @@ import de.rcblum.stream.deck.items.animation.AnimationStack;
  * 
  * MIT License
  * 
- * Copyright (c) 2017 Roland von Werden
+ * Copyright (c) 2018 Roland von Werden
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -75,12 +75,14 @@ import de.rcblum.stream.deck.items.animation.AnimationStack;
  * SOFTWARE.
  * 
  * @author Roland von Werden
- * @version 1.0.0
+ * @version 1.0.2
  *
  */
 public class IconHelper {
 
 	private static final String FOLDER_IMAGE_PREFIX = "temp://FOLDER_";
+	
+	private static final String FRAME_IMAGE_PREFIX = "temp://FRAME_";
 
 	public static final String TEMP_BLACK_ICON = "temp://BLACK_ICON";
 
@@ -162,7 +164,7 @@ public class IconHelper {
 		FOLDER_ICON = cacheImage("temp://FOLDER", img);
 		SDImage back = loadImageFromResource("/resources/icons/back.png");
 		cache("temp://BACK", back);
-		cache("FRAME_" + frameColor.getRGB(), new SDImage(null, FRAME));
+		cache(FRAME_IMAGE_PREFIX + frameColor.getRGB(), new SDImage(null, FRAME));
 	}
 	
 	public static void setFrameColor(Color frameColor) {
@@ -198,6 +200,10 @@ public class IconHelper {
 	}
 	
 	public static SDImage createFolderImage(Color background, boolean applyFrame) {
+		return createFolderImage(background, applyFrame, frameColor);
+	}
+		
+	public static SDImage createFolderImage(Color background, boolean applyFrame, Color frameColor) {
 		if(imageCache.containsKey(FOLDER_IMAGE_PREFIX + background.getRGB()))
 			return imageCache.get(FOLDER_IMAGE_PREFIX + background.getRGB());
 		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
@@ -212,20 +218,17 @@ public class IconHelper {
 		g.drawLine(51, 20, 42, 20);
 		g.drawLine(50, 19, 43, 19);
 		g.dispose();
-		boolean oldVal = IconHelper.applyFrame;
-		IconHelper.applyFrame = applyFrame;
-		SDImage sdImage = cacheImage(FOLDER_IMAGE_PREFIX + background.getRGB(), img);
-		IconHelper.applyFrame = oldVal;
-		return sdImage;
-		
+		if(applyFrame)
+			img = applyFrame(img, frameColor);
+		return cacheImage(FOLDER_IMAGE_PREFIX + background.getRGB(), img);
 	}
 	
 	public static SDImage createColoredFrame(Color borderColor) {
-		if(imageCache.containsKey(FOLDER_IMAGE_PREFIX + borderColor.getRGB()))
-			return imageCache.get(FOLDER_IMAGE_PREFIX + borderColor.getRGB());
+		if(imageCache.containsKey(FRAME_IMAGE_PREFIX + borderColor.getRGB()))
+			return imageCache.get(FRAME_IMAGE_PREFIX + borderColor.getRGB());
 		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = img.createGraphics();
-		g.setColor(borderColor);;
+		g.setColor(borderColor);
 		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
 		g.dispose();
 		applyAlpha(img, FRAME);
@@ -545,7 +548,7 @@ public class IconHelper {
 	 *         stream deck
 	 */
 	public static SDImage convertImage(BufferedImage img) {
-		return convertImage(img, applyFrame);
+		return convertImage(img, applyFrame, getFrameColor());
 	}
 
 	/**
@@ -553,20 +556,42 @@ public class IconHelper {
 	 * Format is:<br>
 	 * Color Schema: BGR<br>
 	 * Image size: 72 x 72 pixel<br>
-	 * Stored in an array with each byte stored seperatly (Size of each array is
-	 * 72 x 72 x 3 = 15_552).
+	 * Stored in an array with each byte stored seperatly (Size of each array is 72
+	 * x 72 x 3 = 15_552).
 	 * 
-	 * @param img
-	 *            Image to be converted
+	 * @param img        Image to be converted
+	 * @param applyFrame <code>true</code> if a frame with the default color should
+	 *                   be applied, <code>false</code> if not
 	 * @return Byte arraythat contains the given image, ready to be sent to the
 	 *         stream deck
 	 */
 	public static SDImage convertImage(BufferedImage img, boolean applyFrame) {
+		return convertImage(img, applyFrame, getFrameColor());
+	}
+
+	/**
+	 * Converts the given image to the stream deck format.<br>
+	 * Format is:<br>
+	 * Color Schema: BGR<br>
+	 * Image size: 72 x 72 pixel<br>
+	 * Stored in an array with each byte stored seperatly (Size of each array is 72
+	 * x 72 x 3 = 15_552).
+	 * 
+	 * @param img        Image to be converted
+	 * @param applyFrame <code>true</code> if a frame be applied, <code>false</code>
+	 *                   if not
+	 * @param frameColor Color of the frame, if it should be applied
+	 * @return Byte arraythat contains the given image, ready to be sent to the
+	 *         stream deck
+	 */
+	public static SDImage convertImage(BufferedImage img, boolean applyFrame, Color frameColor) {
+		// Image for the Stream Deck
 		BufferedImage sdImg = IconHelper.rotate180(IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK), false));
+		// Resized image for use in Java
 		BufferedImage imgSrc = IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK), true);
 		if (applyFrame) {
-			sdImg = applyFrame(sdImg);
-			imgSrc = applyFrame(imgSrc);
+			sdImg = applyFrame(sdImg, frameColor);
+			imgSrc = applyFrame(imgSrc, frameColor);
 		}
 		int[] pixels = ((DataBufferInt) sdImg.getRaster().getDataBuffer()).getData();
 		byte[] imgData = new byte[StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE * 3];
@@ -605,14 +630,27 @@ public class IconHelper {
 		return convertImage(img);
 	}
 
+	/**
+	 * Applies a frame with the default frame color.
+	 * @param img Image to apply the frame to.
+	 * @return Image with the frame applied.
+	 */
 	public static BufferedImage applyFrame(BufferedImage img) {
+		return applyFrame(img, getFrameColor());
+	}
+
+	/**
+	 * Applies a frame with the default frame color.
+	 * @param img Image to apply the frame to.
+	 * @param frameColor Color of the frame.
+	 * @return Image with the frame applied.
+	 */
+	public static BufferedImage applyFrame(BufferedImage img, Color frameColor) {
 		BufferedImage nImg = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
-		if (FRAME != null) {
-			Graphics2D g = nImg.createGraphics();
-			g.drawImage(img, 0, 0, null);
-			g.drawImage(createColoredFrame(frameColor).image, 0, 0, null);
-			g.dispose();
-		}
+		Graphics2D g = nImg.createGraphics();
+		g.drawImage(img, 0, 0, null);
+		g.drawImage(createColoredFrame(frameColor).image, 0, 0, null);
+		g.dispose();
 		return nImg;
 	}
 
@@ -626,7 +664,7 @@ public class IconHelper {
 	 *            Icon that should normaly be displayed on one or multiple keys
 	 *            on the stream deck.
 	 * @param pathToGif
-	 *            Gif, that
+	 *            Gif, that contains the animation
 	 * @param stack
 	 * @throws URISyntaxException
 	 * @throws IOException
@@ -647,7 +685,7 @@ public class IconHelper {
 			if (stack != null) {
 				Gson gson = new GsonBuilder().setPrettyPrinting().create();
 				String text = gson.toJson(stack);
-				Files.write(animationFile, text.getBytes("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING,
+				Files.write(animationFile, text.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING,
 						StandardOpenOption.WRITE, StandardOpenOption.CREATE);
 				// save animation frames
 				if (pathToGif != null && Files.exists(Paths.get(pathToGif))) {
@@ -655,7 +693,7 @@ public class IconHelper {
 						String[] imageatt = new String[] { "imageLeftPosition", "imageTopPosition", "imageWidth",
 								"imageHeight" };
 
-						ImageReader reader = (ImageReader) ImageIO.getImageReadersByFormatName("gif").next();
+						ImageReader reader = ImageIO.getImageReadersByFormatName("gif").next();
 						ImageInputStream ciis = ImageIO.createImageInputStream(new File(pathToGif));
 						reader.setInput(ciis, false);
 
@@ -673,7 +711,7 @@ public class IconHelper {
 								Node nodeItem = children.item(j);
 
 								if (nodeItem.getNodeName().equals("ImageDescriptor")) {
-									Map<String, Integer> imageAttr = new HashMap<String, Integer>();
+									Map<String, Integer> imageAttr = new HashMap<>();
 
 									for (int k = 0; k < imageatt.length; k++) {
 										NamedNodeMap attr = nodeItem.getAttributes();
@@ -699,7 +737,6 @@ public class IconHelper {
 					}
 				}
 			}
-			fileSystem.close();
 		}
 	}
 
@@ -719,7 +756,7 @@ public class IconHelper {
 			if (stack != null) {
 				Gson gson = new GsonBuilder().setPrettyPrinting().create();
 				String text = gson.toJson(stack);
-				Files.write(animationFile, text.getBytes("UTF-8"), StandardOpenOption.TRUNCATE_EXISTING,
+				Files.write(animationFile, text.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING,
 						StandardOpenOption.WRITE);
 				// save animation frames
 				if (pathToFrames != null) {
@@ -830,8 +867,6 @@ public class IconHelper {
 			Path iconPath = fileSystem.getPath("icon.png");
 			// load main icon
 			SDImage icon = IconHelper.loadImage(iconPath);
-			// load unmodified image
-//			BufferedImage rawIcon = loadRawImage(iconPath);
 			// load animation, if exists
 			Path animFile = fileSystem.getPath("animation.json");
 			// Raw Animation frames, if exists
@@ -857,7 +892,6 @@ public class IconHelper {
 				}
 				animation.setFrames(frames);
 			}
-			fileSystem.close();
 			IconPackage iconPackage = new IconPackage(icon, animation);
 			packageCache.put(pathToZip, iconPackage);
 			return iconPackage;
@@ -905,11 +939,11 @@ public class IconHelper {
 
 	public static BufferedImage loadRawImage(Path path) throws IOException {
 		try (InputStream inputStream = Files.newInputStream(path)) {
-			return loadRawImage(path.getFileSystem().toString() + path.toAbsolutePath().toString(), inputStream);
+			return loadRawImage(inputStream);
 		}
 	}
 
-	public static BufferedImage loadRawImage(String path, InputStream inputStream) throws IOException {
+	public static BufferedImage loadRawImage(InputStream inputStream) throws IOException {
 		BufferedImage img = ImageIO.read(inputStream);
 		return img;
 	}
@@ -947,7 +981,7 @@ public class IconHelper {
 		try {
 			String[] imageatt = new String[] { "imageLeftPosition", "imageTopPosition", "imageWidth", "imageHeight" };
 
-			ImageReader reader = (ImageReader) ImageIO.getImageReadersByFormatName("gif").next();
+			ImageReader reader = ImageIO.getImageReadersByFormatName("gif").next();
 			ImageInputStream ciis = ImageIO.createImageInputStream(new File(pathToGif));
 			reader.setInput(ciis, false);
 
@@ -967,7 +1001,7 @@ public class IconHelper {
 					Node nodeItem = children.item(j);
 
 					if (nodeItem.getNodeName().equals("ImageDescriptor")) {
-						Map<String, Integer> imageAttr = new HashMap<String, Integer>();
+						Map<String, Integer> imageAttr = new HashMap<>();
 
 						for (int k = 0; k < imageatt.length; k++) {
 							NamedNodeMap attr = nodeItem.getAttributes();
@@ -982,7 +1016,6 @@ public class IconHelper {
 								imageAttr.get("imageTopPosition"), null);
 					}
 				}
-				// ImageIO.write(master, "GIF", new File( i + ".gif"));
 				SDImage imgData = convertImage(master); 
 				images[i] = imgData;
 			}

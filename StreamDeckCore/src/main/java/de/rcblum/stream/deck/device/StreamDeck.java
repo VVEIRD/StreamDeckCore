@@ -589,7 +589,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	@Override
 	public void waitForCompletion() {
 		long time = 0;
-		while (this.sendPool.size() != 0) {
+		while (this.sendPool.isEmpty()) {
 			try {
 				Thread.sleep(50);
 				time += 50;

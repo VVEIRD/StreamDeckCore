@@ -5,7 +5,6 @@ import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.rcblum.stream.deck.device.IStreamDeck;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 
 public class PagedFolderItem extends FolderItem {
@@ -32,8 +31,6 @@ public class PagedFolderItem extends FolderItem {
 				countSI++;
 			}
 		}
-		// Create status bar
-		// AudioApp.addStatusBarItems(this, this.getChildren());
 		if (previous != null) {
 			this.getChildren()[11] = new PreviousItem(previous);
 		}

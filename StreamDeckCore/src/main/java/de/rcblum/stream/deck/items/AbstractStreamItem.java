@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import de.rcblum.stream.deck.device.StreamDeck;
-import de.rcblum.stream.deck.device.StreamDeckDevices;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 import de.rcblum.stream.deck.items.listeners.IconUpdateListener;
 import de.rcblum.stream.deck.util.IconHelper;
@@ -215,8 +214,8 @@ public abstract class AbstractStreamItem implements StreamItem {
 	}
 
 	protected void fireIconUpdate(boolean animationChanged) {
-		for (int i = 0; i < this.listeners.size(); i++) {
-			if (this.listeners != null) {
+		if (this.listeners != null) {
+			for (int i = 0; i < this.listeners.size(); i++) {
 				this.listeners.get(i).onIconUpdate(this, animationChanged);
 			}
 		}

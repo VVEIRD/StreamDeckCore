@@ -81,10 +81,11 @@ public class AnimationStack {
 	public static final int FRAME_RATE_30 = 30;
 
 	/**
-	 * DEPRECATED: Framerates above 30 FPS are note supported anymore. THe ESD
+	 * Framerates above 30 FPS are note supported anymore. THe ESD
 	 * breaks when using a to high framerate. Animation should be played at the
 	 * <br>
 	 * frame rate of 60 frames per second.
+	 * @deprecated
 	 * 
 	 */
 	@Deprecated

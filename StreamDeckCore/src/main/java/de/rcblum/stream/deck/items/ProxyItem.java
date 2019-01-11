@@ -70,6 +70,7 @@ public class ProxyItem extends FolderItem {
 			this.fireIconUpdate(false);
 		}
 
+		@Override
 		public void setText(String text) {
 			boolean change = this.text != text || text != null && !text.equals(this.text);
 			this.text = text;
@@ -89,6 +90,7 @@ public class ProxyItem extends FolderItem {
 			}
 		}
 
+		@Override
 		public void setTextPosition(int textPos) {
 			this.textPos = textPos;
 			if (this.text != null) {

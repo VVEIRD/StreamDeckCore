@@ -89,9 +89,11 @@ public class URIItem extends AbstractStreamItem {
 	}
 
 	public void onClick(KeyEvent event) {
+		// Empty
 	}
 
 	public void onPress(KeyEvent event) {
+		// I do nothing
 	}
 
 	/**
@@ -114,8 +116,10 @@ public class URIItem extends AbstractStreamItem {
 	}
 
 	public void onDisplay(KeyEvent event) {
+		// Not the code you are looking for
 	}
 
 	public void offDisplay(KeyEvent event) {
+		// Nothing
 	}
 }

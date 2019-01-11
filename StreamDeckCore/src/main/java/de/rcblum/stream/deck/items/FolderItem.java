@@ -41,6 +41,7 @@ public class FolderItem extends AbstractStreamItem {
 
 	@Override
 	public void onKeyEvent(KeyEvent event) {
+		// Nothing to do here
 	}
 
 	public void setFolderName(String folderName) {

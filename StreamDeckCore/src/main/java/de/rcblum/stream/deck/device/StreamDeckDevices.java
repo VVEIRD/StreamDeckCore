@@ -57,85 +57,85 @@ public class StreamDeckDevices {
 	
 	public static final int PRODUCT_ID = 96;
 
-	private static List<HidDeviceInfo> STREAM_DECK_INFOS = null;
+	private static List<HidDeviceInfo> streamDeckInfos = null;
 
-	private static List<HidDevice> STREAM_DECK_DEVICES = null;
+	private static List<HidDevice> streamDeckDevices = null;
 
-	private static List<IStreamDeck> STREAM_DECKS = null;
+	private static List<IStreamDeck> streamDecks = null;
 
-	private static List<IStreamDeck> SOFT_STREAM_DECKS = null;
+	private static List<IStreamDeck> softStreamDecks = null;
 	
 	
 	public static HidDeviceInfo getStreamDeckInfo() {
-		if (STREAM_DECK_INFOS == null) {
-			STREAM_DECK_INFOS = new ArrayList<>(5);
+		if (streamDeckInfos == null) {
+			streamDeckInfos = new ArrayList<>(5);
 			LOGGER.info("Scanning for devices");
 			List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
 			for (HidDeviceInfo info : devList) {
 				LOGGER.debug("Vendor-ID: " + info.getVendorId() + ", Product-ID: " + info.getProductId());
 				if (info.getVendorId() == VENDOR_ID && info.getProductId() == PRODUCT_ID) {
 					LOGGER.info("Found ESD ["+info.getVendorId()+":"+info.getProductId()+"]");
-					STREAM_DECK_INFOS.add(info);
+					streamDeckInfos.add(info);
 				}
 			}
 		}
-		return STREAM_DECK_INFOS.size() > 0 ? STREAM_DECK_INFOS.get(0) : null;
+		return !streamDeckInfos.isEmpty() ? streamDeckInfos.get(0) : null;
 	}
 	
 	public static HidDevice getStreamDeckDevice() {
-		if (STREAM_DECK_DEVICES == null || STREAM_DECK_DEVICES.size() == 0) {
+		if (streamDeckDevices == null || streamDeckDevices.isEmpty()) {
 			HidDeviceInfo info = getStreamDeckInfo();
-			STREAM_DECK_DEVICES = new ArrayList<>(STREAM_DECK_INFOS.size());
+			streamDeckDevices = new ArrayList<>(streamDeckInfos.size());
 			if (info != null) {
 				try {
 					LOGGER.info("Connected Stream Decks:");
-					for (HidDeviceInfo hidDeviceinfo : STREAM_DECK_INFOS) {
+					for (HidDeviceInfo hidDeviceinfo : streamDeckInfos) {
 						LOGGER.info("  Manufacurer: " + hidDeviceinfo.getManufacturerString());
 						LOGGER.info("  Product:     " + hidDeviceinfo.getProductString());
 						LOGGER.info("  Device-Id:   " + hidDeviceinfo.getDeviceId());
 						LOGGER.info("  Serial-No:   " + hidDeviceinfo.getSerialNumberString());
 						LOGGER.info("  Path:        " + hidDeviceinfo.getPath());
 						LOGGER.info("");
-						STREAM_DECK_DEVICES.add(PureJavaHidApi.openDevice(hidDeviceinfo));
+						streamDeckDevices.add(PureJavaHidApi.openDevice(hidDeviceinfo));
 					}
 				} catch (IOException e) {
 					LOGGER.error("IO Error occured while searching for devices: ", e);
 				}
 			}
 		}
-		return STREAM_DECK_DEVICES.size() > 0 ? STREAM_DECK_DEVICES.get(0) : null;
+		return !streamDeckDevices.isEmpty() ? streamDeckDevices.get(0) : null;
 	}
 	
 	public static IStreamDeck getStreamDeck() {
-		if (STREAM_DECKS == null || STREAM_DECKS.size() == 0) {
+		if (streamDecks == null || streamDecks.isEmpty()) {
 			HidDevice dev = getStreamDeckDevice();
-			STREAM_DECKS = new ArrayList<>(STREAM_DECK_DEVICES.size());
+			streamDecks = new ArrayList<>(streamDeckDevices.size());
 			if (dev != null) {
-				for (HidDevice hidDevice : STREAM_DECK_DEVICES) {
-					STREAM_DECKS.add(new StreamDeck(hidDevice, 99, StreamDeck.BUTTON_COUNT));
+				for (HidDevice hidDevice : streamDeckDevices) {
+					streamDecks.add(new StreamDeck(hidDevice, 99, StreamDeck.BUTTON_COUNT));
 				}
 			}
 		}
-		if(ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() && SOFT_STREAM_DECKS == null) {
-			SOFT_STREAM_DECKS = new ArrayList<>(STREAM_DECK_DEVICES.size()); 
-			for (int i=0; i<STREAM_DECKS.size(); i++) {
-				IStreamDeck iStreamDeck = STREAM_DECKS.get(i);
-				SOFT_STREAM_DECKS.add(new SoftStreamDeck("Stream Deck " + i, iStreamDeck));
+		if(ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() && softStreamDecks == null) {
+			softStreamDecks = new ArrayList<>(streamDeckDevices.size()); 
+			for (int i=0; i<streamDecks.size(); i++) {
+				IStreamDeck iStreamDeck = streamDecks.get(i);
+				softStreamDecks.add(new SoftStreamDeck("Stream Deck " + i, iStreamDeck));
 			}
 		}
-		return STREAM_DECKS.size() > 0 
-				? (ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() ? SOFT_STREAM_DECKS.get(0) : STREAM_DECKS.get(0)) 
+		return !streamDecks.isEmpty()
+				? (ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() ? softStreamDecks.get(0) : streamDecks.get(0)) 
 				: (ENABLE_SOFTWARE_STREAM_DECK && !GraphicsEnvironment.isHeadless() ? new SoftStreamDeck("Soft Stream Deck", null) : null);
 	}
 	
 	public static int getStreamDeckSize() {
-		return STREAM_DECKS != null ? STREAM_DECKS.size() : 0;
+		return streamDecks != null ? streamDecks.size() : 0;
 	}
 	
 	public static IStreamDeck getStreamDeck(int id) {
-		if (STREAM_DECKS == null || id < 0 || id >= getStreamDeckSize())
+		if (streamDecks == null || id < 0 || id >= getStreamDeckSize())
 			return null;
-		return STREAM_DECKS.get(id);
+		return streamDecks.get(id);
 	}
 	
 	public static String bytesToHex(byte[] in) {
@@ -148,6 +148,8 @@ public class StreamDeckDevices {
 	    return builder.toString();
 	}
 	
-	
+	private StreamDeckDevices() {
+		// Nothing here stanger
+	}
 }
  
