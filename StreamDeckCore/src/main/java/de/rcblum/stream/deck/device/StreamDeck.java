@@ -204,9 +204,8 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 					}
 				}
 				while(System.nanoTime()-t < 2_000) {
-					int a = 1+1;
+					Math.subtractExact(2, 1);
 				}
-				
 			}
 		}
 
