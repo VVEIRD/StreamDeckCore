@@ -1,4 +1,9 @@
 # StreamDeckCore
+
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.vveird/StreamDeckCore.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22io.github.vveird%22%20AND%20a:%22StreamDeckCore%22)
+[![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=VVEIRD_StreamDeckCore&metric=alert_status)](https://sonarcloud.io/dashboard?id=VVEIRD_StreamDeckCore)
+
+
 This project provides api acces to any connected Elgato Stream Deck (Called ESD from now on). Windows, Linux and Mac OS X should be supported, but only windows could be tested. _This project is not associated in any way with Elgato Systems._
 
 ## Basic functionality
