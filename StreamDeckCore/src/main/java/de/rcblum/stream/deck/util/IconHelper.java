@@ -538,9 +538,6 @@ public class IconHelper {
 	 * x 72 x 3 = 15_552).
 	 * 
 	 * @param img        Image to be converted
-	 * @param applyFrame <code>true</code> if a frame be applied, <code>false</code>
-	 *                   if not
-	 * @param frameColor Color of the frame, if it should be applied
 	 * @return Byte arraythat contains the given image, ready to be sent to the
 	 *         stream deck
 	 */
@@ -576,6 +573,7 @@ public class IconHelper {
 	 *            base image as byte array
 	 * @param apply
 	 *            image to be applied
+	 * @return SDImage with the applied image
 	 */
 	public static SDImage applyImage(SDImage imgData, BufferedImage apply) {
 
@@ -622,9 +620,9 @@ public class IconHelper {
 	 *            on the stream deck.
 	 * @param pathToGif
 	 *            Gif, that contains the animation
-	 * @param stack
-	 * @throws URISyntaxException
-	 * @throws IOException
+	 * @param stack AnimationStack to include into the icon package
+	 * @throws URISyntaxException	Maleformed archive URI
+	 * @throws IOException	If writing to the created archive fails
 	 */
 	public static void createIconPackage(String pathToArchive, String pathToIcon, String pathToGif,
 			AnimationStack stack) throws URISyntaxException, IOException {
