@@ -32,7 +32,7 @@ public class PagedFolderItem extends FolderItem {
 			}
 		}
 		if (previous != null) {
-			this.getChildren()[11] = new PreviousItem(previous);
+			this.getChildren()[11] = new PageItem(previous, "Previous");
 		}
 		if (countTotal > maxItems && children.length-childIndex > 0) {
 			logger.debug("Create next page for " + this.getText());
@@ -42,7 +42,7 @@ public class PagedFolderItem extends FolderItem {
 			PagedFolderItem next = new PagedFolderItem(folderName, parent, this, nextPageChildren, keyCount);
 			next.setTextPosition(TEXT_POS_CENTER);
 			next.setText("Next");
-			this.getChildren()[10] = new NextItem(next);
+			this.getChildren()[10] = new PageItem(next, "Next");
 		}
 	}
 	
@@ -53,88 +53,45 @@ public class PagedFolderItem extends FolderItem {
 			this.getChild(10).setParent(parent);
 	}
 	
-	public static class NextItem extends FolderItem{
+	public static class PageItem extends FolderItem {
 
-		PagedFolderItem next = null;
+		PagedFolderItem page = null;
 		
-		public NextItem(PagedFolderItem next) {
-			super("Next", null, new StreamItem[15]);
-			this.next = next;
+		public PageItem(PagedFolderItem page, String name) {
+			super(name, null, new StreamItem[15]);
+			this.page = page;
 			this.setTextPosition(TEXT_POS_CENTER);
-			this.setText("Next");
+			this.setText(name);
 		}
 		
 		@Override
 		public StreamItem getChild(int i) {
-			return next.getChild(i);
+			return page.getChild(i);
 		}
 		
 		@Override
 		public AnimationStack getAnimation() {
-			return next.getAnimation();
+			return page.getAnimation();
 		}
 		
 		@Override
 		public int getChildId(StreamItem item) {
-			return next.getChildId(item);
+			return page.getChildId(item);
 		}
 		
 		@Override
 		public StreamItem[] getChildren() {
-			return next.getChildren();
+			return page.getChildren();
 		}
 		
 		@Override
 		public StreamItem getParent() {
-			return next.getParent();
+			return page.getParent();
 		}
 		
 		@Override
 		public void setParent(StreamItem parent) {
-			next.setParent(parent);
+			page.setParent(parent);
 		}
 	}
-	
-	public static class PreviousItem extends FolderItem{
-
-		PagedFolderItem next = null;
-		
-		public PreviousItem(PagedFolderItem next) {
-			super("Previous", null, new StreamItem[15]);
-			this.next = next;
-			this.setTextPosition(TEXT_POS_CENTER);
-			this.setText("Previous");
-		}
-		
-		@Override
-		public StreamItem getChild(int i) {
-			return next.getChild(i);
-		}
-		
-		@Override
-		public AnimationStack getAnimation() {
-			return next.getAnimation();
-		}
-		
-		@Override
-		public int getChildId(StreamItem item) {
-			return next.getChildId(item);
-		}
-		
-		@Override
-		public StreamItem[] getChildren() {
-			return next.getChildren();
-		}
-		
-		@Override
-		public StreamItem getParent() {
-			return next.getParent();
-		}
-		
-		@Override
-		public void setParent(StreamItem parent) {
-			next.setParent(parent);
-		}
-	}
-
 }

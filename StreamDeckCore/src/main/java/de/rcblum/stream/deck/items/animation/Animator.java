@@ -21,12 +21,18 @@ import de.rcblum.stream.deck.util.SDImage;
 /**
  * Controller that handles the animation of a key.
  * 
+ * BUGFIX:
+ * 2019-01-13 RvW: If the animation had only one frame and mode pingpong,  
+ *                {@link #run()} would reduce the framePos to -1 finally resulting
+ *                in a NullPointerException in the run method of SoftStreamDeck.WriterDaemon.
+ *                Fixed by checking bounds of framePos after calculating the new position.
+ * 
  * <br>
  * <br>
  *  
  * MIT License<br>
  * <br>
- * Copyright (c) 2017 Roland von Werden<br>
+ * Copyright (c) 2018 Roland von Werden<br>
  * <br>
  * Permission is hereby granted, free of charge, to any person obtaining a copy<br>
  * of this software and associated documentation files (the "Software"), to deal<br>
@@ -202,9 +208,9 @@ public class Animator implements StreamKeyListener, Runnable {
 		// Get nexte frame to render
 		if (this.framePos >= 0 && this.framePos < frameCount) {
 			frame = this.animation.getFrame(framePos);
+			// Draw frame
+			this.streamDeck.drawImage(this.keyIndex, frame);
 		}
-		// Draw frame
-		this.streamDeck.drawImage(this.keyIndex, frame);
 		// Handle normal frame advance
 		if (this.framePos + this.frameAdvance >= 0 && this.framePos + this.frameAdvance < frameCount) {
 			this.framePos += this.frameAdvance;
@@ -230,6 +236,10 @@ public class Animator implements StreamKeyListener, Runnable {
 			this.stopAfterAnimation = false;
 			this.fireOnStop();
 		}
+		if(this.framePos < 0 && this.frameAdvance < 0) 
+			this.framePos = 0;
+		else if(this.framePos >= frameCount && this.frameAdvance > 0)
+			this.framePos = frameCount-1;
 	}
 
 	/**

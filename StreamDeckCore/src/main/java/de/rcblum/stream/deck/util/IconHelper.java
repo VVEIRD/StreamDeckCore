@@ -119,7 +119,7 @@ public class IconHelper {
 	/**
 	 * Sets the padding for the rolling text.
 	 */
-	private static int rollingTextPadding = 10;
+	private static int rollingTextPadding = 5;
 	
 	/**
 	 * Alpha value for the textbox background
@@ -395,9 +395,9 @@ public class IconHelper {
 		BufferedImage baseImage = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
 		BufferedImage drawOn = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
 		List<SDImage> frames = new LinkedList<>();
-		Graphics2D g2d = baseImage.createGraphics();
-		g2d.drawImage(imgData.image, 0, 0, null);
-		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		Graphics2D gCanvas = baseImage.createGraphics();
+		gCanvas.drawImage(imgData.image, 0, 0, null);
+		gCanvas.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		int yStart = 28;
 		switch (pos) {
 		case TEXT_BOTTOM:
@@ -409,31 +409,37 @@ public class IconHelper {
 		default:
 			break;
 		}
-		int y = (yStart - (g2d.getFontMetrics().getHeight() / 2));
-		g2d.setColor(new Color(0, 0, 0, textBoxAlphaValue));
+		int y = (yStart - (gCanvas.getFontMetrics().getHeight() / 2));
+		gCanvas.setColor(new Color(0, 0, 0, textBoxAlphaValue));
 		int width = 72;
 		int x = IconHelper.rollingTextPadding;
-		g2d.fillRect(x - 1, y - g2d.getFontMetrics().getHeight() + 7, width + 2, g2d.getFontMetrics().getHeight() - 4);
-		g2d.dispose();
+		gCanvas.fillRect(x - 1, y - gCanvas.getFontMetrics().getHeight() + 7, width + 2, gCanvas.getFontMetrics().getHeight() - 4);
+		gCanvas.dispose();
 		// Draw Frames
-		g2d = drawOn.createGraphics();
-		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
-		g2d.setColor(Color.LIGHT_GRAY);
-		g2d.drawImage(baseImage, 0, 0, null);
+		gCanvas = drawOn.createGraphics();
+		gCanvas.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		gCanvas.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
+		gCanvas.setColor(Color.LIGHT_GRAY);
+		gCanvas.drawImage(baseImage, 0, 0, null);
+		StringBuilder sb = new StringBuilder(text);
+		while(gCanvas.getFontMetrics().stringWidth(sb.toString()) < StreamDeck.ICON_SIZE+10) {
+			sb.insert(0, " ");
+			sb.append(" ");
+		}
+		text = sb.toString();
 		do {
-			g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
-			g2d.setColor(Color.LIGHT_GRAY);
-			g2d.drawString(text, x, y);
+			gCanvas.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
+			gCanvas.setColor(Color.LIGHT_GRAY);
+			gCanvas.drawString(text, x, y);
 			x--;
 			BufferedImage frame = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
-			Graphics2D g = frame.createGraphics();
-			g.drawImage(drawOn, 0, 0, null);
-			g.dispose();
+			Graphics2D gDest = frame.createGraphics();
+			gDest.drawImage(drawOn, 0, 0, null);
+			gDest.dispose();
 			frames.add(convertImage(frame));
-			g2d.drawImage(baseImage, 0, 0, null);
-		} while(x+g2d.getFontMetrics().stringWidth(text) > StreamDeck.ICON_SIZE - IconHelper.rollingTextPadding);
-		g2d.dispose();
+			gCanvas.drawImage(baseImage, 0, 0, null);
+		} while(x+gCanvas.getFontMetrics().stringWidth(text) > StreamDeck.ICON_SIZE - IconHelper.rollingTextPadding);
+		gCanvas.dispose();
 		SDImage[] frameArray = frames.toArray(new SDImage[0]);
 		animation.setFrames(frameArray);
 		return animation;
