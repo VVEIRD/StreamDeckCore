@@ -23,7 +23,7 @@ StreamDeckCore provides the following basic features:
 The StreamDeckController class is an easy way to display content and create folder structures without the need of developing the code for folders etc. yourself.
 
 ### Soft Deck
-If you have no Stream Deck yourself, but still want to develop for the plattform, you can use the software implementation to do that. Its a simple JFrame of all 15 "buttons" displayed. Its activated on default and can be disabled at the start of your program by using `de.rcblum.stream.deck.device.StreamDeckDevices.setEnableSoftwareStreamDeck(false);`
+If you have no Stream Deck yourself, but still want to develop for the plattform, you can use the software implementation to do that. Its a simple JFrame of all 15 "buttons" displayed. Its activated on default and can be disabled at the start of your program by using `de.rcblum.stream.deck.device.StreamDeckDevices.disableSoftwareStreamDeck();`
 
 ## Future functionality
 ?? ATM no new functionality planned
