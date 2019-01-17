@@ -15,7 +15,7 @@ StreamDeckCore provides the following basic features:
 5. Setting the icons of the keys (0 - 14)
 6. Setting the brightness of the ESD (0 - 99)
 7. Recieving key pressed, released, clicked events from the ESD
-8. Recieving events for key binds that are beeing displayed and when they are taken off through KeyEvents.
+8. Recieving KeyEvents if a key is beeing changed, one event for adding a key and one event for removing a key.
 9. Custom animations for specific keys, at a 60/30/15 fps or custom fps.
 
 ## Advanced functionality
@@ -23,7 +23,7 @@ StreamDeckCore provides the following basic features:
 The StreamDeckController class is an easy way to display content and create folder structures without the need of developing the code for folders etc. yourself.
 
 ### Soft Deck
-If you have no Stream Deck yourself, but still want to develop for the plattform, you can use the software implementation to do that. Its a simple JFrame of all 15 "buttons" displayed. Its activated on default and can be disabled at the start of your program by setting de.rcblum.stream.deck.device.StreamDeckDevices.ENABLE_SOFTWARE_STREAM_DECK to false.
+If you have no Stream Deck yourself, but still want to develop for the plattform, you can use the software implementation to do that. Its a simple JFrame of all 15 "buttons" displayed. Its activated on default and can be disabled at the start of your program by using `de.rcblum.stream.deck.device.StreamDeckDevices.setEnableSoftwareStreamDeck(false);`
 
 ## Future functionality
 ?? ATM no new functionality planned
