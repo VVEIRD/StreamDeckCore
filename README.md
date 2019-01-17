@@ -34,12 +34,6 @@ If you have no Stream Deck yourself, but still want to develop for the plattform
 3. Create tutorial & example programs
 
 ## Integration
-### Github
-This uses the github project https://github.com/nyholku/purejavahidapi (forked to https://github.com/WElRD/purejavahidapi).
-
-__I'd recommend using the following fork for now, as the current version of nyholku's library introduces some errors that breaks this library: https://github.com/WElRD/purejavahidapi__. This version is also included in the releases.
-
-The maven dependencies of the project reference the appropriate libaries.
 
 ### Maven
 
@@ -48,8 +42,15 @@ If you want to use this library in your maven project, just add the following de
     <dependency>
       <groupId>io.github.vveird</groupId>
       <artifactId>StreamDeckCore</artifactId>
-      <version>1.0.1</version>
+      <version>1.0.2</version>
     </dependency>
+
+### Github
+This uses the github project https://github.com/nyholku/purejavahidapi (forked to https://github.com/WElRD/purejavahidapi).
+
+__I'd recommend using the following fork for now, as the current version of nyholku's library introduces some errors that breaks this library: https://github.com/WElRD/purejavahidapi__. This version is also included in the releases.
+
+The maven dependencies of the project reference the appropriate libaries.
 	
     
 
