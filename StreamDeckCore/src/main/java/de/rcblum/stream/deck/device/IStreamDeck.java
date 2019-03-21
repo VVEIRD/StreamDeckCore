@@ -112,5 +112,23 @@ public interface IStreamDeck {
 	 * @return Numbers of keys on the deck (Default 15).
 	 */
 	public default int getKeySize() { return 15;}
+	
+	/**
+	 * Create a KeyEvent for a pushed button through software
+	 * @param no Key no
+	 */
+	public void pushButton(int no);
+	
+	/**
+	 * Create a KeyEvent for a pressed button through software
+	 * @param no Key no
+	 */
+	public void pressButton(int no);
+	
+	/**
+	 * Create a KeyEvent for a released button through software
+	 * @param no Key no
+	 */
+	public void releaseButton(int no);
 
 }

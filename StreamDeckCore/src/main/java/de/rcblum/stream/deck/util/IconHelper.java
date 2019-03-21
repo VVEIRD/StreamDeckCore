@@ -88,11 +88,6 @@ public class IconHelper {
 
 	private static Logger logger = LogManager.getLogger(IconHelper.class);
 
-	/**
-	 * Switch for drawing a black rounded frame around all images
-	 */
-	private static boolean applyFrame = true;
-	
 	public static final BufferedImage FRAME = getImageFromResource("/resources/icons/frame.png");
 
 	/**
@@ -163,14 +158,6 @@ public class IconHelper {
 		SDImage back = loadImageFromResource("/resources/icons/back.png");
 		cache("temp://BACK", back);
 		cache(FRAME_IMAGE_PREFIX + Color.BLACK.getRGB(), new SDImage(null, FRAME));
-	}
-	
-	public static boolean getApplyFrame() {
-		return applyFrame;
-	}
-	
-	public static void setApplyFrame(boolean applyFrame) {
-		IconHelper.applyFrame = applyFrame;
 	}
 	
 	public static int getTextBoxAlphaValue() {
@@ -543,18 +530,17 @@ public class IconHelper {
 	 */
 	public static SDImage convertImage(BufferedImage img) {
 		// Image for the Stream Deck
-		BufferedImage sdImg = IconHelper.rotate180(IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK), false));
 		// Resized image for use in Java
 		BufferedImage imgSrc = IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK), true);
-		int[] pixels = ((DataBufferInt) sdImg.getRaster().getDataBuffer()).getData();
 		byte[] imgData = new byte[StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE * 3];
 		int imgDataCount = 0;
-		// remove the alpha channel
-		for (int i = 0; i < StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE; i++) {
-			// RGB -> BGR
-			imgData[imgDataCount++] = (byte) ((pixels[i] >> 16) & 0xFF);
-			imgData[imgDataCount++] = (byte) (pixels[i] & 0xFF);
-			imgData[imgDataCount++] = (byte) ((pixels[i] >> 8) & 0xFF);
+		for (int y = 0; y < StreamDeck.ICON_SIZE; y++) {
+			for (int x = StreamDeck.ICON_SIZE-1; x >= 0; x--) {
+				Color c = new Color(imgSrc.getRGB(x, y));
+				imgData[imgDataCount++] = (byte) c.getRed();
+				imgData[imgDataCount++] = (byte) c.getBlue();
+				imgData[imgDataCount++] = (byte) c.getGreen();
+			}
 		}
 		return new SDImage(imgData, imgSrc);
 	}

@@ -618,4 +618,43 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	public boolean isHardware() {
 		return true;
 	}
+
+	/**
+	 * Manually Pushing a button at the given id.
+	 * 
+	 * @param no Number of the button to be pushed, 0 - 14, right top to left
+	 *           bottom.
+	 */
+	public void pushButton(int no) {
+		LOGGER.debug(String.format("Virtual button pushed: Key-ID: %d", no));
+		no = no > 14 ? 14 : no < 0 ? 0 : no;
+		KeyEvent evnt = new KeyEvent(this, no, Type.RELEASED_CLICKED);
+		recievePool.add(evnt);
+	}
+
+	/**
+	 * Manually presses a button at the given id until {@link #releaseButton(int)}
+	 * is called.
+	 * 
+	 * @param no Number of the button to be pushed, 0 - 14, right top to left
+	 *           bottom.
+	 */
+	public void pressButton(int no) {
+		LOGGER.debug(String.format("Virtual button pressed: Key-ID: %d", no));
+		no = no > 14 ? 14 : no < 0 ? 0 : no;
+		KeyEvent evnt = new KeyEvent(this, no, Type.PRESSED);
+		recievePool.add(evnt);
+	}
+
+	/**
+	 * Manually releases a button at the given id. If the button is not pressed, it
+	 * will be pushed instead.
+	 * 
+	 * @param no Number of the button to be pushed, 0 - 14, right top to left
+	 *           bottom.
+	 */
+	public void releaseButton(int no) {
+		LOGGER.debug(String.format("Virtual button released: Key-ID: %d", no));
+		this.pushButton(no);
+	}
 }
