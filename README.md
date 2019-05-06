@@ -26,7 +26,8 @@ The StreamDeckController class is an easy way to display content and create fold
 If you have no Stream Deck yourself, but still want to develop for the plattform, you can use the software implementation to do that. Its a simple JFrame of all 15 "buttons" displayed. Its activated on default and can be disabled at the start of your program by using `de.rcblum.stream.deck.device.StreamDeckDevices.disableSoftwareStreamDeck();`
 
 ## Future functionality
-?? ATM no new functionality planned
+* Recognize new connected and disconnected StreamDecks
+* Display different Soundboards for multiple StreamDecks
 
 ## Current objectives
 1. Clean up sources
@@ -42,7 +43,7 @@ If you want to use this library in your maven project, just add the following de
     <dependency>
       <groupId>io.github.vveird</groupId>
       <artifactId>StreamDeckCore</artifactId>
-      <version>1.0.2</version>
+      <version>1.0.3</version>
     </dependency>
 
 ### Github
