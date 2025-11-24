@@ -43,13 +43,19 @@ public class SDImage {
 	public final byte[] sdImage;
 	
 	/**
+	 * Image data for the stream deck
+	 */
+	public final byte[] sdImageJpeg;
+	
+	/**
 	 * Image pre-format transformation
 	 */
 	public final BufferedImage image;
 
-	public SDImage(byte[] sdImage, BufferedImage image) {
+	public SDImage(byte[] sdImage, byte[] sdImageJpeg, BufferedImage image) {
 		super();
 		this.sdImage = sdImage;
+		this.sdImageJpeg = sdImageJpeg;
 		this.image = image;
 	}
 

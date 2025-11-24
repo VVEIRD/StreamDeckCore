@@ -9,6 +9,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -157,7 +158,7 @@ public class IconHelper {
 		FOLDER_ICON = cacheImage("temp://FOLDER", img);
 		SDImage back = loadImageFromResource("/resources/icons/back.png");
 		cache("temp://BACK", back);
-		cache(FRAME_IMAGE_PREFIX + Color.BLACK.getRGB(), new SDImage(null, FRAME));
+		cache(FRAME_IMAGE_PREFIX + Color.BLACK.getRGB(), new SDImage(null, null, FRAME));
 	}
 	
 	public static int getTextBoxAlphaValue() {
@@ -511,7 +512,17 @@ public class IconHelper {
 			imgData[imgDataCount++] = (byte) (pixels[i] & 0xFF);
 			imgData[imgDataCount++] = (byte) ((pixels[i] >> 8) & 0xFF);
 		}
-		SDImage sdImage = new SDImage(imgData, img);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] jpegData = null;
+		try {
+			ImageIO.write(img, "jpg", baos);// Encode as JPEG
+		    baos.flush();
+		    jpegData = baos.toByteArray();
+		    baos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		SDImage sdImage = new SDImage(imgData, jpegData, img);
 		cache(path, sdImage);
 		return sdImage;
 	}
@@ -542,7 +553,17 @@ public class IconHelper {
 				imgData[imgDataCount++] = (byte) c.getGreen();
 			}
 		}
-		return new SDImage(imgData, imgSrc);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] jpegData = null;
+		try {
+			ImageIO.write(img, "jpg", baos);// Encode as JPEG
+		    baos.flush();
+		    jpegData = baos.toByteArray();
+		    baos.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return new SDImage(imgData, jpegData, imgSrc);
 	}
 	
 	public static SDImage convertImageAndApplyFrame(BufferedImage src, Color frameColor) {

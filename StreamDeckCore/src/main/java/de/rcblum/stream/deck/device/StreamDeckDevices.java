@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.device.general.SoftStreamDeck;
 import de.rcblum.stream.deck.device.general.StreamDeck;
+import de.rcblum.stream.deck.device.general.StreamDeckRev2;
 import purejavahidapi.HidDevice;
 import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.PureJavaHidApi;
@@ -63,11 +64,11 @@ public class StreamDeckDevices {
 	public static final int PRODUCT_ID = 96;
 	
 	public static final int[][] DECK_FAMILY = {
-			//PRODUCT_ID, KEYS, ROWS
-			{         96,   15,    3}, 
-			{         99,    6,    2}, 
-			{        108,   32,    4}, 
-			{        109,   15,    3}
+			//PRODUCT_ID, KEYS, ROWS, REV
+			{         96,   15,    3,   1}, 
+			{         99,    6,    2,   1}, 
+			{        108,   32,    4,   2}, 
+			{        109,   15,    3,   2}
 	};
 	
 	public static final List<Integer> PRODUCT_IDS = Arrays.stream(DECK_FAMILY, 0, DECK_FAMILY.length).map(a -> Integer.valueOf(a[0])).collect(Collectors.toList());
@@ -145,7 +146,12 @@ public class StreamDeckDevices {
 			if (dev != null) {
 				for (HidDevice hidDevice : deckDevices) {
 					int[] DECK_DATA = DECK_FAMILY[PRODUCT_IDS.indexOf(Integer.valueOf(hidDevice.getHidDeviceInfo().getProductId()))];
-					decks.add(new StreamDeck(hidDevice, 99, DECK_DATA[1], DECK_DATA[2]));
+					IStreamDeck streamDeck = null;
+					if (DECK_DATA[3] == 1)
+						streamDeck = new StreamDeck(hidDevice, 99, DECK_DATA[1], DECK_DATA[2]);
+					else
+						streamDeck = new StreamDeckRev2(hidDevice, 99, DECK_DATA[1], DECK_DATA[2]);
+					decks.add(streamDeck);
 				}
 			}
 		}

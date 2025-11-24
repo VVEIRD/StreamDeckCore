@@ -3,11 +3,11 @@
 	<tstamp>
 		<format property="TODAY_MY" pattern="yyyyMMdd-HHmm" locale="de,DE" />
 	</tstamp>
-	<property name="dir.jarfile" value="/home/owl/git/builds/java/StreamDeckCore/${TODAY_MY}" />
-	<property name="dir.jarfile.latest" value="/home/owl/git/builds/latest" />
+	<property name="dir.jarfile" value="../../builds/java/StreamDeckCore/${TODAY_MY}" />
+	<property name="dir.jarfile.latest" value="../../builds/latest" />
 	<property name="dir.buildfile" value="." />
-	<property name="dir.workspace" value="/home/owl/git/StreamDeck" />
-	<property name="dir.purejavahid.latest" value="/home/owl/git/builds/latest" />
+	<property name="dir.workspace" value="../StreamDeck" />
+	<property name="dir.purejavahid.latest" value="../../builds/latest" />
 	<property environment="env" />
 	<property name="TabletopSoundboard.location" value="../../TabletopSoundboard/TabletopSoundboard" />
 	<property name="ECLIPSE_HOME" value="../../../../../Tools/eclipse/" />
@@ -30,6 +30,9 @@
 		<path refid="purejavahidapi.classpath" />
 	</path>
 	<target name="init">
+		<mkdir dir="${dir.jarfile}" />
+		<mkdir dir="${dir.jarfile.latest}" />
+		<mkdir dir="${dir.purejavahid.latest}" />
 		<mkdir dir="target/classes" />
 		<copy includeemptydirs="false" todir="target/classes">
 			<fileset dir="src/main/java">

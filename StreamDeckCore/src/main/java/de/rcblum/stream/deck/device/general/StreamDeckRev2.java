@@ -77,13 +77,13 @@ import purejavahidapi.InputReportListener;
  * @version 1.0.0
  *
  */
-public class StreamDeck implements InputReportListener, IStreamDeck {
+public class StreamDeckRev2 implements InputReportListener, IStreamDeck {
 	
-	private static final Logger LOGGER = LogManager.getLogger(StreamDeck.class);
+	private static final Logger LOGGER = LogManager.getLogger(StreamDeckRev2.class);
 
 	/**
-	 * Job that is submitted, when the Method {@link StreamDeck#setBrightness(int)} is called.<br>
-	 * When executed it will call the Method {@link StreamDeck#internalUpdateBrightnes()}, which will send the brightness command to the stream deck.
+	 * Job that is submitted, when the Method {@link StreamDeckRev2#setBrightness(int)} is called.<br>
+	 * When executed it will call the Method {@link StreamDeckRev2#internalUpdateBrightnes()}, which will send the brightness command to the stream deck.
 	 * @author Roland von Werden
 	 *
 	 */
@@ -93,7 +93,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 
 		@Override
 		public void run() {
-			StreamDeck.this.internalUpdateBrightnes();
+			StreamDeckRev2.this.internalUpdateBrightnes();
 		}
 	}
 
@@ -106,14 +106,14 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 
 		@Override
 		public void run() {
-			while (StreamDeck.this.running || !StreamDeck.this.running && !recievePool.isEmpty()) {
-				if (!StreamDeck.this.recievePool.isEmpty()) {
-					KeyEvent event = StreamDeck.this.recievePool.poll();
+			while (StreamDeckRev2.this.running || !StreamDeckRev2.this.running && !recievePool.isEmpty()) {
+				if (!StreamDeckRev2.this.recievePool.isEmpty()) {
+					KeyEvent event = StreamDeckRev2.this.recievePool.poll();
 					int i = event.getKeyId();
-					if (i < StreamDeck.this.keys.length && StreamDeck.this.keys[i] != null) {
-						StreamDeck.this.keys[i].onKeyEvent(event);
+					if (i < StreamDeckRev2.this.keys.length && StreamDeckRev2.this.keys[i] != null) {
+						StreamDeckRev2.this.keys[i].onKeyEvent(event);
 					}
-					StreamDeck.this.listerners.stream().forEach(l -> 
+					StreamDeckRev2.this.listerners.stream().forEach(l -> 
 						{
 							try {
 								l.onKeyEvent(event);
@@ -124,7 +124,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 						}
 					);
 				}
-				if (StreamDeck.this.recievePool.isEmpty()) {
+				if (StreamDeckRev2.this.recievePool.isEmpty()) {
 					try {
 						Thread.sleep(1);
 					} catch (InterruptedException e) {
@@ -138,7 +138,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	}
 
 	/**
-	 * Dispatches all commands asynchronously queued up in {@link StreamDeck#sendPool} to the ESD.
+	 * Dispatches all commands asynchronously queued up in {@link StreamDeckRev2#sendPool} to the ESD.
 	 * Send rate is limited to 500 commands per second.
 	 * If the execution of one command is completed in less tha on ms the thread is put to sleep for 1 ms.
 	 * As long as one loop takes up less then 2 ms the rest of the time is actively wated
@@ -156,7 +156,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 			long t = 0;
 			while (running || !running && !sendPool.isEmpty()) {
 				if(sendPool.size() > 100) {
-					Runnable[] payloads = new Runnable[StreamDeck.this.getKeySize()];
+					Runnable[] payloads = new Runnable[StreamDeckRev2.this.getKeySize()];
 					Runnable resetTask = null;
 					Runnable brightnessTask = null;
 					Runnable task = null;
@@ -230,7 +230,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 
 		@Override
 		public void run() {
-			StreamDeck.this.internalDrawImage(keyIndex, img);
+			StreamDeckRev2.this.internalDrawImage(keyIndex, img);
 		}
 
 	}
@@ -245,36 +245,33 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 
 		@Override
 		public void run() {
-			StreamDeck.this.internalReset();
+			StreamDeckRev2.this.internalReset();
 		}
 	}
 
 
 	/**
-	 * Reset command
-	 */
-	private static final byte[] RESET_DATA = new byte[] { 0x0B, 0x63, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+     * Reset command
+     */
+    private static final byte[] RESET_DATA = new byte[]{
+    		0x03, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
 
-	/**
-	 * Brightness command
-	 */
-	private static final byte[] BRIGHTNES_DATA = new byte[] { 0x05, 0x55, (byte) 0xAA, (byte) 0xD1, 0x01, 0x63, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    /**
+     * Brightness command
+     */
+    private static final byte[] BRIGHTNES_DATA = new byte[]{
+            0x03, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    };
 
-	/**
-	 * Header for Page 1 of the image command
-	 */
-	private static final byte[] PAGE_1_HEADER = new byte[] { 0x01, 0x01, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x42, 0x4D, (byte) 0xF6, 0x3C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00,
-			0x00, 0x28, 0x00, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00, 0x48, 0x00, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00,
-			0x00, 0x00, 0x00, (byte) 0xC0, 0x3C, 0x00, 0x00, (byte) 0xC4, 0x0E, 0x00, 0x00, (byte) 0xC4, 0x0E, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
-	/**
-	 * Header for Page 2 of the image command
-	 */
-	private static final byte[] PAGE_2_HEADER = new byte[] { 0x01, 0x02, 0x00, 0x01, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-			0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    /**
+     * Header for all pages of the image command
+     */
+    private static final byte[] IMAGE_PAGE_HEADER = new byte[]{
+    		0x02, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
 
 	/**
 	 * Number of buttons on the ESD, assuming the standard ESD
@@ -291,20 +288,10 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	public static final int ICON_SIZE = 72;
 
-	/**
-	 * Page size that can be sent to the ESD at once
-	 */
-	public static final int PAGE_PACKET_SIZE = 8190;
-
-	/**
-	 * Pixels(times 3 to get the amount of bytes) of an icon that can be sent with page 1 of the image command
-	 */
-	public static final int NUM_FIRST_PAGE_PIXELS = 2583;
-
-	/**
-	 * Pixels(times 3 to get the amount of bytes) of an icon that can be sent with page 2 of the image command
-	 */
-	public static final int NUM_SECOND_PAGE_PIXELS = 2601;
+    /**
+     * Page size that can be sent to the ESD at once
+     */
+    public static final int PAGE_PACKET_SIZE = 1024;
 
 	/**
 	 * Back image for not used keys
@@ -333,12 +320,12 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Keys set to be displayed on the StreamDeck
 	 */
-	private StreamItem[] keys = new StreamItem[StreamDeck.this.getKeySize()];
+	private StreamItem[] keys = new StreamItem[StreamDeckRev2.this.getKeySize()];
 
 	/**
 	 * current values if a key on a certain index is pressed or not
 	 */
-	private boolean[] keysPressed = new boolean[StreamDeck.this.getKeySize()];
+	private boolean[] keysPressed = new boolean[StreamDeckRev2.this.getKeySize()];
 
 	/**
 	 * Amount of keys present in the stream deck.
@@ -397,7 +384,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 * @param brightness
 	 *            Brightness from 0 .. 99
 	 */
-	public StreamDeck(HidDevice streamDeck, int brightness, int keyCount, int rowCount) {
+	public StreamDeckRev2(HidDevice streamDeck, int brightness, int keyCount, int rowCount) {
 		super();
 		this.keyCount = keyCount;
 		this.rowCount = rowCount;
@@ -405,7 +392,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 		this.keysPressed = new boolean[this.getKeySize()];
 		this.hidDevice = streamDeck;
 		this.hidDevice.setInputReportListener(this);
-		this.brightness[5] = (byte) brightness;
+		this.brightness[2] = (byte) brightness;
 		listerners = new ArrayList<>(5);
 		this.sendWorker = new Thread(new DeckWorker());
 		this.sendWorker.setDaemon(true);
@@ -476,60 +463,45 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 		queue(new IconUpdater(keyIndex, imgData));
 	}
 
-	public synchronized void internalDrawImage(int keyIndex, SDImage imgData) {
-		byte[] page1 = generatePage1(keyIndex, imgData.sdImage);
-		byte[] page2 = generatePage2(keyIndex, imgData.sdImage);
-		this.hidDevice.setOutputReport((byte) 0x02, page1, page1.length);
-		this.hidDevice.setOutputReport((byte) 0x02, page2, page2.length);
-	}
+   public synchronized void internalDrawImage(int keyIndex, SDImage imgData) {
+        int reportLength = 1024;
+        int pageLength = reportLength - IMAGE_PAGE_HEADER.length;
+        int pages = (int) Math.ceil(((float) imgData.sdImageJpeg.length) / pageLength);
+        int totalBytes = imgData.sdImageJpeg.length;
+        // Send Image in split reports
+        for (int pageNo = 0; pageNo < pages; pageNo++) {
+            byte[] page = Arrays.copyOfRange(imgData.sdImageJpeg, pageNo * pageLength, Math.min(((pageNo + 1) * pageLength), imgData.sdImageJpeg.length));
+            totalBytes -= totalBytes;
+            byte[] report = new byte[reportLength];
+            for (int i1 = 0; i1 < IMAGE_PAGE_HEADER.length; i1++) {
+                report[i1] = IMAGE_PAGE_HEADER[i1];
+            }
+            for (int j = 0; j < page.length; j++) {
+                report[IMAGE_PAGE_HEADER.length + j] = page[j];
+            }
+            // Key to be updated
+            report[2] = (byte) keyIndex;
+            // 0 = More pages are beeing sent, 1 = this is the last page of the image
+            report[3] = pageNo < pages - 1 ? (byte) 0x00 : (byte) 0x01;
+            // Length of the payload sent
+            report[4] = (byte) (page.length & 0xff);
+            report[5] = (byte) ((page.length >> 8) & 0xff);
+            // Number of the page sent
+            report[6] = (byte) (pageNo & 0xff);
+            report[7] = (byte) ((pageNo >> 8) & 0xff);
+
+            int result = this.hidDevice.setOutputReport((byte) report[0], Arrays.copyOfRange(report, 1, report.length), report.length - 1);
+            System.out.println("key " + keyIndex + ", frame " + pageNo + " => " + result);
+            if (result < 0) {
+                break;
+            }
+        }
+        System.out.println("total bytes: " + totalBytes);
+    }
 
 	private void fireKeyChangedEvent(int i, boolean keyPressed) {
 		KeyEvent event = new KeyEvent(this, i, keyPressed ? Type.PRESSED : Type.RELEASED_CLICKED);
 		this.recievePool.add(event);
-	}
-
-	/**
-	 * Generates HID-Report Page 1/2 to update an image of one stream deck key
-	 * 
-	 * @param keyId
-	 *            Id of the key to be updated
-	 * @param imgData
-	 *            image data in the bgr-format
-	 * @return HID-Report in byte format ready to be send to the stream deck
-	 */
-	private byte[] generatePage1(int keyId, byte[] imgData) {
-		for (int i = 0; i < PAGE_1_HEADER.length; i++) {
-			p1[i] = PAGE_1_HEADER[i];
-		}
-		if (imgData != null) {
-			for (int i = 0; i < imgData.length && i < NUM_FIRST_PAGE_PIXELS * 3; i++) {
-				p1[PAGE_1_HEADER.length + i] = imgData[i];
-			}
-		}
-		p1[4] = (byte) (keyId + 1);
-		return p1;
-	}
-
-	/**
-	 * Generates HID-Report Page 2/2 to update an image of one stream deck key
-	 * 
-	 * @param keyId
-	 *            Id of the key to be updated
-	 * @param imgData
-	 *            image data in the bgr-format
-	 * @return HID-Report in byte format ready to be send to the stream deck
-	 */
-	private byte[] generatePage2(int keyId, byte[] imgData) {
-		for (int i = 0; i < PAGE_2_HEADER.length; i++) {
-			p2[i] = PAGE_2_HEADER[i];
-		}
-		if (imgData != null) {
-			for (int i = 0; i < NUM_SECOND_PAGE_PIXELS * 3 && i < imgData.length; i++) {
-				p2[PAGE_2_HEADER.length + i] = imgData[(NUM_FIRST_PAGE_PIXELS * 3) + i];
-			}
-		}
-		p2[4] = (byte) (keyId + 1);
-		return p2;
 	}
 
 	/* (non-Javadoc)
@@ -540,17 +512,19 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 		return hidDevice;
 	}
 
-	@Override
-	public void onInputReport(HidDevice source, byte reportID, byte[] reportData, int reportLength) {
-		if (reportID == 1) {
-			for (int i = 0; i < StreamDeck.this.getKeySize() && i < reportLength; i++) {
-				if (keysPressed[i] != (reportData[i] == 0x01)) {
-					fireKeyChangedEvent(i, reportData[i] == 0x01);
-					keysPressed[i] = reportData[i] == 0x01;
-				}
-			}
-		}
-	}
+    @Override
+    public void onInputReport(HidDevice source, byte reportID, byte[] reportData, int reportLength) {
+        int byteOffset = 3;
+        if (reportID == 1) {
+            for (int i = byteOffset; i < StreamDeckRev2.this.getKeySize() + byteOffset && i < reportLength; i++) {
+                int keyIndex = i - byteOffset;
+                if (keysPressed[keyIndex] != (reportData[i] == 0x01)) {
+                    fireKeyChangedEvent(keyIndex, reportData[i] == 0x01);
+                    keysPressed[keyIndex] = reportData[i] == 0x01;
+                }
+            }
+        }
+    }
 
 	/* (non-Javadoc)
 	 * @see de.rcblum.stream.deck.IStreamDeck#removeKey(int)
@@ -583,7 +557,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	@Override
 	public void setBrightness(int brightness) {
 		brightness = brightness > 99 ? 99 : brightness < 0 ? 0 : brightness;
-		this.brightness[5] = (byte) brightness;
+		this.brightness[2] = (byte) brightness;
 		this.queue(new BrightnessUpdater());
 	}
 
