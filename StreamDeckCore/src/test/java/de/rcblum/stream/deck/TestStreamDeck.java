@@ -13,8 +13,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
-import de.rcblum.stream.deck.device.IStreamDeck;
 import de.rcblum.stream.deck.device.StreamDeckDevices;
+import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 

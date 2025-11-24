@@ -3,8 +3,8 @@ package test.de.rcblum.stream.deck;
 import java.io.IOException;
 
 import de.rcblum.stream.deck.StreamDeckController;
-import de.rcblum.stream.deck.device.IStreamDeck;
 import de.rcblum.stream.deck.device.StreamDeckDevices;
+import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.items.FolderItem;
 import de.rcblum.stream.deck.items.StreamItem;
 

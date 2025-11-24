@@ -1,4 +1,4 @@
-package de.rcblum.stream.deck.device;
+package de.rcblum.stream.deck.device.general;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

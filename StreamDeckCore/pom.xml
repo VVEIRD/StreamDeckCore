@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.vveird</groupId>
     <artifactId>StreamDeckCore</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>VVIERD Streamdeck API</name>
@@ -130,5 +130,10 @@
             <version>5.3.2</version>
             <scope>test</scope>
         </dependency>
+		<dependency>
+			<groupId>io.github.vveird</groupId>
+			<artifactId>purejavahidapi</artifactId>
+			<version>0.0.4</version>
+		</dependency>
     </dependencies>
 </project>

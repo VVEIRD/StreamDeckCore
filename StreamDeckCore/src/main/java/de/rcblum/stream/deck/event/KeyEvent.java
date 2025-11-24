@@ -2,7 +2,7 @@ package de.rcblum.stream.deck.event;
 
 import java.util.EventObject;
 
-import de.rcblum.stream.deck.device.IStreamDeck;
+import de.rcblum.stream.deck.device.general.IStreamDeck;
 
 /**
  * Event that represents an event triggered by interacting with the stream deck.

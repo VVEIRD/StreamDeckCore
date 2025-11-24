@@ -1,4 +1,4 @@
-package de.rcblum.stream.deck.device;
+package de.rcblum.stream.deck.device.general;
 
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.StreamItem;

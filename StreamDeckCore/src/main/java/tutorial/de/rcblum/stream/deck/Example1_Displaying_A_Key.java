@@ -1,7 +1,7 @@
 package tutorial.de.rcblum.stream.deck;
 
-import de.rcblum.stream.deck.device.IStreamDeck;
 import de.rcblum.stream.deck.device.StreamDeckDevices;
+import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.SDImage;
 

@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.rcblum.stream.deck.device.IStreamDeck;
+import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.listeners.AnimationListener;

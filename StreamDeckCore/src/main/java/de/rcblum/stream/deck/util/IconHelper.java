@@ -43,7 +43,7 @@ import org.w3c.dom.NodeList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import de.rcblum.stream.deck.device.StreamDeck;
+import de.rcblum.stream.deck.device.general.StreamDeck;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 
 /**

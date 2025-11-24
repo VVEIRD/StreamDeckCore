@@ -8,8 +8,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import de.rcblum.stream.deck.StreamDeckController;
-import de.rcblum.stream.deck.device.IStreamDeck;
 import de.rcblum.stream.deck.device.StreamDeckDevices;
+import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.items.ExecutableItem;
 import de.rcblum.stream.deck.items.FolderItem;
 import de.rcblum.stream.deck.items.StreamItem;

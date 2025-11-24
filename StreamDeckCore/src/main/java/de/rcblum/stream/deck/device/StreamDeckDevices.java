@@ -8,6 +8,9 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.rcblum.stream.deck.device.general.IStreamDeck;
+import de.rcblum.stream.deck.device.general.SoftStreamDeck;
+import de.rcblum.stream.deck.device.general.StreamDeck;
 import purejavahidapi.HidDevice;
 import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.PureJavaHidApi;

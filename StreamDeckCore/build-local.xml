@@ -3,11 +3,11 @@
 	<tstamp>
 		<format property="TODAY_MY" pattern="yyyyMMdd-HHmm" locale="de,DE" />
 	</tstamp>
-	<property name="dir.jarfile" value="C:/builds/java/StreamDeckCore/${TODAY_MY}" />
-	<property name="dir.jarfile.latest" value="C:/builds/java/StreamDeckCore/latest" />
+	<property name="dir.jarfile" value="/home/owl/git/builds/java/StreamDeckCore/${TODAY_MY}" />
+	<property name="dir.jarfile.latest" value="/home/owl/git/builds/latest" />
 	<property name="dir.buildfile" value="." />
-	<property name="dir.workspace" value="D:/Nextcloud/Developement/Java/workspace" />
-	<property name="dir.purejavahid.latest" value="C:/builds/java/purejavahid_VVEIRD/latest" />
+	<property name="dir.workspace" value="/home/owl/git/StreamDeck" />
+	<property name="dir.purejavahid.latest" value="/home/owl/git/builds/latest" />
 	<property environment="env" />
 	<property name="TabletopSoundboard.location" value="../../TabletopSoundboard/TabletopSoundboard" />
 	<property name="ECLIPSE_HOME" value="../../../../../Tools/eclipse/" />
@@ -16,9 +16,9 @@
 	<property name="target" value="10" />
 	<property name="source" value="10" />
 	<path id="Maven Dependencies.libraryclasspath">
-		<pathelement location="../../../.m2/repository/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar" />
-		<pathelement location="../../../.m2/repository/org/apache/logging/log4j/log4j-core/2.11.1/log4j-core-2.11.1.jar" />
-		<pathelement location="../../../.m2/repository/org/apache/logging/log4j/log4j-api/2.11.1/log4j-api-2.11.1.jar" />
+		<pathelement location="/home/owl/.m2/repository/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar" />
+		<pathelement location="/home/owl/.m2/repository/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar" />
+		<pathelement location="/home/owl/.m2/repository/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar" />
 	</path>
 	<path id="purejavahidapi.classpath">
 		<pathelement location="${purejavahidapi.location}/target/classes" />
@@ -83,7 +83,7 @@
 		<antcall target="build" />
 	</target>
 	<target name="create_jar">
-		<delete dir="${dir.jarfile.latest}" />
+		<delete file="${dir.jarfile.latest}/StreamDeckCore.jar" />
 		<mkdir dir="${dir.jarfile.latest}" />
 		<jar destfile="${dir.jarfile}/StreamDeckCore.jar">
 			<fileset dir="${dir.buildfile}/target/classes" />
@@ -91,9 +91,9 @@
 				<exclude name="resource/**" />
 			</fileset>
 		</jar>
-		<copy file="../../../.m2/repository/org/apache/logging/log4j/log4j-core/2.11.1/log4j-core-2.11.1.jar" todir="${dir.jarfile}" />
-		<copy file="../../../.m2/repository/org/apache/logging/log4j/log4j-api/2.11.1/log4j-api-2.11.1.jar" todir="${dir.jarfile}" />
-		<copy file="../../../.m2/repository/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar" todir="${dir.jarfile}" />
+		<copy file="/home/owl/.m2/repository/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar" todir="${dir.jarfile}" />
+		<copy file="/home/owl/.m2/repository/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar" todir="${dir.jarfile}" />
+		<copy file="/home/owl/.m2/repository/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar" todir="${dir.jarfile}" />
 		<copy file="${dir.purejavahid.latest}/purejavahid_VVEIRD.jar" todir="${dir.jarfile}" />
 		<copy file="${dir.purejavahid.latest}/jna-4.0.0.jar" todir="${dir.jarfile}" />
 		<jar destfile="${dir.jarfile.latest}/StreamDeckCore.jar">
@@ -102,9 +102,9 @@
 				<exclude name="resource/**" />
 			</fileset>
 		</jar>
-		<copy file="../../../.m2/repository/org/apache/logging/log4j/log4j-core/2.11.1/log4j-core-2.11.1.jar" todir="${dir.jarfile.latest}" />
-		<copy file="../../../.m2/repository/org/apache/logging/log4j/log4j-api/2.11.1/log4j-api-2.11.1.jar" todir="${dir.jarfile.latest}" />
-		<copy file="../../../.m2/repository/com/google/code/gson/gson/2.8.5/gson-2.8.5.jar" todir="${dir.jarfile.latest}" />
+		<copy file="/home/owl/.m2/repository/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar" todir="${dir.jarfile}" />
+		<copy file="/home/owl/.m2/repository/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar" todir="${dir.jarfile}" />
+		<copy file="/home/owl/.m2/repository/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar" todir="${dir.jarfile}" />
 		<copy file="${dir.purejavahid.latest}/purejavahid_VVEIRD.jar" todir="${dir.jarfile.latest}" />
 		<copy file="${dir.purejavahid.latest}/jna-4.0.0.jar" todir="${dir.jarfile.latest}" />
 	</target>

@@ -2,7 +2,7 @@ package de.rcblum.stream.deck.items;
 
 import java.util.Objects;
 
-import de.rcblum.stream.deck.device.StreamDeck;
+import de.rcblum.stream.deck.device.general.StreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.SDImage;

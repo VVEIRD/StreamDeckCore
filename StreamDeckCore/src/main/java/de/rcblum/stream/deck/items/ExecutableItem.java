@@ -3,7 +3,7 @@ package de.rcblum.stream.deck.items;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.rcblum.stream.deck.device.StreamDeck;
+import de.rcblum.stream.deck.device.general.StreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.util.IconPackage;
 import de.rcblum.stream.deck.util.SDImage;
