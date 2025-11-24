@@ -147,10 +147,17 @@ public class StreamDeckDevices {
 				for (HidDevice hidDevice : deckDevices) {
 					int[] DECK_DATA = DECK_FAMILY[PRODUCT_IDS.indexOf(Integer.valueOf(hidDevice.getHidDeviceInfo().getProductId()))];
 					IStreamDeck streamDeck = null;
-					if (DECK_DATA[3] == 1)
+					switch (DECK_DATA[3]) {
+					case 1:
 						streamDeck = new StreamDeck(hidDevice, 99, DECK_DATA[1], DECK_DATA[2]);
-					else
+						break;
+					case 2:
 						streamDeck = new StreamDeckRev2(hidDevice, 99, DECK_DATA[1], DECK_DATA[2]);
+						break;
+					default:
+						streamDeck = new StreamDeck(hidDevice, 99, DECK_DATA[1], DECK_DATA[2]);
+						break;
+					}
 					decks.add(streamDeck);
 				}
 			}

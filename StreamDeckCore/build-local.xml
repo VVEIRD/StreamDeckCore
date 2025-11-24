@@ -8,6 +8,8 @@
 	<property name="dir.buildfile" value="." />
 	<property name="dir.workspace" value="../StreamDeck" />
 	<property name="dir.purejavahid.latest" value="../../builds/latest" />
+	<property name="dir.mvn.repo" value="../../../.m2" />
+	
 	<property environment="env" />
 	<property name="TabletopSoundboard.location" value="../../TabletopSoundboard/TabletopSoundboard" />
 	<property name="ECLIPSE_HOME" value="../../../../../Tools/eclipse/" />
@@ -94,21 +96,21 @@
 				<exclude name="resource/**" />
 			</fileset>
 		</jar>
-		<copy file="/home/owl/.m2/repository/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar" todir="${dir.jarfile}" />
-		<copy file="/home/owl/.m2/repository/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar" todir="${dir.jarfile}" />
-		<copy file="/home/owl/.m2/repository/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar" todir="${dir.jarfile}" />
+		<copy file="${dir.mvn.repo}/repository/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar" todir="${dir.jarfile}" />
+		<copy file="${dir.mvn.repo}/repository/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar" todir="${dir.jarfile}" />
+		<copy file="${dir.mvn.repo}/repository/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar" todir="${dir.jarfile}" />
 		<copy file="${dir.purejavahid.latest}/purejavahid_VVEIRD.jar" todir="${dir.jarfile}" />
-		<copy file="${dir.purejavahid.latest}/jna-4.0.0.jar" todir="${dir.jarfile}" />
+		<copy file="${dir.purejavahid.latest}/jna-4.5.2.jar" todir="${dir.jarfile}" />
 		<jar destfile="${dir.jarfile.latest}/StreamDeckCore.jar">
 			<fileset dir="${dir.buildfile}/target/classes" />
 			<fileset dir="${dir.buildfile}">
 				<exclude name="resource/**" />
 			</fileset>
 		</jar>
-		<copy file="/home/owl/.m2/repository/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar" todir="${dir.jarfile}" />
-		<copy file="/home/owl/.m2/repository/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar" todir="${dir.jarfile}" />
-		<copy file="/home/owl/.m2/repository/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar" todir="${dir.jarfile}" />
+		<copy file="${dir.mvn.repo}/repository/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar" todir="${dir.jarfile}" />
+		<copy file="${dir.mvn.repo}/repository/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar" todir="${dir.jarfile}" />
+		<copy file="${dir.mvn.repo}/repository/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar" todir="${dir.jarfile}" />
 		<copy file="${dir.purejavahid.latest}/purejavahid_VVEIRD.jar" todir="${dir.jarfile.latest}" />
-		<copy file="${dir.purejavahid.latest}/jna-4.0.0.jar" todir="${dir.jarfile.latest}" />
+		<copy file="${dir.purejavahid.latest}/jna-4.5.2.jar" todir="${dir.jarfile.latest}" />
 	</target>
 </project>
