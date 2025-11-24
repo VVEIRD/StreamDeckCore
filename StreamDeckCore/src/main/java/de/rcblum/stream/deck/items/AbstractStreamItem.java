@@ -74,37 +74,45 @@ public abstract class AbstractStreamItem implements StreamItem {
 	 */
 	List<IconUpdateListener> listeners = null;
 	
+	/**
+	 * Button count of the connected StreamDeck
+	 */	
 	protected int buttonCount = StreamDeck.BUTTON_COUNT;
 
+	/**
+	 * Row count of the connected StreamDeck
+	 */	
+	protected int rowCount = StreamDeck.ROW_COUNT;	
+
 	public AbstractStreamItem(SDImage img) {
-		this(img, null, StreamDeck.BUTTON_COUNT);
+		this(img, null, StreamDeck.BUTTON_COUNT, StreamDeck.ROW_COUNT);
 	}
 
 	public AbstractStreamItem(IconPackage pkg) {
-		this(pkg.icon, pkg.animation, null, StreamItem.TEXT_POS_BOTTOM, StreamDeck.BUTTON_COUNT);
+		this(pkg.icon, pkg.animation, null, StreamItem.TEXT_POS_BOTTOM, StreamDeck.BUTTON_COUNT, StreamDeck.ROW_COUNT);
 	}
 
 	public AbstractStreamItem(SDImage img, AnimationStack animation) {
-		this(img, animation, null, StreamItem.TEXT_POS_BOTTOM, StreamDeck.BUTTON_COUNT);
+		this(img, animation, null, StreamItem.TEXT_POS_BOTTOM, StreamDeck.BUTTON_COUNT, StreamDeck.ROW_COUNT);
 	}
 
 	public AbstractStreamItem(SDImage img, AnimationStack animation, String text) {
-		this(img, animation, text, StreamItem.TEXT_POS_BOTTOM, StreamDeck.BUTTON_COUNT);
+		this(img, animation, text, StreamItem.TEXT_POS_BOTTOM, StreamDeck.BUTTON_COUNT, StreamDeck.ROW_COUNT);
 	}
 	
-	public AbstractStreamItem(SDImage img, int buttonCount) {
-		this(img, null, buttonCount);
+	public AbstractStreamItem(SDImage img, int buttonCount, int rowCount) {
+		this(img, null, buttonCount, rowCount);
 	}
 
-	public AbstractStreamItem(IconPackage pkg, int buttonCount) {
-		this(pkg.icon, pkg.animation, null, StreamItem.TEXT_POS_BOTTOM, buttonCount);
+	public AbstractStreamItem(IconPackage pkg, int buttonCount, int rowCount) {
+		this(pkg.icon, pkg.animation, null, StreamItem.TEXT_POS_BOTTOM, buttonCount, rowCount);
 	}
 
-	public AbstractStreamItem(SDImage img, AnimationStack animation, int buttonCount) {
-		this(img, animation, null, StreamItem.TEXT_POS_BOTTOM, buttonCount);
+	public AbstractStreamItem(SDImage img, AnimationStack animation, int buttonCount, int rowCount) {
+		this(img, animation, null, StreamItem.TEXT_POS_BOTTOM, buttonCount, rowCount);
 	}
 
-	public AbstractStreamItem(SDImage rawImg, AnimationStack animation, String text, int textPos, int buttonCount) {
+	public AbstractStreamItem(SDImage rawImg, AnimationStack animation, String text, int textPos, int buttonCount, int rowCount) {
 		super();
 		this.text = text;
 		this.textPos = textPos;
@@ -112,6 +120,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 		this.animation = animation;
 		this.listeners = new LinkedList<>();
 		this.buttonCount = buttonCount;
+		this.rowCount = rowCount;
 		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
 		if (this.text != null && this.animation != null) {
 			this.animation.setTextPos(this.textPos);
@@ -155,6 +164,28 @@ public abstract class AbstractStreamItem implements StreamItem {
 		this.rawImg = icon;
 		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
 		this.fireIconUpdate(false);
+	}
+	
+	@Override
+	public int getButtonCount() {
+		return buttonCount;
+	}
+
+	public void setButtonCount(int buttonCount) {
+		this.buttonCount = buttonCount;
+	}
+
+	@Override
+	public int getRowCount() {
+		return rowCount;
+	}
+	
+	public void setRowCount(int rowCount) {
+		this.rowCount = rowCount;
+	}
+	
+	public int getColumnCount() {
+		return this.buttonCount/this.rowCount;
 	}
 
 	@Override

@@ -26,7 +26,7 @@ public class FolderItem extends AbstractStreamItem {
 	}
 
 	public FolderItem(String folderName, StreamItem parent, StreamItem[] children, int textPosition) {
-		super(IconHelper.getImage("temp://FOLDER"), null, folderName, textPosition, children != null ? children.length : StreamDeck.BUTTON_COUNT);
+		super(IconHelper.getImage("temp://FOLDER"), null, folderName, textPosition, children != null ? children.length : StreamDeck.BUTTON_COUNT, StreamDeck.ROW_COUNT);
 		this.parent = parent;
 		this.children = Objects.requireNonNull(children);
 		this.rawImg = IconHelper.getImage("temp://FOLDER");

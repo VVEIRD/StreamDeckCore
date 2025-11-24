@@ -3,7 +3,9 @@ package de.rcblum.stream.deck.device;
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,6 +61,16 @@ public class StreamDeckDevices {
 	public static final int VENDOR_ID = 4057;
 	
 	public static final int PRODUCT_ID = 96;
+	
+	public static final int[][] DECK_FAMILY = {
+			//PRODUCT_ID, KEYS, ROWS
+			{         96,   15,    3}, 
+			{         99,    6,    2}, 
+			{        108,   32,    4}, 
+			{        109,   15,    3}
+	};
+	
+	public static final List<Integer> PRODUCT_IDS = Arrays.stream(DECK_FAMILY, 0, DECK_FAMILY.length).map(a -> Integer.valueOf(a[0])).collect(Collectors.toList());
 
 	private static List<HidDeviceInfo> deckInfos = null;
 
@@ -89,7 +101,7 @@ public class StreamDeckDevices {
 			List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
 			for (HidDeviceInfo info : devList) {
 				LOGGER.debug("Vendor-ID: " + info.getVendorId() + ", Product-ID: " + info.getProductId());
-				if (info.getVendorId() == VENDOR_ID && info.getProductId() == PRODUCT_ID) {
+				if (info.getVendorId() == VENDOR_ID && PRODUCT_IDS.contains(Integer.valueOf(info.getProductId()))) {
 					LOGGER.info("Found ESD ["+info.getVendorId()+":"+info.getProductId()+"]");
 					deckInfos.add(info);
 				}
@@ -99,6 +111,11 @@ public class StreamDeckDevices {
 	}
 	
 	public static HidDevice getStreamDeckDevice() {
+		initStreamDecks();
+		return !deckDevices.isEmpty() ? deckDevices.get(0) : null;
+	}
+
+	private static void initStreamDecks() {
 		if (deckDevices == null || deckDevices.isEmpty()) {
 			HidDeviceInfo info = getStreamDeckInfo();
 			deckDevices = new ArrayList<>(deckInfos.size());
@@ -119,7 +136,6 @@ public class StreamDeckDevices {
 				}
 			}
 		}
-		return !deckDevices.isEmpty() ? deckDevices.get(0) : null;
 	}
 	
 	public static IStreamDeck getStreamDeck() {
@@ -128,7 +144,8 @@ public class StreamDeckDevices {
 			decks = new ArrayList<>(deckDevices.size());
 			if (dev != null) {
 				for (HidDevice hidDevice : deckDevices) {
-					decks.add(new StreamDeck(hidDevice, 99, StreamDeck.BUTTON_COUNT));
+					int[] DECK_DATA = DECK_FAMILY[PRODUCT_IDS.indexOf(Integer.valueOf(hidDevice.getHidDeviceInfo().getProductId()))];
+					decks.add(new StreamDeck(hidDevice, 99, DECK_DATA[1], DECK_DATA[2]));
 				}
 			}
 		}
@@ -141,7 +158,7 @@ public class StreamDeckDevices {
 		}
 		return !decks.isEmpty()
 				? (enableSoftwareStreamDeck && !GraphicsEnvironment.isHeadless() ? softDecks.get(0) : decks.get(0)) 
-				: (enableSoftwareStreamDeck && !GraphicsEnvironment.isHeadless() ? new SoftStreamDeck("Soft Stream Deck", null) : null);
+				: (enableSoftwareStreamDeck && !GraphicsEnvironment.isHeadless() ? new SoftStreamDeck("Soft Stream Deck", null, 32, 4, true) : null);
 	}
 	
 	public static int getStreamDeckSize() {

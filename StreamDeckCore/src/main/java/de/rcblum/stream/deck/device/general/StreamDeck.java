@@ -274,9 +274,14 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 	/**
-	 * Number of buttons on the ESD
+	 * Number of buttons on the ESD, assuming the standard ESD
 	 */
 	public static final int BUTTON_COUNT = 15;
+	
+	/**
+	 * Number of rows on the ESD, assuming the standard ESD
+	 */
+	public static final int ROW_COUNT = 3;
 
 	/**
 	 * Icon size of one key
@@ -331,11 +336,15 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 * current values if a key on a certain index is pressed or not
 	 */
 	private boolean[] keysPressed = new boolean[StreamDeck.this.getKeySize()];
-	
+
 	/**
 	 * Amount of keys present in the stream deck.
 	 */
 	private int keyCount =  BUTTON_COUNT;
+	/**
+	 * Amount of rows present in the stream deck.
+	 */
+	private int rowCount =  ROW_COUNT;
 
 	/**
 	 * Queue for commands to be sent to the ESD
@@ -385,9 +394,10 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 * @param brightness
 	 *            Brightness from 0 .. 99
 	 */
-	public StreamDeck(HidDevice streamDeck, int brightness, int keyCount) {
+	public StreamDeck(HidDevice streamDeck, int brightness, int keyCount, int rowCount) {
 		super();
 		this.keyCount = keyCount;
+		this.rowCount = rowCount;
 		this.keys = new StreamItem[this.getKeySize()];
 		this.keysPressed = new boolean[this.getKeySize()];
 		this.hidDevice = streamDeck;
@@ -420,6 +430,11 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	@Override
 	public int getKeySize() {
 		return this.keyCount;
+	}
+	
+	@Override
+	public int getRowSize() {
+		return this.rowCount;
 	}
 
 	/* (non-Javadoc)

@@ -210,11 +210,11 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 		StreamItem[] children = this.currentDir.getChildren();
 		int id = event.getKeyId();
 		Type type = event.getType();
-		if (id == 4 && this.currentDir.getParent() != null && type == Type.RELEASED_CLICKED) {
+		if (id == streamDeck.getColumnSize()-1 && this.currentDir.getParent() != null && type == Type.RELEASED_CLICKED) {
 			openFolder(this.currentDir.getParent());
 		} else if (children[id] != null && !children[id].isLeaf() && type == Type.RELEASED_CLICKED) {
 			openFolder(children[id]);
-		} else if (children[id] != null && !(id == 4 && this.currentDir.getParent() != null)) {
+		} else if (children[id] != null && !(id == streamDeck.getColumnSize()-1 && this.currentDir.getParent() != null)) {
 			children[id].onKeyEvent(event);
 			if (this.animators[id] != null) {
 				this.animators[id].onKeyEvent(event);
@@ -376,8 +376,8 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 		}
 		StreamItem[] children = this.currentDir.getChildren();
 		if (children != null) {
-			// draw back icon if the current fodler hjas a parent
-			if (this.currentDir.getParent() != null && keyId == 4) {
+			// draw back icon if the current folder has a parent
+			if (this.currentDir.getParent() != null && keyId == streamDeck.getColumnSize()-1) {
 				streamDeck.drawImage(keyId, this.back);
 			}
 			// Draw the icon or the current animation frame

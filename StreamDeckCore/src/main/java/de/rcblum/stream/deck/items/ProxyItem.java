@@ -56,7 +56,27 @@ public class ProxyItem extends FolderItem {
 		public void setParent(StreamItem parent) {
 			wrapped.setParent(parent);
 		}
+		
+		@Override
+		public int getButtonCount() {
+			return wrapped.getButtonCount();
+		}
+		
+		@Override
+		public void setButtonCount(int buttonCount) {
+			wrapped.setButtonCount(buttonCount);
+		}
+		
+		@Override
+		public int getRowCount() {
+			return wrapped.getRowCount();
+		}
 
+		@Override
+		public void setRowCount(int rowCount) {
+			wrapped.setRowCount(rowCount);
+		}
+		
 		@Override
 		public void setIcon(SDImage icon) {
 			this.rawImg = icon;

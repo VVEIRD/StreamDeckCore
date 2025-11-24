@@ -112,6 +112,16 @@ public interface IStreamDeck {
 	 * @return Numbers of keys on the deck (Default 15).
 	 */
 	public default int getKeySize() { return 15;}
+	/**
+	 * Returns the amount of rows on the StreamDeck.
+	 * @return Numbers of keys on the deck (Default 15).
+	 */
+	public default int getRowSize() { return 3;}
+	/**
+	 * Returns the amount of columns on the StreamDeck.
+	 * @return Numbers of keys on the deck (Default 15).
+	 */
+	public default int getColumnSize() { return getKeySize()/getRowSize();}
 	
 	/**
 	 * Create a KeyEvent for a pushed button through software

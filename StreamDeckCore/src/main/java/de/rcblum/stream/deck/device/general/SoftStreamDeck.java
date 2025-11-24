@@ -80,7 +80,9 @@ public class SoftStreamDeck implements IStreamDeck {
 		
 	private IStreamDeck streamDeck = null;
 	
-	StreamItem[] keys = null;
+	private StreamItem[] keys = null;
+	
+	private int rows = 3;
 	
 	private List<StreamKeyListener> listerners;
 	
@@ -105,15 +107,20 @@ public class SoftStreamDeck implements IStreamDeck {
 
 
 	public SoftStreamDeck(String name, IStreamDeck streamDeck) {
-		this(name, streamDeck, true);
+		this(name, streamDeck, streamDeck != null ? streamDeck.getKeySize() : StreamDeck.BUTTON_COUNT, streamDeck != null ? streamDeck.getRowSize() : StreamDeck.ROW_COUNT, true);
 	}
 	
 	public SoftStreamDeck(String name, IStreamDeck streamDeck, boolean visible) {
+		this(name, streamDeck, streamDeck != null ? streamDeck.getKeySize() : StreamDeck.BUTTON_COUNT, streamDeck != null ? streamDeck.getRowSize() : StreamDeck.ROW_COUNT, true);
+	}
+	
+	public SoftStreamDeck(String name, IStreamDeck streamDeck, int keySize, int rowSize, boolean visible) {
 		this.streamDeck = streamDeck;
-		this.keys = new StreamItem[streamDeck != null ? this.streamDeck.getKeySize() : 15];
+		this.rows =  this.streamDeck != null ? this.streamDeck.getRowSize() : rowSize;
+		this.keys = new StreamItem[streamDeck != null ? this.streamDeck.getKeySize() : keySize];
 		listerners = new ArrayList<>(4);
-		this.writeBuffer = IconHelper.getImageFromResource("/resources/sd-background.png");
-		this.drawBuffer = IconHelper.getImageFromResource("/resources/sd-background.png");
+		this.writeBuffer = IconHelper.getImageFromResource("/resources/sd-background-" + this.keys.length + ".png");
+		this.drawBuffer = IconHelper.getImageFromResource("/resources/sd-background-" + this.keys.length + ".png");
 		this.name = name;
 		this.drawGraphics = this.drawBuffer.createGraphics();
 		this.frame = new JFrame(name) {
@@ -124,13 +131,13 @@ public class SoftStreamDeck implements IStreamDeck {
 				super.dispose();
 			}
 		};
-		this.frame.setSize(new Dimension(486, 330));
+		this.frame.setSize(new Dimension(this.drawBuffer.getWidth(), this.drawBuffer.getHeight()));
 		this.frame.getContentPane().setBackground(Color.BLACK);
 		this.frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.frame.setResizable(false);
 		JLabel jl = new JLabel(new ImageIcon(this.drawBuffer));
-		jl.addMouseListener(new KeyListener());
-		jl.setBounds(0, 0, 470, 295);
+		jl.addMouseListener(new KeyListener(this.getRowSize(), this.getColumnSize()));
+		jl.setBounds(0, 0, this.drawBuffer.getWidth(), this.drawBuffer.getHeight());
 		DragListener dl = new DragListener();
 		jl.addMouseListener(dl);
 		jl.addMouseMotionListener(dl);
@@ -145,6 +152,15 @@ public class SoftStreamDeck implements IStreamDeck {
 	@Override
 	public int getKeySize() {
 		return this.keys.length;
+	}
+	
+	@Override
+	public int getRowSize() {
+		return this.rows;
+	}
+	
+	public int getColumnSize() {
+		return this.getKeySize()/this.getRowSize();
 	}
 
 	private void startThreads() {
@@ -269,7 +285,7 @@ public class SoftStreamDeck implements IStreamDeck {
 	 */
 	public void pushButton(int no) {
 		LOGGER.debug(String.format("Virtual button pushed: Key-ID: %d", no));
-		no = no > 14 ? 14 : no < 0 ? 0 : no;
+		//no = no > this.getKeySize()-1 ? this.getKeySize()-1 : no < 0 ? 0 : no;
 		KeyEvent evnt = new KeyEvent(this, no, Type.RELEASED_CLICKED);
 		recievePool.add(evnt);
 	}
@@ -283,7 +299,7 @@ public class SoftStreamDeck implements IStreamDeck {
 	 */
 	public void pressButton(int no) {
 		LOGGER.debug(String.format("Virtual button pressed: Key-ID: %d", no));
-		no = no > 14 ? 14 : no < 0 ? 0 : no;
+		//no = no > this.getKeySize()-1 ? this.getKeySize()-1 : no < 0 ? 0 : no;
 		KeyEvent evnt = new KeyEvent(this, no, Type.PRESSED);
 		recievePool.add(evnt);
 	}
@@ -322,8 +338,8 @@ public class SoftStreamDeck implements IStreamDeck {
 				Graphics2D g = SoftStreamDeck.this.writeBuffer.createGraphics();
 				while(!SoftStreamDeck.this.updateQueue.isEmpty()) {
 					IconUpdate iu = SoftStreamDeck.this.updateQueue.poll();
-					int spaceX = 20 + (90 * (4 - (iu.keyIndex % 5)));
-					int spaceY = 20 + (90 * (iu.keyIndex / 5));
+					int spaceX = 20 + (90 * ((SoftStreamDeck.this.getColumnSize()-1) - (iu.keyIndex % SoftStreamDeck.this.getColumnSize())));
+					int spaceY = 20 + (90 * (iu.keyIndex / SoftStreamDeck.this.getColumnSize()));
 					g.drawImage(iu.img.image, spaceX, spaceY, null);
 				}
 				g.dispose();
@@ -348,11 +364,33 @@ public class SoftStreamDeck implements IStreamDeck {
 	
 	private class KeyListener implements MouseListener {
 		
+		
 		private int[] columnStart = {380, 290, 200, 110, 20};
-		private int[] columnEnd = {450, 360, 270, 180, 90};
+		private int[] columnEnd   = {450, 360, 270, 180, 90};
 		
 		private int[] rowStart = {20, 110, 200};
 		private int[] rowEnd = {90, 180, 270};
+
+		private int columns = 0;
+		private int rows = 0;
+
+		
+		public KeyListener(int rows, int columns) {
+			this.columns = columns;
+			this.rows = rows;
+			this.columnStart = new int[columns];
+			this.columnEnd = new int[columns];
+			this.rowStart = new int[rows];
+			this.rowEnd = new int[rows];
+			for(int i = 0;i<columns;i++) {
+				columnStart[columns-1-i] = 20 + 90*i;
+				columnEnd[columns-1-i]   = 90 + 90*i;
+			}
+			for(int i = 0;i<rows;i++) {
+				rowStart[i] = 20 + 90*i;
+				rowEnd[i]   = 90 + 90*i;
+			}
+		}
 		
 		private int getIndex(int x, int y) {
 			int column = -1;
@@ -370,7 +408,7 @@ public class SoftStreamDeck implements IStreamDeck {
 				}
 			}
 			if(row >= 0 && column >= 0) {
-				return (row*5) + column;
+				return (row*this.columns) + column;
 			}
 			return -1;
 		}

@@ -111,6 +111,16 @@ public interface StreamItem extends StreamKeyListener {
 	 * @return Returns the icon object of the Item
 	 */
 	public SDImage getIcon();
+	
+	public int getButtonCount();
+	
+	public void setButtonCount(int count);
+	
+	public int getRowCount();
+	
+	public void setRowCount(int count);
+	
+	public int getColumnCount();
 
 	/**
 	 * Returns if the item has an animation that can be displayed
