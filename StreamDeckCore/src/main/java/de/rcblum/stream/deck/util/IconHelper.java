@@ -2,6 +2,7 @@ package de.rcblum.stream.deck.util;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.FontMetrics;
@@ -25,14 +26,20 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
 import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageInputStream;
+import javax.imageio.stream.ImageOutputStream;
+import javax.imageio.stream.MemoryCacheImageOutputStream;
 import javax.swing.JLabel;
 
 import org.apache.logging.log4j.LogManager;
@@ -44,7 +51,8 @@ import org.w3c.dom.NodeList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import de.rcblum.stream.deck.device.general.StreamDeck;
+import de.rcblum.stream.deck.device.StreamDeck;
+import de.rcblum.stream.deck.device.StreamDeckConstants;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 
 /**
@@ -95,7 +103,7 @@ public class IconHelper {
 	 * Default font for the text on the ESD FantasqueSansMono-Bold.ttf
 	 * /resources/Blogger-Sans-Medium.ttf /resources/FantasqueSansMono-Bold.ttf
 	 */
-	public static final Font DEFAULT_FONT = loadFont("/resources/FantasqueSansMono-Regular.ttf", 16);
+	public static final Font DEFAULT_FONT = loadFont("/resources/FantasqueSansMono-Regular.ttf", 26);
 
 	/**
 	 * Position to place the text at the top of the icon
@@ -137,16 +145,16 @@ public class IconHelper {
 	public static final SDImage FOLDER_ICON;
 
 	static {
-		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = img.createGraphics();
 		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
+		g.fillRect(0, 0, (int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight());
 		g.dispose();
 		BLACK_ICON = cacheImage(TEMP_BLACK_ICON, img);
-		img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
+		img = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		g = img.createGraphics();
 		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
+		g.fillRect(0, 0, (int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight());
 		g.setColor(new Color(132, 132, 132));
 		g.drawRect(15, 23, 42, 29);
 		g.drawRect(16, 24, 40, 27);
@@ -182,10 +190,10 @@ public class IconHelper {
 				+ String.format("#%02x%02x%02x", background.getRed(), background.getGreen(), background.getBlue());
 		if(imageCache.containsKey(folderKey))
 			return imageCache.get(folderKey);
-		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = img.createGraphics();
 		g.setColor(background);
-		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
+		g.fillRect(0, 0, (int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight());
 		g.setColor(new Color(132, 132, 132));
 		g.drawRect(15, 23, 42, 29);
 		g.drawRect(16, 24, 40, 27); 
@@ -204,10 +212,10 @@ public class IconHelper {
 				+ String.format("#%02x%02x%02x", borderColor.getRed(), borderColor.getGreen(), borderColor.getBlue());
 		if(imageCache.containsKey(frameKey))
 			return imageCache.get(frameKey);
-		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g = img.createGraphics();
 		g.setColor(borderColor);
-		g.fillRect(0, 0, StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE);
+		g.fillRect(0, 0, (int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight());
 		g.dispose();
 		applyAlpha(img, FRAME);
 		return cacheImage(frameKey, img);
@@ -303,7 +311,7 @@ public class IconHelper {
 	 * @return byte array with the image where the text was added
 	 */
 	public static SDImage addText(BufferedImage imgData, String text, int pos, float fontSize) {
-		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = img.createGraphics();
 		g2d.drawImage(imgData, 0, 0, null);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -334,7 +342,7 @@ public class IconHelper {
 		g2d.setColor(new Color(0, 0, 0, textBoxAlphaValue));
 		for (String line : lines) {
 			int width = g2d.getFontMetrics().stringWidth(line);
-			int x = (StreamDeck.ICON_SIZE / 2) - width / 2;
+			int x = (int)(StreamDeckConstants.ICON_SIZE.getWidth() / 2) - width / 2;
 			g2d.fillRect(x - 1, y - g2d.getFontMetrics().getHeight() + 7, width + 2,
 					g2d.getFontMetrics().getHeight() - 4);
 			y += g2d.getFontMetrics().getHeight();
@@ -351,7 +359,7 @@ public class IconHelper {
 		
 		for (String line : lines) {
 			int width = g2d.getFontMetrics().stringWidth(line);
-			int x = (StreamDeck.ICON_SIZE / 2) - width / 2;
+			int x = (int)(StreamDeckConstants.ICON_SIZE.getWidth() / 2) - width / 2;
 			x = x < 0 ? 0 : x;
 			g2d.drawString(line, x, y);
 			y += g2d.getFontMetrics().getHeight();
@@ -380,8 +388,8 @@ public class IconHelper {
 	 */
 	public static AnimationStack createRollingTextAnimation(SDImage imgData, String text, int pos, float fontSize) {
 		AnimationStack animation = new AnimationStack(AnimationStack.REPEAT_PING_PONG, true, AnimationStack.FRAME_RATE_30, AnimationStack.TRIGGER_AUTO, new SDImage[0]);
-		BufferedImage baseImage = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
-		BufferedImage drawOn = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
+		BufferedImage baseImage = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), imgData.image.getType());
+		BufferedImage drawOn = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), imgData.image.getType());
 		List<SDImage> frames = new LinkedList<>();
 		Graphics2D gCanvas = baseImage.createGraphics();
 		gCanvas.drawImage(imgData.image, 0, 0, null);
@@ -399,9 +407,10 @@ public class IconHelper {
 		}
 		int y = (yStart - (gCanvas.getFontMetrics().getHeight() / 2));
 		gCanvas.setColor(new Color(0, 0, 0, textBoxAlphaValue));
-		int width = 72;
+		gCanvas.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
+		int width = (int)StreamDeckConstants.ICON_SIZE.getWidth();
 		int x = IconHelper.rollingTextPadding;
-		gCanvas.fillRect(x - 1, y - gCanvas.getFontMetrics().getHeight() + 7, width + 2, gCanvas.getFontMetrics().getHeight() - 4);
+		gCanvas.fillRect(x - 1, y - gCanvas.getFontMetrics().getHeight()+1, width + 2, gCanvas.getFontMetrics().getHeight()+gCanvas.getFontMetrics().getDescent());
 		gCanvas.dispose();
 		// Draw Frames
 		gCanvas = drawOn.createGraphics();
@@ -410,7 +419,7 @@ public class IconHelper {
 		gCanvas.setColor(Color.LIGHT_GRAY);
 		gCanvas.drawImage(baseImage, 0, 0, null);
 		StringBuilder sb = new StringBuilder(text);
-		while(gCanvas.getFontMetrics().stringWidth(sb.toString()) < StreamDeck.ICON_SIZE+10) {
+		while(gCanvas.getFontMetrics().stringWidth(sb.toString()) < StreamDeckConstants.ICON_SIZE.getWidth()+10) {
 			sb.insert(0, " ");
 			sb.append(" ");
 		}
@@ -420,13 +429,13 @@ public class IconHelper {
 			gCanvas.setColor(Color.LIGHT_GRAY);
 			gCanvas.drawString(text, x, y);
 			x--;
-			BufferedImage frame = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imgData.image.getType());
+			BufferedImage frame = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), imgData.image.getType());
 			Graphics2D gDest = frame.createGraphics();
 			gDest.drawImage(drawOn, 0, 0, null);
 			gDest.dispose();
 			frames.add(convertImage(frame));
 			gCanvas.drawImage(baseImage, 0, 0, null);
-		} while(x+gCanvas.getFontMetrics().stringWidth(text) > StreamDeck.ICON_SIZE - IconHelper.rollingTextPadding);
+		} while(x+gCanvas.getFontMetrics().stringWidth(text) > StreamDeckConstants.ICON_SIZE.getWidth() - IconHelper.rollingTextPadding);
 		gCanvas.dispose();
 		SDImage[] frameArray = frames.toArray(new SDImage[0]);
 		animation.setFrames(frameArray);
@@ -440,7 +449,7 @@ public class IconHelper {
 	 * @return	List with lines(max 4)
 	 */
 	private static List<String> splitText(String text, FontMetrics fontMetrics) {
-		int width = StreamDeck.ICON_SIZE;
+		int width = (int)StreamDeckConstants.ICON_SIZE.getWidth();
 		List<String> lines = new LinkedList<>();
 		String[] arr = text.split(" ");
 		int[] wordWidth = new int[arr.length];
@@ -464,13 +473,13 @@ public class IconHelper {
 				line += (!line.isEmpty() ? " " : "" ) + arr[i];
 				lineWidth += (lineWidth > 0 ? spaceWidth : 0) + wordWidth[i];
 			} else {
-				if(!line.isEmpty() && (lines.size()+1)*fontMetrics.getHeight() <= StreamDeck.ICON_SIZE )
+				if(!line.isEmpty() && (lines.size()+1)*fontMetrics.getHeight() <= StreamDeckConstants.ICON_SIZE.getHeight() )
 					lines.add(line.charAt(0) == ' ' ? line.substring(1) : line);
 				line = (!line.isEmpty() ? " " : "" ) + arr[i];
 				lineWidth = wordWidth[i];
 			}
 		}
-		if (!line.isEmpty() && !line.equals(" ") && (lines.size()+1)*fontMetrics.getHeight() <= StreamDeck.ICON_SIZE) {
+		if (!line.isEmpty() && !line.equals(" ") && (lines.size()+1)*fontMetrics.getHeight() <= StreamDeckConstants.ICON_SIZE.getHeight()) {
 			lines.add(line.charAt(0) == ' ' ? line.substring(1) : line);
 		}
 		while (lines.size() > 4)
@@ -503,22 +512,18 @@ public class IconHelper {
 	 */
 	public static SDImage cacheImage(String path, BufferedImage img) {
 		int[] pixels = ((DataBufferInt) img.getRaster().getDataBuffer()).getData();
-		byte[] imgData = new byte[StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE * 3];
+		byte[] imgData = new byte[(int)(img.getWidth() * img.getHeight()) * 3];
 		int imgDataCount = 0;
 		// remove the alpha channel
-		for (int i = 0; i < StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE; i++) {
+		for (int i = 0; i < (int)(img.getWidth() * img.getHeight()); i++) {
 			// RGB -> BGR
 			imgData[imgDataCount++] = (byte) ((pixels[i] >> 16) & 0xFF);
 			imgData[imgDataCount++] = (byte) (pixels[i] & 0xFF);
 			imgData[imgDataCount++] = (byte) ((pixels[i] >> 8) & 0xFF);
 		}
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		byte[] jpegData = null;
 		try {
-			ImageIO.write(img, "jpg", baos);// Encode as JPEG
-		    baos.flush();
-		    jpegData = baos.toByteArray();
-		    baos.close();
+		    jpegData = writeToByteArrayOutputStreamAsJpeg85(img).toByteArray();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -540,13 +545,29 @@ public class IconHelper {
 	 *         stream deck
 	 */
 	public static SDImage convertImage(BufferedImage img) {
+		return convertImage(img, StreamDeckConstants.ICON_SIZE);
+	}
+
+	/**
+	 * Converts the given image to the stream deck format.<br>
+	 * Format is:<br>
+	 * Color Schema: BGR<br>
+	 * Image size: 72 x 72 pixel<br>
+	 * Stored in an array with each byte stored seperatly (Size of each array is 72
+	 * x 72 x 3 = 15_552).
+	 * 
+	 * @param img        Image to be converted
+	 * @return Byte arraythat contains the given image, ready to be sent to the
+	 *         stream deck
+	 */
+	public static SDImage convertImage(BufferedImage img, Dimension dimensions) {
 		// Image for the Stream Deck
 		// Resized image for use in Java
-		BufferedImage imgSrc = IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK), true);
-		byte[] imgData = new byte[StreamDeck.ICON_SIZE * StreamDeck.ICON_SIZE * 3];
+		BufferedImage imgSrc = IconHelper.createResizedCopy(IconHelper.fillBackground(img, Color.BLACK), true, dimensions);
+		byte[] imgData = new byte[(int) (dimensions.getWidth() * dimensions.getHeight() * 3)];
 		int imgDataCount = 0;
-		for (int y = 0; y < StreamDeck.ICON_SIZE; y++) {
-			for (int x = StreamDeck.ICON_SIZE-1; x >= 0; x--) {
+		for (int y = 0; y < (int)imgSrc.getHeight(); y++) {
+			for (int x = (int)imgSrc.getWidth()-1; x >= 0; x--) {
 				Color c = new Color(imgSrc.getRGB(x, y));
 				imgData[imgDataCount++] = (byte) c.getRed();
 				imgData[imgDataCount++] = (byte) c.getBlue();
@@ -556,19 +577,63 @@ public class IconHelper {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		byte[] jpegData = null;
 		try {
-			ImageIO.write(img, "jpg", baos);// Encode as JPEG
-		    baos.flush();
+			ImageIO.write(imgSrc, "jpeg", baos);// Encode as JPEG
+			//baos.flush();
 		    jpegData = baos.toByteArray();
+		    jpegData = writeToByteArrayOutputStreamAsJpeg85(imgSrc).toByteArray();
 		    baos.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return new SDImage(imgData, jpegData, imgSrc);
 	}
+
+	public static ByteArrayOutputStream writeToByteArrayOutputStreamAsJpeg(final BufferedImage image) throws IOException {
+		final ByteArrayOutputStream os = new ByteArrayOutputStream();
+		final BufferedImage withoutAlpha = new BufferedImage(image.getWidth(), image.getHeight(),
+				BufferedImage.TYPE_INT_RGB);
+		withoutAlpha.createGraphics().drawImage(image, 0, 0, Color.WHITE, null);
+		final boolean success = ImageIO.write(withoutAlpha, "jpeg", os);
+		if (!success) {
+			throw new IllegalStateException("Failed to convert image to JPEG");
+		}
+		return os;
+	}
+
+	public static ByteArrayOutputStream writeToByteArrayOutputStreamAsJpeg85(final BufferedImage image) throws IOException {
+		final ByteArrayOutputStream ios = new ByteArrayOutputStream();
+		final BufferedImage withoutAlpha = new BufferedImage(image.getWidth(), image.getHeight(),
+				BufferedImage.TYPE_INT_RGB);
+		withoutAlpha.createGraphics().drawImage(image, 0, 0, Color.WHITE, null);
+        
+        //  List of ImageWritre's for jpeg format 
+        Iterator<ImageWriter> iter = ImageIO.getImageWritersByFormatName("jpeg");
+        
+        //  Capture the first ImageWriter
+        ImageWriter writer = iter.next();
+        
+        //  define the o outPut file to the write
+        writer.setOutput(new MemoryCacheImageOutputStream(ios));
+
+        //  Here you define the changes you wanna make to the image
+        ImageWriteParam iwParam = writer.getDefaultWriteParam();
+        iwParam.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        iwParam.setCompressionQuality(.85f);
+
+        //  Compression and saving to file the altered image
+        writer.write(null, new IIOImage(withoutAlpha, null, null), iwParam);
+        
+        writer.dispose();  
+		//final boolean success = ImageIO.write(withoutAlpha, "jpeg", os);
+		//if (!success) {
+		//	throw new IllegalStateException("Failed to convert image to JPEG");
+		//}
+		return ios;
+	}
 	
 	public static SDImage convertImageAndApplyFrame(BufferedImage src, Color frameColor) {
 		// Image for the Stream Deck
-		BufferedImage img = applyFrame(IconHelper.createResizedCopy(IconHelper.fillBackground(src, Color.BLACK), true), frameColor);
+		BufferedImage img = applyFrame(IconHelper.createResizedCopy(IconHelper.fillBackground(src, Color.BLACK), true, StreamDeckConstants.ICON_SIZE), frameColor);
 		return convertImage(img);
 	}
 
@@ -584,8 +649,8 @@ public class IconHelper {
 	 */
 	public static SDImage applyImage(SDImage imgData, BufferedImage apply) {
 
-		BufferedImage img = new BufferedImage(StreamDeck.ICON_SIZE, 
-				StreamDeck.ICON_SIZE, 
+		BufferedImage img = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), 
+				(int)StreamDeckConstants.ICON_SIZE.getHeight(), 
 				imgData.
 				image.
 				getType());
@@ -606,8 +671,8 @@ public class IconHelper {
 	 * @return Image with the frame applied.
 	 */
 	public static BufferedImage applyFrame(BufferedImage img, Color frameColor) {
-		if(img.getWidth() > StreamDeck.ICON_SIZE || img.getHeight() > StreamDeck.ICON_SIZE)
-			img = createResizedCopy(img, true);
+		if(img.getWidth() > StreamDeckConstants.ICON_SIZE.getWidth() || img.getHeight() > StreamDeckConstants.ICON_SIZE.getHeight())
+			img = createResizedCopy(img, true, StreamDeckConstants.ICON_SIZE);
 		BufferedImage nImg = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
 		Graphics2D g = nImg.createGraphics();
 		g.drawImage(img, 0, 0, null);
@@ -735,12 +800,12 @@ public class IconHelper {
 		}
 	}
 
-	public static BufferedImage createResizedCopy(BufferedImage originalImage, boolean preserveType) {
-		int scaledWidth = StreamDeck.ICON_SIZE;
-		int scaledHeight = StreamDeck.ICON_SIZE;
+	public static BufferedImage createResizedCopy(BufferedImage originalImage, boolean preserveType, Dimension dimensions) {
+		int scaledWidth = (int) dimensions.getWidth();
+		int scaledHeight = (int) dimensions.getHeight();
 		if (originalImage.getWidth() != originalImage.getHeight()) {
-			float scalerWidth = ((float) StreamDeck.ICON_SIZE) / originalImage.getWidth();
-			float scalerHeight = ((float) StreamDeck.ICON_SIZE) / originalImage.getWidth();
+			float scalerWidth = ((float) scaledWidth) / originalImage.getWidth();
+			float scalerHeight = ((float) scaledHeight) / originalImage.getWidth();
 			if (scalerWidth < scaledHeight)
 				scaledHeight = Math.round(scalerWidth * originalImage.getHeight());
 			else
@@ -748,12 +813,13 @@ public class IconHelper {
 
 		}
 		int imageType = preserveType ? originalImage.getType() : BufferedImage.TYPE_INT_ARGB;
-		BufferedImage scaledBI = new BufferedImage(StreamDeck.ICON_SIZE, StreamDeck.ICON_SIZE, imageType);
+		BufferedImage scaledBI = new BufferedImage(scaledWidth, scaledHeight, imageType);
 		Graphics2D g = scaledBI.createGraphics();
 		if (true) {
 			g.setComposite(AlphaComposite.Src);
 		}
-		g.drawImage(originalImage, (StreamDeck.ICON_SIZE - scaledWidth) / 2, (StreamDeck.ICON_SIZE - scaledHeight) / 2,
+		//g.drawImage(originalImage, (scaledWidth - scaledWidth) / 2, (scaledHeight - scaledHeight) / 2,
+		g.drawImage(originalImage, 0, 0,
 				scaledWidth, scaledHeight, null);
 		g.dispose();
 		return scaledBI;

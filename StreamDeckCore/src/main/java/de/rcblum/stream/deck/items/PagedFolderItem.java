@@ -5,7 +5,7 @@ import java.util.Arrays;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import de.rcblum.stream.deck.device.general.StreamDeck;
+import de.rcblum.stream.deck.device.StreamDeck;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 
 public class PagedFolderItem extends FolderItem {

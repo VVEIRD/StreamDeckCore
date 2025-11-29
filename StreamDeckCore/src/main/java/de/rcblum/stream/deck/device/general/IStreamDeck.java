@@ -1,5 +1,7 @@
 package de.rcblum.stream.deck.device.general;
 
+import java.awt.Dimension;
+
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.StreamItem;
 import de.rcblum.stream.deck.util.SDImage;
@@ -58,9 +60,18 @@ public interface IStreamDeck {
 	/**
 	 * Creates a Job to send the give icon to the ESD to be displayed on the given keyxIndex
 	 * @param keyIndex	Index of ESD (0..14)
-	 * @param imgData	Image in BGR format to be displayed
+	 * @param imgData	Image to be displayed
 	 */
 	void drawImage(int keyIndex, SDImage imgData);
+	
+
+	/**
+	 * Creates a Job to send the give icon to the ESD to be displayed on the given keyxIndex
+	 * @param keyIndex	Index of ESD (0..14)
+	 * @param imgData	Image to be displayed
+	 * @param overrideSize Overrides the default icon size of the given streamdeck
+	 */
+	void drawImage(int keyIndex, SDImage imgData, Dimension overrideSize);
 
 	/**
 	 * Returns the Hid Devices representation the stream deck.
@@ -140,5 +151,8 @@ public interface IStreamDeck {
 	 * @param no Key no
 	 */
 	public void releaseButton(int no);
+
+	void drawFullImage(SDImage imgData);
+
 
 }

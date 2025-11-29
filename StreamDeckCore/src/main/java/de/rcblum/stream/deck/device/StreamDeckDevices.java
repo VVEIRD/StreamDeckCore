@@ -3,17 +3,14 @@ package de.rcblum.stream.deck.device;
 import java.awt.GraphicsEnvironment;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.rcblum.stream.deck.device.descriptor.DeckDescriptor;
 import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.device.general.SoftStreamDeck;
-import de.rcblum.stream.deck.device.general.StreamDeck;
-import de.rcblum.stream.deck.device.general.StreamDeckRev2;
 import purejavahidapi.HidDevice;
 import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.PureJavaHidApi;
@@ -59,20 +56,6 @@ public class StreamDeckDevices {
 	
 	private static final Logger LOGGER = LogManager.getLogger(StreamDeckDevices.class);
 	
-	public static final int VENDOR_ID = 4057;
-	
-	public static final int PRODUCT_ID = 96;
-	
-	public static final int[][] DECK_FAMILY = {
-			//PRODUCT_ID, KEYS, ROWS, REV
-			{         96,   15,    3,   1}, 
-			{         99,    6,    2,   1}, 
-			{        108,   32,    4,   2}, 
-			{        109,   15,    3,   2}
-	};
-	
-	public static final List<Integer> PRODUCT_IDS = Arrays.stream(DECK_FAMILY, 0, DECK_FAMILY.length).map(a -> Integer.valueOf(a[0])).collect(Collectors.toList());
-
 	private static List<HidDeviceInfo> deckInfos = null;
 
 	private static List<HidDevice> deckDevices = null;
@@ -102,9 +85,19 @@ public class StreamDeckDevices {
 			List<HidDeviceInfo> devList = PureJavaHidApi.enumerateDevices();
 			for (HidDeviceInfo info : devList) {
 				LOGGER.debug("Vendor-ID: " + info.getVendorId() + ", Product-ID: " + info.getProductId());
-				if (info.getVendorId() == VENDOR_ID && PRODUCT_IDS.contains(Integer.valueOf(info.getProductId()))) {
+				if (DeckDescriptor.getDescriptor(info.getVendorId(), info.getProductId()) != null) {
 					LOGGER.info("Found ESD ["+info.getVendorId()+":"+info.getProductId()+"]");
 					deckInfos.add(info);
+				}
+				else if (info.getVendorId() == 4057) {
+					LOGGER.debug("Found unknown Stream Deck Device");
+					LOGGER.debug("Vendor-ID: " + info.getVendorId() + ", Product-ID: " + info.getProductId());
+					LOGGER.info("  Manufacurer: " + info.getManufacturerString());
+					LOGGER.info("  Product:     " + info.getProductString());
+					LOGGER.info("  Device-Id:   " + info.getDeviceId());
+					LOGGER.info("  Serial-No:   " + info.getSerialNumberString());
+					LOGGER.info("  Path:        " + info.getPath());
+					LOGGER.info("");
 				}
 			}
 		}
@@ -145,19 +138,8 @@ public class StreamDeckDevices {
 			decks = new ArrayList<>(deckDevices.size());
 			if (dev != null) {
 				for (HidDevice hidDevice : deckDevices) {
-					int[] DECK_DATA = DECK_FAMILY[PRODUCT_IDS.indexOf(Integer.valueOf(hidDevice.getHidDeviceInfo().getProductId()))];
-					IStreamDeck streamDeck = null;
-					switch (DECK_DATA[3]) {
-					case 1:
-						streamDeck = new StreamDeck(hidDevice, 99, DECK_DATA[1], DECK_DATA[2]);
-						break;
-					case 2:
-						streamDeck = new StreamDeckRev2(hidDevice, 99, DECK_DATA[1], DECK_DATA[2]);
-						break;
-					default:
-						streamDeck = new StreamDeck(hidDevice, 99, DECK_DATA[1], DECK_DATA[2]);
-						break;
-					}
+					DeckDescriptor descriptor = DeckDescriptor.getDescriptor(hidDevice.getHidDeviceInfo().getVendorId(), hidDevice.getHidDeviceInfo().getProductId());
+					IStreamDeck streamDeck = new StreamDeck(descriptor, hidDevice, 99);
 					decks.add(streamDeck);
 				}
 			}

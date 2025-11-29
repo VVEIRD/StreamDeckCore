@@ -24,6 +24,7 @@ import javax.swing.event.MouseInputAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.rcblum.stream.deck.device.StreamDeckConstants;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.event.KeyEvent.Type;
@@ -107,11 +108,11 @@ public class SoftStreamDeck implements IStreamDeck {
 
 
 	public SoftStreamDeck(String name, IStreamDeck streamDeck) {
-		this(name, streamDeck, streamDeck != null ? streamDeck.getKeySize() : StreamDeck.BUTTON_COUNT, streamDeck != null ? streamDeck.getRowSize() : StreamDeck.ROW_COUNT, true);
+		this(name, streamDeck, streamDeck != null ? streamDeck.getKeySize() : StreamDeckConstants.BUTTON_COUNT, streamDeck != null ? streamDeck.getRowSize() : StreamDeckConstants.ROW_COUNT, true);
 	}
 	
 	public SoftStreamDeck(String name, IStreamDeck streamDeck, boolean visible) {
-		this(name, streamDeck, streamDeck != null ? streamDeck.getKeySize() : StreamDeck.BUTTON_COUNT, streamDeck != null ? streamDeck.getRowSize() : StreamDeck.ROW_COUNT, true);
+		this(name, streamDeck, streamDeck != null ? streamDeck.getKeySize() : StreamDeckConstants.BUTTON_COUNT, streamDeck != null ? streamDeck.getRowSize() : StreamDeckConstants.ROW_COUNT, true);
 	}
 	
 	public SoftStreamDeck(String name, IStreamDeck streamDeck, int keySize, int rowSize, boolean visible) {
@@ -204,6 +205,20 @@ public class SoftStreamDeck implements IStreamDeck {
 	}
 
 	@Override
+	public void drawImage(int keyId, SDImage imgData, Dimension overrideSize) {
+		this.updateQueue.add(new IconUpdate(keyId, imgData));
+		if(streamDeck != null)
+			streamDeck.drawImage(keyId, imgData, overrideSize);
+	}
+
+	@Override
+	public void drawFullImage(SDImage imgData) {
+		//this.updateQueue.add(new IconUpdate(keyId, imgData));
+		if(streamDeck != null)
+			streamDeck.drawFullImage(imgData);
+	}
+
+	@Override
 	public HidDevice getHidDevice() {
 		return streamDeck != null ? this.streamDeck.getHidDevice() : null;
 	}
@@ -212,7 +227,7 @@ public class SoftStreamDeck implements IStreamDeck {
 	public void removeKey(int keyId) {
 		if (keyId < this.keys.length && keyId >= 0 && this.keys[keyId] != null) {
 			this.keys[keyId] = null;
-			this.updateQueue.add(new IconUpdate(keyId, StreamDeck.BLACK_ICON)); 
+			this.updateQueue.add(new IconUpdate(keyId, StreamDeckConstants.BLACK_ICON)); 
 		}
 		if(streamDeck != null)
 			this.streamDeck.removeKey(keyId);
@@ -224,7 +239,7 @@ public class SoftStreamDeck implements IStreamDeck {
 			if (keys[i] != null)
 				this.updateQueue.add(new IconUpdate(i, keys[i].getIcon()));
 			else
-				this.updateQueue.add(new IconUpdate(i, StreamDeck.BLACK_ICON));
+				this.updateQueue.add(new IconUpdate(i, StreamDeckConstants.BLACK_ICON));
 		}
 		if(streamDeck != null)
 			this.streamDeck.reset();
@@ -258,7 +273,7 @@ public class SoftStreamDeck implements IStreamDeck {
 
 	@Override
 	public void clearButton(int keyId) {
-		this.updateQueue.add(new IconUpdate(keyId, StreamDeck.BLACK_ICON));
+		this.updateQueue.add(new IconUpdate(keyId, StreamDeckConstants.BLACK_ICON));
 		if(streamDeck != null)
 			this.streamDeck.clearButton(keyId);
 	}
@@ -340,7 +355,7 @@ public class SoftStreamDeck implements IStreamDeck {
 					IconUpdate iu = SoftStreamDeck.this.updateQueue.poll();
 					int spaceX = 20 + (90 * ((SoftStreamDeck.this.getColumnSize()-1) - (iu.keyIndex % SoftStreamDeck.this.getColumnSize())));
 					int spaceY = 20 + (90 * (iu.keyIndex / SoftStreamDeck.this.getColumnSize()));
-					g.drawImage(iu.img.image, spaceX, spaceY, null);
+					g.drawImage(iu.img.getVariant(new Dimension(72, 72)).image, spaceX, spaceY, null);
 				}
 				g.dispose();
 				try {

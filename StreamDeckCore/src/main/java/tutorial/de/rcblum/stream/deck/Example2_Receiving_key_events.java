@@ -4,11 +4,13 @@ import de.rcblum.stream.deck.device.StreamDeckDevices;
 import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.StreamKeyListener;
+import test.de.rcblum.stream.deck.TestAnimationStack;
 
 import java.io.IOException;
 
 public class Example2_Receiving_key_events {
 	public static void main(String[] args) throws IOException {
+		System.setProperty("log4j.configurationFile", TestAnimationStack.class.getResource("/resources/log4j.xml").getFile());
 		// Get the first connected (or software) ESD:
 		IStreamDeck streamDeck = StreamDeckDevices.getStreamDeck();
 		// Reset the ESD so we can display our icon on it:
@@ -19,7 +21,7 @@ public class Example2_Receiving_key_events {
 		streamDeck.addKeyListener(new ExampleListener());
 		// Wait 30 seconds before shutting down
 		try {
-			Thread.sleep(30_000);
+			Thread.sleep(330_000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			Thread.currentThread().interrupt();
@@ -48,6 +50,21 @@ public class Example2_Receiving_key_events {
 				break;
 			case RELEASED_CLICKED:
 				System.out.println(event.getKeyId() + ": released/clicked");
+				break;
+			case ROTATE_LEFT:
+				System.out.println(event.getKeyId() + ": rotated left, amount: " + event.getNewValue());
+				break;
+			case ROTATE_RIGHT:
+				System.out.println(event.getKeyId() + ": rotated right, amount: " + event.getNewValue());
+				break;
+			case TOUCHED:
+				System.out.println(event.getKeyId() + ": touched, Point: " + event.getNewValue());
+				break;
+			case TOUCHED_LONG:
+				System.out.println(event.getKeyId() + ": touched long, Point: " + event.getNewValue());
+				break;
+			case SWIPED:
+				System.out.println(event.getKeyId() + ": swiped long, From: " + event.getOldValue() + " To: " + event.getNewValue());
 				break;
 			default:
 				break;

@@ -2,7 +2,8 @@ package de.rcblum.stream.deck.items;
 
 import java.util.Objects;
 
-import de.rcblum.stream.deck.device.general.StreamDeck;
+import de.rcblum.stream.deck.device.StreamDeck;
+import de.rcblum.stream.deck.device.StreamDeckConstants;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.SDImage;
@@ -26,7 +27,7 @@ public class FolderItem extends AbstractStreamItem {
 	}
 
 	public FolderItem(String folderName, StreamItem parent, StreamItem[] children, int textPosition) {
-		super(IconHelper.getImage("temp://FOLDER"), null, folderName, textPosition, children != null ? children.length : StreamDeck.BUTTON_COUNT, StreamDeck.ROW_COUNT);
+		super(IconHelper.getImage("temp://FOLDER"), null, folderName, textPosition, children != null ? children.length : StreamDeckConstants.BUTTON_COUNT, StreamDeckConstants.ROW_COUNT);
 		this.parent = parent;
 		this.children = Objects.requireNonNull(children);
 		this.rawImg = IconHelper.getImage("temp://FOLDER");

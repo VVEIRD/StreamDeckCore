@@ -11,7 +11,7 @@ import de.rcblum.stream.deck.device.general.IStreamDeck;
  * 
  * MIT License<br>
  * <br>
- * Copyright (c) 2017 Roland von Werden<br>
+ * 2025 Roland von Werden<br>
  * <br>
  * Permission is hereby granted, free of charge, to any person obtaining a copy<br>
  * of this software and associated documentation files (the "Software"), to deal<br>
@@ -32,7 +32,7 @@ import de.rcblum.stream.deck.device.general.IStreamDeck;
  * SOFTWARE.<br>
  * 
  * @author Roland von Werden
- * @version 1.0.0
+ * @version 1.0.1
  *
  */
 public class KeyEvent extends EventObject {
@@ -51,11 +51,27 @@ public class KeyEvent extends EventObject {
 	 * Type of the event
 	 */
 	private Type type;
+	
+	/**
+	 * Optional: New value of the key
+	 */
+	private Object newValue = null;
+	
+	/**
+	 * Optional: Old value of the key
+	 */
+	private Object oldValue = null;
 
 	public KeyEvent(IStreamDeck source, int keyId, Type type) {
+		this(source, keyId, type, -1, -1);
+	}
+
+	public KeyEvent(IStreamDeck source, int keyId, Type type, Object oldValue, Object newValue) {
 		super(source);
 		this.keyId =  keyId;
 		this.type = type;
+		this.newValue = newValue;
+		this.oldValue = oldValue;
 	}
 
 	/**
@@ -83,11 +99,27 @@ public class KeyEvent extends EventObject {
 	}
 	
 	/**
+	 * New value of the Key, optional
+	 * @return null if not set else a positive integer
+	 */
+	public Object getNewValue() {
+		return newValue;
+	}
+
+	/**
+	 * Old value of the Key, optional
+	 * @return null if not set else a positive integer
+	 */
+	public Object getOldValue() {
+		return oldValue;
+	}
+	
+	/**
 	 * Type of the Key Event
 	 * @author Roland von Werden
 	 *
 	 */
 	public enum Type {
-		PRESSED, RELEASED_CLICKED, ON_DISPLAY, OFF_DISPLAY, OPEN_FOLDER, CLOSE_FOLDER;
+		PRESSED, RELEASED_CLICKED, ON_DISPLAY, OFF_DISPLAY, OPEN_FOLDER, CLOSE_FOLDER, ROTATE_LEFT, ROTATE_RIGHT, TOUCHED, TOUCHED_LONG, SWIPED;
 	}
 }

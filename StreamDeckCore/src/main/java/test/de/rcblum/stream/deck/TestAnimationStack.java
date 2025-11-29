@@ -26,17 +26,17 @@ public class TestAnimationStack {
 		System.out.println(gson.toJson(as));
 		IconHelper.createIconPackage("resources" + File.separator + "icon.zip", "resources" + File.separator + "icon.png", "resources" + File.separator + "icon.gif", as);
 		IconPackage ip = IconHelper.loadIconPackage("resources" + File.separator + "icon.zip");
-		StreamItem[] items = new StreamItem[15];
+		IStreamDeck sd = StreamDeckDevices.getStreamDeck();
+		StreamItem[] items = new StreamItem[sd.getKeySize()];
 		ExecutableItem item0 = new ExecutableItem(ip, "cmd /c dir");
 		ExecutableItem item1 = item0;
 		ip = new IconPackage(ip.icon, IconHelper.createRollingTextAnimation(ip.icon, "Rolling Text test", StreamItem.TEXT_POS_BOTTOM));
 		ExecutableItem item2 = new ExecutableItem(ip, "cmd /c dir");
 		
 		items[0] = item1;
-		items[4] = item1;
-		items[12] = item2;
+		items[sd.getColumnSize()-1] = item1;
+		items[sd.getColumnSize()*sd.getRowSize()-3] = item2;
 		FolderItem root = new FolderItem(null, null, items);
-		IStreamDeck sd = StreamDeckDevices.getStreamDeck();
 		sd.reset();
 		sd.setBrightness(90);
 		StreamDeckController sdc = new StreamDeckController(sd, root);

@@ -3,7 +3,8 @@ package de.rcblum.stream.deck.items;
 import java.util.LinkedList;
 import java.util.List;
 
-import de.rcblum.stream.deck.device.general.StreamDeck;
+import de.rcblum.stream.deck.device.StreamDeck;
+import de.rcblum.stream.deck.device.StreamDeckConstants;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 import de.rcblum.stream.deck.items.listeners.IconUpdateListener;
 import de.rcblum.stream.deck.util.IconHelper;
@@ -77,27 +78,27 @@ public abstract class AbstractStreamItem implements StreamItem {
 	/**
 	 * Button count of the connected StreamDeck
 	 */	
-	protected int buttonCount = StreamDeck.BUTTON_COUNT;
+	protected int buttonCount = StreamDeckConstants.BUTTON_COUNT;
 
 	/**
 	 * Row count of the connected StreamDeck
 	 */	
-	protected int rowCount = StreamDeck.ROW_COUNT;	
+	protected int rowCount = StreamDeckConstants.ROW_COUNT;	
 
 	public AbstractStreamItem(SDImage img) {
-		this(img, null, StreamDeck.BUTTON_COUNT, StreamDeck.ROW_COUNT);
+		this(img, null, StreamDeckConstants.BUTTON_COUNT, StreamDeckConstants.ROW_COUNT);
 	}
 
 	public AbstractStreamItem(IconPackage pkg) {
-		this(pkg.icon, pkg.animation, null, StreamItem.TEXT_POS_BOTTOM, StreamDeck.BUTTON_COUNT, StreamDeck.ROW_COUNT);
+		this(pkg.icon, pkg.animation, null, StreamItem.TEXT_POS_BOTTOM, StreamDeckConstants.BUTTON_COUNT, StreamDeckConstants.ROW_COUNT);
 	}
 
 	public AbstractStreamItem(SDImage img, AnimationStack animation) {
-		this(img, animation, null, StreamItem.TEXT_POS_BOTTOM, StreamDeck.BUTTON_COUNT, StreamDeck.ROW_COUNT);
+		this(img, animation, null, StreamItem.TEXT_POS_BOTTOM, StreamDeckConstants.BUTTON_COUNT, StreamDeckConstants.ROW_COUNT);
 	}
 
 	public AbstractStreamItem(SDImage img, AnimationStack animation, String text) {
-		this(img, animation, text, StreamItem.TEXT_POS_BOTTOM, StreamDeck.BUTTON_COUNT, StreamDeck.ROW_COUNT);
+		this(img, animation, text, StreamItem.TEXT_POS_BOTTOM, StreamDeckConstants.BUTTON_COUNT, StreamDeckConstants.ROW_COUNT);
 	}
 	
 	public AbstractStreamItem(SDImage img, int buttonCount, int rowCount) {

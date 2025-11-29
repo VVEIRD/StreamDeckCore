@@ -1,6 +1,9 @@
 package de.rcblum.stream.deck.util;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class that contains the image data for the StreamDeck and the Image in a
@@ -37,6 +40,8 @@ import java.awt.image.BufferedImage;
  */
 public class SDImage {
 	
+	public final Dimension imageSize;
+	
 	/**
 	 * Image data for the stream deck
 	 */
@@ -51,12 +56,24 @@ public class SDImage {
 	 * Image pre-format transformation
 	 */
 	public final BufferedImage image;
+	
+	private Map<Dimension, SDImage> variants = new HashMap<Dimension, SDImage>();
 
 	public SDImage(byte[] sdImage, byte[] sdImageJpeg, BufferedImage image) {
 		super();
+		imageSize = new Dimension(image.getWidth(), image.getHeight());
 		this.sdImage = sdImage;
 		this.sdImageJpeg = sdImageJpeg;
 		this.image = image;
+	}
+	
+	public SDImage getVariant(Dimension imageSize) {
+		if (this.imageSize.equals(imageSize))
+			return this;
+		if (!variants.containsKey(imageSize)) {
+			variants.put(imageSize, IconHelper.convertImage(this.image, imageSize));
+		}
+		return variants.get(imageSize);
 	}
 
 }

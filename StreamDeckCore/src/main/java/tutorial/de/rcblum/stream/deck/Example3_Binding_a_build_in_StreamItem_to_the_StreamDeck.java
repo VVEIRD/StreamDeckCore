@@ -6,12 +6,14 @@ import de.rcblum.stream.deck.items.ExecutableItem;
 import de.rcblum.stream.deck.items.RunnableItem;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.SDImage;
+import test.de.rcblum.stream.deck.TestAnimationStack;
 
 import java.io.File;
 import java.io.IOException;
 
 public class Example3_Binding_a_build_in_StreamItem_to_the_StreamDeck {
 	public static void main(String[] args) throws IOException {
+		System.setProperty("log4j.configurationFile", TestAnimationStack.class.getResource("/resources/log4j.xml").getFile());
 		// Create the ExecutableItem with the icon "icon1.png":
 		SDImage img1 = IconHelper.loadImage("resources" + File.separator + "icon1.png");
 		ExecutableItem executableItem = new ExecutableItem(img1,"explorer.exe");

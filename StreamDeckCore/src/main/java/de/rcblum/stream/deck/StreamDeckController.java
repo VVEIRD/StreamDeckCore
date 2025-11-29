@@ -143,7 +143,7 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 					if (children[i] != null) {
 						KeyEvent evnt = new KeyEvent(this.streamDeck, i, Type.OFF_DISPLAY);
 						children[i].onKeyEvent(evnt);
-						if (this.animators[i] != null) {
+						if (this.animators.length > i && this.animators[i] != null) {
 							this.animators[i].onKeyEvent(evnt);
 						}
 					}
@@ -212,9 +212,9 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 		Type type = event.getType();
 		if (id == streamDeck.getColumnSize()-1 && this.currentDir.getParent() != null && type == Type.RELEASED_CLICKED) {
 			openFolder(this.currentDir.getParent());
-		} else if (children[id] != null && !children[id].isLeaf() && type == Type.RELEASED_CLICKED) {
+		} else if (id < children.length && children[id] != null && !children[id].isLeaf() && type == Type.RELEASED_CLICKED) {
 			openFolder(children[id]);
-		} else if (children[id] != null && !(id == streamDeck.getColumnSize()-1 && this.currentDir.getParent() != null)) {
+		} else if (id < children.length && children[id] != null && !(id == streamDeck.getColumnSize()-1 && this.currentDir.getParent() != null)) {
 			children[id].onKeyEvent(event);
 			if (this.animators[id] != null) {
 				this.animators[id].onKeyEvent(event);

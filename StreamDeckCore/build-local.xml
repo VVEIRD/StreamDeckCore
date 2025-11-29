@@ -100,7 +100,7 @@
 		<copy file="${dir.mvn.repo}/repository/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar" todir="${dir.jarfile}" />
 		<copy file="${dir.mvn.repo}/repository/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar" todir="${dir.jarfile}" />
 		<copy file="${dir.purejavahid.latest}/purejavahid_VVEIRD.jar" todir="${dir.jarfile}" />
-		<copy file="${dir.purejavahid.latest}/jna-4.5.2.jar" todir="${dir.jarfile}" />
+		<copy file="${dir.purejavahid.latest}/jna-5.0.0.jar" todir="${dir.jarfile}" />
 		<jar destfile="${dir.jarfile.latest}/StreamDeckCore.jar">
 			<fileset dir="${dir.buildfile}/target/classes" />
 			<fileset dir="${dir.buildfile}">
@@ -111,6 +111,6 @@
 		<copy file="${dir.mvn.repo}/repository/org/apache/logging/log4j/log4j-core/2.17.1/log4j-core-2.17.1.jar" todir="${dir.jarfile}" />
 		<copy file="${dir.mvn.repo}/repository/org/apache/logging/log4j/log4j-api/2.17.1/log4j-api-2.17.1.jar" todir="${dir.jarfile}" />
 		<copy file="${dir.purejavahid.latest}/purejavahid_VVEIRD.jar" todir="${dir.jarfile.latest}" />
-		<copy file="${dir.purejavahid.latest}/jna-4.5.2.jar" todir="${dir.jarfile.latest}" />
+		<copy file="${dir.purejavahid.latest}/jna-5.0.0.jar" todir="${dir.jarfile.latest}" />
 	</target>
 </project>
