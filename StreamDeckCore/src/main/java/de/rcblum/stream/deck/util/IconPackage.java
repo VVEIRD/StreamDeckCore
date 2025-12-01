@@ -2,7 +2,7 @@ package de.rcblum.stream.deck.util;
 
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 /**
- * Datastructure that pools togerther icon and the associated AnimationStack
+ * Datastructure that pools together icon and the associated AnimationStack
  * 
  * <br><br> 
  * 

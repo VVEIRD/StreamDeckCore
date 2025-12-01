@@ -3,6 +3,7 @@ package de.rcblum.stream.deck.device;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.SDImage;
 import purejavahidapi.HidDevice;
@@ -43,6 +45,14 @@ public class StreamDeckConstants {
      */
     private static final byte[] IMAGE_PAGE_HEADER_REV2 = new byte[]{
     		0x02, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    };
+    
+    /**
+     * Header for all pages of the image command to update the touch screen
+     */
+    private static final byte[] TOUCH_SCREEN_PAGE_HEADER_REV2 = new byte[]{
+    		0x02, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x20, 0x03, 0x64, 0x00, 0x00, 0x00, 0x00, (byte)0xF0, 0x03, 0x00
+    	 // 0x02, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
     };
 
     /**
@@ -153,10 +163,18 @@ public class StreamDeckConstants {
 	 */
 	public static final int ROW_COUNT = 3;
 
+
+	public static final IStreamDeck DEFAULT_STREAM_DECK = StreamDeckDevices.getStreamDeck();
+	
 	/**
 	 * Icon size of one key (Use the greatest size)
 	 */
-	public static final Dimension ICON_SIZE = new Dimension(120, 120);
+	public static final Dimension ICON_SIZE = DEFAULT_STREAM_DECK.getDescriptor().iconSize;
+
+	/**
+	 * Icon size of one key (Use the greatest size)
+	 */
+	public static final Dimension TOUCH_SCREEN_SIZE = new Dimension(800, 100);
 
 	/**
 	 * Back image for not used keys
@@ -199,25 +217,66 @@ public class StreamDeckConstants {
 		hidDevice.setFeatureReport(brightness[0], Arrays.copyOfRange(brightness, 1, brightness.length), brightness.length-1);
 	}
 
-	/**
-	 * Sends reset-command to ESD REV1
-	 */
-	public static void internalResetRev1(HidDevice hidDevice) {
-		hidDevice.setFeatureReport(RESET_DATA_REV1[0], Arrays.copyOfRange(RESET_DATA_REV1, 1, RESET_DATA_REV1.length), RESET_DATA_REV1.length-1);
-	}
-
-	/**
-	 * Sends brightness-command to ESD REV1
-	 */
-	public static void internalUpdateBrightnessRev1(HidDevice hidDevice, int brightnessValue) {
-		byte[] brightness = BRIGHTNES_DATA_REV1;
-		brightnessValue = brightnessValue > 99 ? 99 : brightnessValue < 0 ? 0 : brightnessValue;
-		brightness[5] = (byte) brightnessValue;
-		hidDevice.setFeatureReport(brightness[0], Arrays.copyOfRange(brightness, 1, brightness.length), brightness.length-1);
-	}
-
     public static synchronized void internalDrawImageRev2(HidDevice hidDevice, int keyIndex, Dimension iconSize, SDImage imgData) {
     	internalDrawImageRev2(hidDevice, keyIndex, iconSize, imgData, IMAGE_PAGE_HEADER_REV2);
+    }
+    
+    public static synchronized byte[] updateTouchScreenHeader(byte[] header,Point imageStart, Dimension imageSize, int chunkNo, boolean lastChunk, int payLoadLength) {
+
+    	header[2] = (byte) 0;
+    	// X-coord start
+    	header[2] = (byte) (((int)imageStart.getX()) & 0xff);
+    	header[3] = (byte) ((((int)imageStart.getX()) >> 8) & 0xff);
+    	// Y-coord start
+    	header[4] = (byte) (((int)imageStart.getY()) & 0xff);
+    	header[5] = (byte) ((((int)imageStart.getY()) >> 8) & 0xff);
+    	// Image Width
+    	header[6] = (byte) (((int)imageSize.getWidth()) & 0xff);
+    	header[7] = (byte) ((((int)imageSize.getWidth()) >> 8) & 0xff);
+    	// Image Height
+    	header[8] = (byte) (((int)imageSize.getHeight()) & 0xff);
+    	header[9] = (byte) ((((int)imageSize.getHeight()) >> 8) & 0xff);
+        // 0 = More pages are beeing sent, 1 = this is the last page of the image
+    	header[10] = lastChunk ? (byte) 0x00 : (byte) 0x01;
+        // Number of the page sent
+    	header[11] = (byte) (chunkNo & 0xff);
+    	header[12] = (byte) ((chunkNo >> 8) & 0xff);
+        // Length of the payload sent
+    	header[13] = (byte) (payLoadLength & 0xff);
+    	header[14] = (byte) ((payLoadLength >> 8) & 0xff);
+    	return header;
+    }
+
+    public static synchronized void internalDrawTouchScreenRev2(HidDevice hidDevice, Point imageStart, Dimension imageSize, SDImage imgData) {
+    	byte[] pageHeader = TOUCH_SCREEN_PAGE_HEADER_REV2;
+    	imgData = imgData.getVariant(imageSize);
+		if (PAGE_CACHE.get(hidDevice.getHidDeviceInfo().getPath()) == null) {
+			PAGE_CACHE.put(hidDevice.getHidDeviceInfo().getPath(), new byte[][]{
+					new byte[PAGE_PACKET_SIZE_REV2]
+			});
+		}
+        int pageLength = PAGE_PACKET_SIZE_REV2 - pageHeader.length;
+        int pages = (int) Math.ceil(((float) imgData.sdImageJpeg.length) / pageLength);
+        byte[] report = PAGE_CACHE.get(hidDevice.getHidDeviceInfo().getPath())[0];
+        for (int i = 0; i < pageHeader.length; i++) {
+            report[i] = pageHeader[i];
+        }
+        // Send Image in split reports
+        for (int pageNo = 0; pageNo < pages; pageNo++) {
+        	int byteFrom = pageNo * pageLength;
+        	int byteTo = Math.min(((pageNo + 1) * pageLength), imgData.sdImageJpeg.length);
+        	int payloadLength = byteTo - byteFrom;
+            //byte[] page = Arrays.copyOfRange(imgData.sdImageJpeg, pageNo * pageLength, Math.min(((pageNo + 1) * pageLength), imgData.sdImageJpeg.length));
+            for (int j = 0; j < byteTo - byteFrom; j++) {
+                report[pageHeader.length + j] = imgData.sdImageJpeg[j + byteFrom];
+            }
+            updateTouchScreenHeader(report, imageStart, imageSize, pageNo, pageNo < pages - 1, payloadLength);
+
+            int result = hidDevice.setOutputReport((byte) report[0], Arrays.copyOfRange(report, 1, report.length), report.length - 1);
+            if (result < 0) {
+                break;
+            }
+        }
     }
 
     public static synchronized void internalDrawFullImageRev2(HidDevice hidDevice, int keyIndex, Dimension iconSize, SDImage imgData) {
@@ -267,6 +326,23 @@ public class StreamDeckConstants {
         //LOGGER.debug("Image Length: " + imgData.sdImageJpeg.length);
         //System.out.println("total bytes: " + totalBytes);
     }
+
+	/**
+	 * Sends reset-command to ESD REV1
+	 */
+	public static void internalResetRev1(HidDevice hidDevice) {
+		hidDevice.setFeatureReport(RESET_DATA_REV1[0], Arrays.copyOfRange(RESET_DATA_REV1, 1, RESET_DATA_REV1.length), RESET_DATA_REV1.length-1);
+	}
+
+	/**
+	 * Sends brightness-command to ESD REV1
+	 */
+	public static void internalUpdateBrightnessRev1(HidDevice hidDevice, int brightnessValue) {
+		byte[] brightness = BRIGHTNES_DATA_REV1;
+		brightnessValue = brightnessValue > 99 ? 99 : brightnessValue < 0 ? 0 : brightnessValue;
+		brightness[5] = (byte) brightnessValue;
+		hidDevice.setFeatureReport(brightness[0], Arrays.copyOfRange(brightness, 1, brightness.length), brightness.length-1);
+	}
 
 	public static synchronized void internalDrawImageRev1(HidDevice hidDevice, int keyIndex, Dimension iconSize, SDImage imgData) {
 		imgData = imgData.getVariant(iconSize);

@@ -36,25 +36,31 @@ If you have no Stream Deck yourself, but still want to develop for the plattform
 
 ## Integration
 
-### Maven
+### Build Maven Local
 
-If you want to use this library in your maven project, just add the following dependency to you pom.xml:
+If you want to use this library in your maven project, first build it and the depending libraries localy:
+
+    git clone https://github.com/VVEIRD/purejavahidapi.git
+    cd purejavahidapi
+    mvn clean
+    mvn install
+    cd ..
+
+    git clone https://github.com/VVEIRD/StreamDeckCore.git
+    cd StreamDeckCore/StreamDeckCore
+    mvn clean
+    mvn install
+
+Then just add the following dependency to you pom.xml:
 
     <dependency>
       <groupId>io.github.vveird</groupId>
       <artifactId>StreamDeckCore</artifactId>
-      <version>1.0.3</version>
+      <version>1.1.1</version>
     </dependency>
 
-### Github
-This uses the github project https://github.com/nyholku/purejavahidapi (forked to https://github.com/WElRD/purejavahidapi).
-
-__I'd recommend using the following fork for now, as the current version of nyholku's library introduces some errors that breaks this library: https://github.com/WElRD/purejavahidapi__. This version is also included in the releases.
-
-The maven dependencies of the project reference the appropriate libaries.
 	
     
-
 ## Usage
 For examples please see the [wiki](https://github.com/WElRD/StreamDeckCore/wiki)
 

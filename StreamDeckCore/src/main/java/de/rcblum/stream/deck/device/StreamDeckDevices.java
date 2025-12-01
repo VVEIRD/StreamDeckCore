@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 import de.rcblum.stream.deck.device.descriptor.DeckDescriptor;
 import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.device.general.SoftStreamDeck;
+import de.rcblum.stream.deck.util.IconHelper;
+import de.rcblum.stream.deck.util.SDImage;
 import purejavahidapi.HidDevice;
 import purejavahidapi.HidDeviceInfo;
 import purejavahidapi.PureJavaHidApi;
@@ -47,6 +49,12 @@ import purejavahidapi.PureJavaHidApi;
  */
 public class StreamDeckDevices {
 	
+	private static final Logger LOGGER = LogManager.getLogger(StreamDeckDevices.class);
+	
+	static {
+		SDImage a = IconHelper.BLACK_ICON;
+	}
+	
 	/**
 	 * Flag for enabling the software stream deck GUI. <code>true</code> Stream Deck
 	 * devices will be wrapped in a software SD, <code>false</code> the StreamDeck
@@ -54,7 +62,6 @@ public class StreamDeckDevices {
 	 */
 	private static boolean enableSoftwareStreamDeck = true; 
 	
-	private static final Logger LOGGER = LogManager.getLogger(StreamDeckDevices.class);
 	
 	private static List<HidDeviceInfo> deckInfos = null;
 
@@ -151,9 +158,11 @@ public class StreamDeckDevices {
 				softDecks.add(new SoftStreamDeck("Stream Deck " + i, iStreamDeck));
 			}
 		}
-		return !decks.isEmpty()
+		IStreamDeck d = !decks.isEmpty()
 				? (enableSoftwareStreamDeck && !GraphicsEnvironment.isHeadless() ? softDecks.get(0) : decks.get(0)) 
 				: (enableSoftwareStreamDeck && !GraphicsEnvironment.isHeadless() ? new SoftStreamDeck("Soft Stream Deck", null, 32, 4, true) : null);
+
+		return d;
 	}
 	
 	public static int getStreamDeckSize() {

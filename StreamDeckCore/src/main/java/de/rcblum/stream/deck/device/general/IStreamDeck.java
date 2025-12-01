@@ -1,7 +1,9 @@
 package de.rcblum.stream.deck.device.general;
 
 import java.awt.Dimension;
+import java.awt.Point;
 
+import de.rcblum.stream.deck.device.descriptor.DeckDescriptor;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.StreamItem;
 import de.rcblum.stream.deck.util.SDImage;
@@ -63,7 +65,25 @@ public interface IStreamDeck {
 	 * @param imgData	Image to be displayed
 	 */
 	void drawImage(int keyIndex, SDImage imgData);
+
+	/**
+	 * Creates a Job to send the give icon to the ESD to be displayed on the the Touch screen at the given starting point
+	 * @param startPoint	Pixel coordinates to start drawing the image
+	 * @param imgData	Image to be displayed
+	 */
+	void drawTouchScreenImage(Point startPoint, SDImage imgData);
+
+	/**
+	 * Creates a Job to send the give icon to the ESD to be displayed on the the Touch screen at the given starting point
+	 * @param imgData	Image to be displayed
+	 */
+	void drawTouchScreenImage(SDImage imgData);
 	
+	/**
+	 * Returns if the stream deck has a touch screen
+	 * @return True if it has a touch screen, false if not
+	 */
+	boolean hasTouchScreen();
 
 	/**
 	 * Creates a Job to send the give icon to the ESD to be displayed on the given keyxIndex
@@ -79,6 +99,13 @@ public interface IStreamDeck {
 	 * @return HidDevice representation the stream deck.
 	 */
 	HidDevice getHidDevice();
+	
+	
+	/**
+	 * Returns the descriptor representing this device
+	 * @return DeckDescriptor with the appropriate information
+	 */
+	DeckDescriptor getDescriptor();
 
 	/**
 	 * Removes a registered Key. Queues update to the stream deck

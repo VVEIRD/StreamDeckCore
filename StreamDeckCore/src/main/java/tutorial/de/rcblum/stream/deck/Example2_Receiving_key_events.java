@@ -21,7 +21,7 @@ public class Example2_Receiving_key_events {
 		streamDeck.addKeyListener(new ExampleListener());
 		// Wait 30 seconds before shutting down
 		try {
-			Thread.sleep(330_000);
+			Thread.sleep(60_000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			Thread.currentThread().interrupt();
@@ -63,8 +63,20 @@ public class Example2_Receiving_key_events {
 			case TOUCHED_LONG:
 				System.out.println(event.getKeyId() + ": touched long, Point: " + event.getNewValue());
 				break;
+			case SWIPE_LEFT:
+				System.out.println(event.getKeyId() + ": swiped left, From: " + event.getOldValue() + " To: " + event.getNewValue());
+				break;
+			case SWIPE_RIGHT:
+				System.out.println(event.getKeyId() + ": swiped right, From: " + event.getOldValue() + " To: " + event.getNewValue());
+				break;
+			case SWIPE_DOWN:
+				System.out.println(event.getKeyId() + ": swiped down, From: " + event.getOldValue() + " To: " + event.getNewValue());
+				break;
+			case SWIPE_UP:
+				System.out.println(event.getKeyId() + ": swiped up, From: " + event.getOldValue() + " To: " + event.getNewValue());
+				break;
 			case SWIPED:
-				System.out.println(event.getKeyId() + ": swiped long, From: " + event.getOldValue() + " To: " + event.getNewValue());
+				System.out.println(event.getKeyId() + ": swiped, From: " + event.getOldValue() + " To: " + event.getNewValue());
 				break;
 			default:
 				break;

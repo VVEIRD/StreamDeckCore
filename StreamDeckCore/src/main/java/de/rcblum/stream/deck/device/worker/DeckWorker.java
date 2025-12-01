@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import de.rcblum.stream.deck.device.StreamDeck;
 
 /**
- * Dispatches all commands asynchronously queued up in {@link StreamDeck#sendPool} to the ESD.
+ * Dispatches all commands asynchronously queued up in {@link StreamDeck#addToSendPool(DeckUpdater)} to the ESD.
  * Send rate is limited to 500 commands per second.
  * If the execution of one command is completed in less tha on ms the thread is put to sleep for 1 ms.
  * As long as one loop takes up less then 2 ms the rest of the time is actively wated
@@ -33,18 +33,17 @@ public class DeckWorker implements Runnable {
 		while (this.streamDeck.isRunning() || !this.streamDeck.isRunning() && !this.streamDeck.isSendPoolEmpty()) {
 			// Cleanup clogged send pool
 			if(this.streamDeck.getSendPoolSize() > 100) {
-				Runnable[] payloads = new Runnable[this.streamDeck.getKeySize()];
-				Runnable resetTask = null;
-				Runnable brightnessTask = null;
-				Runnable task = null;
+				DeckUpdater[] payloads = new DeckUpdater[this.streamDeck.getKeySize()];
+				DeckUpdater resetTask = null;
+				DeckUpdater brightnessTask = null;
+				DeckUpdater task = null;
 				while ((task = this.streamDeck.pollSendPool()) != null) {
-					if (task instanceof IconUpdater) {
-						IconUpdater iu = (IconUpdater)task;
-						payloads[iu.keyIndex] = iu;
+					if (task.drawImageInterface != null) {
+						payloads[task.keyIndex] = task;
 					}
-					else if(task instanceof Resetter)
+					else if(task.featureReportInterface != null)
 						resetTask = task;
-					else if (task instanceof BrightnessUpdater) 
+					else if (task.featureReportIntInterface != null) 
 						brightnessTask = task;
 				}
 				if(brightnessTask != null)
@@ -78,6 +77,7 @@ public class DeckWorker implements Runnable {
 				if(System.currentTimeMillis() - time > 30_000) {
 					LOGGER.debug("Commands send per one second: " + (actions/30));
 					LOGGER.debug("Commands send per 30 seconds: " + actions);
+					LOGGER.debug("Send Pool Backlog: " + this.streamDeck.getSendPoolSize());
 					time = System.currentTimeMillis();
 					actions = 0;
 				}

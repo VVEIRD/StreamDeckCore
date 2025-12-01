@@ -1,30 +1,25 @@
 package de.rcblum.stream.deck.device;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.rcblum.stream.deck.device.descriptor.DeckDescriptor;
 import de.rcblum.stream.deck.device.descriptor.KeyType;
+import de.rcblum.stream.deck.device.descriptor.hidfunctions.DrawImageInterface;
+import de.rcblum.stream.deck.device.descriptor.hidfunctions.DrawTouchscreenInterface;
 import de.rcblum.stream.deck.device.general.IStreamDeck;
-import de.rcblum.stream.deck.device.worker.BrightnessUpdater;
 import de.rcblum.stream.deck.device.worker.DeckWorker;
 import de.rcblum.stream.deck.device.worker.EventDispatcher;
-import de.rcblum.stream.deck.device.worker.IconUpdater;
-import de.rcblum.stream.deck.device.worker.Resetter;
+import de.rcblum.stream.deck.device.worker.DeckUpdater;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.KeyEvent.Type;
 import de.rcblum.stream.deck.event.StreamKeyListener;
@@ -125,7 +120,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Queue for commands to be sent to the ESD
 	 */
-	private Queue<Runnable> sendPool = new ConcurrentLinkedQueue<>();
+	private Queue<DeckUpdater> sendPool = new ConcurrentLinkedQueue<>();
 
 	/**
 	 * Queue for {@link KeyEvent}s that are triggered by the ESD
@@ -169,7 +164,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 		this.hidDevice = streamDeck;
 		this.hidDevice.setInputReportListener(this);
 		this.brightness = brightness;
-		listerners = new ArrayList<>(5);
+		listerners = new CopyOnWriteArrayList<>();
 		this.sendWorker = new Thread(new DeckWorker(this));
 		this.sendWorker.setDaemon(true);
 		this.sendWorker.start();
@@ -195,7 +190,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	public void addKey(int keyId, StreamItem item) {
 		if (keyId < this.keys.length && keyId >= 0) {
 			this.keys[keyId] = item;
-			queue(new IconUpdater(this.hidDevice, this.descriptor.drawImageInterface, keyId, item.getIcon(), this.descriptor.iconSize));
+			queue(new DeckUpdater(this.hidDevice, this.descriptor.drawImageInterface, keyId + this.getDescriptor().drawImageKeyOffset, item.getIcon(), this.descriptor.iconSize));
 		}
 	}
 
@@ -204,6 +199,8 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	@Override
 	public boolean addKeyListener(StreamKeyListener listener) {
+		if (this.listerners.contains(listener))
+			return false;
 		return this.listerners.add(listener);
 	}
 
@@ -221,7 +218,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	@Override
 	public void drawImage(int keyIndex, SDImage imgData) {
-		queue(new IconUpdater(this.hidDevice, this.descriptor.drawImageInterface, keyIndex, imgData, this.descriptor.iconSize));
+		drawImage(keyIndex, imgData, this.getDescriptor().getKey(keyIndex).getDimension());
 	}
 
 	/* (non-Javadoc)
@@ -229,7 +226,15 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	@Override
 	public void drawImage(int keyIndex, SDImage imgData, Dimension overrideSize) {
-		queue(new IconUpdater(this.hidDevice, this.descriptor.drawImageInterface, keyIndex, imgData, overrideSize));
+		DrawImageInterface dI = this.descriptor.drawImageInterface;
+		DrawTouchscreenInterface dT = this.descriptor.drawTouchScreenInterface;
+		
+		if (this.getDescriptor().getKey(keyIndex) != null && this.getDescriptor().getKey(keyIndex).equals(KeyType.TOUCH_SCREEN))  {
+			queue(new DeckUpdater(this.hidDevice, dT, new Point(0, 0), imgData, overrideSize));
+		}
+		else {
+			queue(new DeckUpdater(this.hidDevice, dI, keyIndex + this.getDescriptor().drawImageKeyOffset, imgData, overrideSize));
+		}
 	}
 
 	/* (non-Javadoc)
@@ -237,7 +242,22 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	@Override
 	public void drawFullImage(SDImage imgData) {
-		queue(new IconUpdater(this.hidDevice, this.descriptor.drawFullImageInterface, 0, imgData, this.descriptor.fullDisplaySize));
+		queue(new DeckUpdater(this.hidDevice, this.descriptor.drawFullImageInterface, 0, imgData, this.descriptor.fullDisplaySize));
+	}
+	
+	@Override
+	public boolean hasTouchScreen() {
+		return this.descriptor.touchScreenIndex > 0;
+	}
+	
+	@Override
+	public void drawTouchScreenImage(SDImage imgData) {
+		drawTouchScreenImage(new Point(0,0), imgData);
+	}
+	
+	@Override
+	public void drawTouchScreenImage(Point startPoint, SDImage imgData) {
+		queue(new DeckUpdater(this.hidDevice, this.descriptor.drawTouchScreenInterface, startPoint, imgData, imgData.imageSize));
 	}
    
    public synchronized boolean sendOutputReport(byte[] report) {
@@ -363,7 +383,18 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
         	fireKeyEvent(new KeyEvent( this, keyReportOffset, Type.TOUCHED_LONG, null, new Point(startX, startY)));
         }
         else if(isGesture) {
-        	fireKeyEvent(new KeyEvent( this, keyReportOffset, Type.SWIPED, new Point(startX, startY), new Point(endX, endY)));
+	        Type type = Type.SWIPED;
+	        if (startX <= 30 && endX > startX && Math.abs(startX - endX) > Math.abs(startY - endY))
+	        	type = Type.SWIPE_LEFT;
+	        else if (startX >= 770 && endX < startX && Math.abs(startX - endX) > Math.abs(startY - endY))
+	        	type = Type.SWIPE_RIGHT;
+	        if (startX <= 30 && endX > startX && Math.abs(startX - endX) > Math.abs(startY - endY))
+	        	type = Type.SWIPE_LEFT;
+	        else if (endY < startY && Math.abs(startX - endX) < Math.abs(startY - endY))
+	        	type = Type.SWIPE_UP;
+	        else if (endY > startY && Math.abs(startX - endX) < Math.abs(startY - endY))
+	        	type = Type.SWIPE_DOWN;
+        	fireKeyEvent(new KeyEvent( this, keyReportOffset, type, new Point(startX, startY), new Point(endX, endY)));
         }
 		
 	}
@@ -405,7 +436,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	public void removeKey(int keyId) {
 		if (keyId < this.keys.length && keyId >= 0 && this.keys[keyId] != null) {
 			this.keys[keyId] = null;
-			queue(new IconUpdater(this.hidDevice, this.descriptor.drawImageInterface, keyId, StreamDeckConstants.BLACK_ICON, this.descriptor.iconSize));
+			queue(new DeckUpdater(this.hidDevice, this.descriptor.drawImageInterface, keyId, StreamDeckConstants.BLACK_ICON, this.descriptor.iconSize));
 		}
 	}
 
@@ -414,12 +445,15 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	@Override
 	public void reset() {
-		this.queue(new Resetter(this.hidDevice, this.descriptor.resetInterface));
+		this.queue(new DeckUpdater(this.hidDevice, this.descriptor.resetInterface));
 		for (int i = 0; i < keys.length; i++) {
 			if (keys[i] != null)
-				this.queue(new IconUpdater(this.hidDevice, this.descriptor.drawImageInterface, i, keys[i].getIcon(), this.descriptor.iconSize));
+				this.queue(new DeckUpdater(this.hidDevice, this.descriptor.drawImageInterface, i + this.getDescriptor().drawImageKeyOffset, keys[i].getIcon(), this.descriptor.iconSize));
 			else
-				this.queue(new IconUpdater(this.hidDevice, this.descriptor.drawImageInterface, i, StreamDeckConstants.BLACK_ICON, this.descriptor.iconSize));
+				this.queue(new DeckUpdater(this.hidDevice, this.descriptor.drawImageInterface, i + this.getDescriptor().drawImageKeyOffset, StreamDeckConstants.BLACK_ICON, this.descriptor.iconSize));
+		}
+		if(this.hasTouchScreen()) {
+			this.drawTouchScreenImage(IconHelper.BLACK_TOUCH_SCREEN);
 		}
 	}
 
@@ -430,10 +464,10 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	public void setBrightness(int brightness) {
 		brightness = brightness > 99 ? 99 : brightness < 0 ? 0 : brightness;
 		this.brightness = brightness;
-		this.queue(new BrightnessUpdater(this.hidDevice, this.descriptor.brightnessInterface, this.brightness));
+		this.queue(new DeckUpdater(this.hidDevice, this.descriptor.brightnessInterface, this.brightness));
 	}
 
-	private void queue(Runnable payload) {
+	private void queue(DeckUpdater payload) {
 		if(this.running)
 			this.sendPool.add(payload);
 	}
@@ -471,7 +505,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 */
 	@Override
 	public void clearButton(int i) {
-		queue(new IconUpdater(this.hidDevice, this.descriptor.drawImageInterface, i, StreamDeckConstants.BLACK_ICON, this.descriptor.iconSize));
+		queue(new DeckUpdater(this.hidDevice, this.descriptor.drawImageInterface, i + this.getDescriptor().drawImageKeyOffset, StreamDeckConstants.BLACK_ICON, this.descriptor.iconSize));
 	}
 
 	public StreamItem[] getItems() {
@@ -485,6 +519,11 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	
 	public boolean isRunning() {
 		return running;
+	}
+	
+	@Override
+	public DeckDescriptor getDescriptor() {
+		return this.descriptor;
 	}
 
 	/**
@@ -550,11 +589,11 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 		return this.sendPool.size();
 	}
 
-	public Runnable pollSendPool() {
+	public DeckUpdater pollSendPool() {
 		return this.sendPool.poll();
 	}
 
-	public void addToSendPool(Runnable task) {
+	public void addToSendPool(DeckUpdater task) {
 		this.sendPool.add(task);
 	}
 }

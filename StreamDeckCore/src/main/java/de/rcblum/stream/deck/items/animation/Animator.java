@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
+import de.rcblum.stream.deck.event.KeyEvent.Type;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.listeners.AnimationListener;
 import de.rcblum.stream.deck.util.SDImage;
@@ -60,7 +61,7 @@ public class Animator implements StreamKeyListener, Runnable {
 
 	Logger logger = LogManager.getLogger(Animator.class);
 	
-	Map<IStreamDeck, Animator[]> animators = new HashMap<>();
+	//Map<IStreamDeck, Animator[]> animators = new HashMap<>();
 	
 	private static Object syncLock = new Object(); 
 
@@ -109,6 +110,8 @@ public class Animator implements StreamKeyListener, Runnable {
 	 * Listeners for when animation state changes
 	 */
 	private List<AnimationListener> listeners = new LinkedList<>();
+	
+	private KeyEvent currentEvent = null;
 
 	/**
 	 * Creates an animator for the given stream deck key and
@@ -127,15 +130,16 @@ public class Animator implements StreamKeyListener, Runnable {
 		this.streamDeck = Objects.requireNonNull(streamDeck);
 		this.keyIndex = keyIndex;
 		synchronized (syncLock) {
-			animators.computeIfAbsent(streamDeck, k -> new Animator[k.getKeySize()]);
-			if (animators.get(streamDeck)[this.keyIndex] != null)
-				animators.get(streamDeck)[this.keyIndex].stop(true);
-			animators.get(streamDeck)[this.keyIndex] = this;
+			//animators.computeIfAbsent(streamDeck, k -> new Animator[k.getKeySize()]);
+			//if (animators.get(streamDeck)[this.keyIndex] != null)
+			//	animators.get(streamDeck)[this.keyIndex].stop(true);
+			//animators.get(streamDeck)[this.keyIndex] = this;
 		}
 		this.animation = animation;
 		logger.debug(this.keyIndex + ": Autoplay: " + this.animation.autoPlay());
 		if (this.animation.autoPlay())
 			this.start();
+		this.streamDeck.addKeyListener(this);
 	}
 
 	/**
@@ -151,6 +155,7 @@ public class Animator implements StreamKeyListener, Runnable {
 	 * Checks if the key event should start the animation
 	 */
 	public void onKeyEvent(KeyEvent event) {
+		this.currentEvent = event;
 		boolean triggered = this.animation.isTriggered(event.getType());
 		logger.debug(this.keyIndex + ": Key event received [type:triggered:valid_key_id:already_running]: ["
 				+ event.getType() + ":" + triggered + ":" + (event.getKeyId() == keyIndex) + ":"

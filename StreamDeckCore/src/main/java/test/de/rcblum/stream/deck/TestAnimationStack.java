@@ -1,8 +1,11 @@
 package test.de.rcblum.stream.deck;
 
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,6 +17,7 @@ import de.rcblum.stream.deck.items.ExecutableItem;
 import de.rcblum.stream.deck.items.FolderItem;
 import de.rcblum.stream.deck.items.StreamItem;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
+import de.rcblum.stream.deck.items.animation.Animator;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.IconPackage;
 import de.rcblum.stream.deck.util.SDImage;
@@ -30,13 +34,20 @@ public class TestAnimationStack {
 		StreamItem[] items = new StreamItem[sd.getKeySize()];
 		ExecutableItem item0 = new ExecutableItem(ip, "cmd /c dir");
 		ExecutableItem item1 = item0;
-		ip = new IconPackage(ip.icon, IconHelper.createRollingTextAnimation(ip.icon, "Rolling Text test", StreamItem.TEXT_POS_BOTTOM));
+		ip = new IconPackage(ip.icon, IconHelper.createRollingTextAnimation(ip.icon.getVariant(sd.getDescriptor().iconSize), "Rolling Text test", StreamItem.TEXT_POS_BOTTOM));
 		ExecutableItem item2 = new ExecutableItem(ip, "cmd /c dir");
 		
+		// Test touch screen animator
+		
+		BufferedImage touchScreenBI = IconHelper.createResizedCopy(IconHelper.loadRawImage(Paths.get("resources" + File.separator + "lcd" + File.separator + "fantasy_background.png")), false, new Dimension(800, 100));
+		SDImage touchScreen = IconHelper.cacheImage("resources" + File.separator + "lcd" + File.separator + "fantasy_background_left_side.png", touchScreenBI);
+		ip = new IconPackage(ip.icon, IconHelper.createRollingTextAnimation(touchScreen, "Rolling Text test Rolling Text test Rolling Text test Rolling", StreamItem.TEXT_POS_BOTTOM));
+
 		items[0] = item1;
 		items[sd.getColumnSize()-1] = item1;
 		items[sd.getColumnSize()*sd.getRowSize()-3] = item2;
 		FolderItem root = new FolderItem(null, null, items);
+		Animator a = new Animator(sd, 8, ip.animation);
 		sd.reset();
 		sd.setBrightness(90);
 		StreamDeckController sdc = new StreamDeckController(sd, root);

@@ -25,6 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.rcblum.stream.deck.device.StreamDeckConstants;
+import de.rcblum.stream.deck.device.descriptor.DeckDescriptor;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.event.KeyEvent.Type;
@@ -78,6 +79,8 @@ public class SoftStreamDeck implements IStreamDeck {
 	}
 	
 	private String name = null;
+	
+	private DeckDescriptor descriptor = null;
 		
 	private IStreamDeck streamDeck = null;
 	
@@ -117,6 +120,7 @@ public class SoftStreamDeck implements IStreamDeck {
 	
 	public SoftStreamDeck(String name, IStreamDeck streamDeck, int keySize, int rowSize, boolean visible) {
 		this.streamDeck = streamDeck;
+		this.descriptor = this.streamDeck != null ? this.streamDeck.getDescriptor() : DeckDescriptor.SOFT_STREAM_DECK;
 		this.rows =  this.streamDeck != null ? this.streamDeck.getRowSize() : rowSize;
 		this.keys = new StreamItem[streamDeck != null ? this.streamDeck.getKeySize() : keySize];
 		listerners = new ArrayList<>(4);
@@ -210,12 +214,36 @@ public class SoftStreamDeck implements IStreamDeck {
 		if(streamDeck != null)
 			streamDeck.drawImage(keyId, imgData, overrideSize);
 	}
+	
+	@Override
+	public void drawTouchScreenImage(SDImage imgData) {
+		drawTouchScreenImage(new Point(0,0), imgData);
+	}
+	
+	@Override
+	public void drawTouchScreenImage(Point startPoint, SDImage imgData) {
+		//this.updateQueue.add(new IconUpdate(keyId, imgData));
+		if(streamDeck != null && streamDeck.hasTouchScreen())
+			streamDeck.drawTouchScreenImage(startPoint, imgData);
+	}
+	
+	@Override
+	public boolean hasTouchScreen() {
+		if(streamDeck != null)
+			return streamDeck.hasTouchScreen();
+		return false;
+	}
 
 	@Override
 	public void drawFullImage(SDImage imgData) {
 		//this.updateQueue.add(new IconUpdate(keyId, imgData));
 		if(streamDeck != null)
 			streamDeck.drawFullImage(imgData);
+	}
+	
+	@Override
+	public DeckDescriptor getDescriptor() {
+		return this.descriptor;
 	}
 
 	@Override
@@ -353,9 +381,11 @@ public class SoftStreamDeck implements IStreamDeck {
 				Graphics2D g = SoftStreamDeck.this.writeBuffer.createGraphics();
 				while(!SoftStreamDeck.this.updateQueue.isEmpty()) {
 					IconUpdate iu = SoftStreamDeck.this.updateQueue.poll();
-					int spaceX = 20 + (90 * ((SoftStreamDeck.this.getColumnSize()-1) - (iu.keyIndex % SoftStreamDeck.this.getColumnSize())));
-					int spaceY = 20 + (90 * (iu.keyIndex / SoftStreamDeck.this.getColumnSize()));
-					g.drawImage(iu.img.getVariant(new Dimension(72, 72)).image, spaceX, spaceY, null);
+					if (iu.keyIndex < SoftStreamDeck.this.getKeySize()) {
+						int spaceX = 20 + (90 * ((SoftStreamDeck.this.getColumnSize()-1) - (iu.keyIndex % SoftStreamDeck.this.getColumnSize())));
+						int spaceY = 20 + (90 * (iu.keyIndex / SoftStreamDeck.this.getColumnSize()));
+						g.drawImage(iu.img.getVariant(new Dimension(72, 72)).image, spaceX, spaceY, null);
+					}
 				}
 				g.dispose();
 				try {

@@ -7,11 +7,13 @@ import de.rcblum.stream.deck.util.SDImage;
 import test.de.rcblum.stream.deck.TestAnimationStack;
 
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Iterator;
 
 public class Example1_Displaying_A_Key {
 	public static void main(String[] args) throws IOException {
@@ -33,14 +35,26 @@ public class Example1_Displaying_A_Key {
 		// SDImage iconData = IconHelper.convertImage(bufferedImage);
 
 		//Send the image data to the first key of the ESD:
+		BufferedImage touchScreenBI = IconHelper.createResizedCopy(IconHelper.loadRawImage(Paths.get("resources" + File.separator + "lcd" + File.separator + "fantasy_background.png")), false, new Dimension(800, 100));
+		SDImage touchScreen = IconHelper.cacheImage("resources" + File.separator + "lcd" + File.separator + "fantasy_background_left_side.png", touchScreenBI);
+
 		streamDeck.drawImage(0,  iconData);
-		streamDeck.drawFullImage(background);
+		streamDeck.drawTouchScreenImage( touchScreen);
+		for (int i = 0; i < 800; i++) {
+			streamDeck.drawTouchScreenImage(new Point(i, 0),  touchScreen);
+			try {
+				Thread.sleep(33);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		//streamDeck.drawFullImage(background);
 		File outputFile = new File("/home/owl/Downloads/test.jpg");
 		try (FileOutputStream fout = new FileOutputStream(outputFile)) {
-			fout.write(iconData.getVariant(new Dimension(800,800)).sdImageJpeg);
+			fout.write(touchScreen.sdImageJpeg);
 		}
 		try {
-			Thread.sleep(15_000);
+			Thread.sleep(5_000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			Thread.currentThread().interrupt();

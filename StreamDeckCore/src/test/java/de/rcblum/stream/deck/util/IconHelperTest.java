@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import org.junit.jupiter.api.*;
 
 import de.rcblum.stream.deck.device.StreamDeckConstants;
+import de.rcblum.stream.deck.device.StreamDeckConstants;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 
 class IconHelperTest {
@@ -48,7 +49,7 @@ class IconHelperTest {
 
 	@Test
 	void testApplyAlpha() {
-		IconHelper.applyAlpha(IconHelper.createColoredFrame(Color.GREEN).image, IconHelper.FRAME);
+		IconHelper.applyAlpha(IconHelper.createColoredFrame(Color.GREEN).image, IconHelper.createResizedCopy(IconHelper.FRAME, false, IconHelper.createColoredFrame(Color.GREEN).imageSize));
 		assertTrue(true);
 	}
 

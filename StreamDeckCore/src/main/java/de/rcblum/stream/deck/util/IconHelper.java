@@ -53,6 +53,7 @@ import com.google.gson.GsonBuilder;
 
 import de.rcblum.stream.deck.device.StreamDeck;
 import de.rcblum.stream.deck.device.StreamDeckConstants;
+import de.rcblum.stream.deck.device.StreamDeckConstants;
 import de.rcblum.stream.deck.items.animation.AnimationStack;
 
 /**
@@ -95,15 +96,12 @@ public class IconHelper {
 
 	public static final String TEMP_BLACK_ICON = "temp://BLACK_ICON";
 
+	public static final String TEMP_BLACK_TOUCH_SCREEN = "temp://BLACK_TOUCH_SCREEN ";
+
 	private static Logger logger = LogManager.getLogger(IconHelper.class);
 
 	public static final BufferedImage FRAME = getImageFromResource("/resources/icons/frame.png");
 
-	/**
-	 * Default font for the text on the ESD FantasqueSansMono-Bold.ttf
-	 * /resources/Blogger-Sans-Medium.ttf /resources/FantasqueSansMono-Bold.ttf
-	 */
-	public static final Font DEFAULT_FONT = loadFont("/resources/FantasqueSansMono-Regular.ttf", 26);
 
 	/**
 	 * Position to place the text at the top of the icon
@@ -123,7 +121,7 @@ public class IconHelper {
 	/**
 	 * Sets the padding for the rolling text.
 	 */
-	private static int rollingTextPadding = 5;
+	private static int rollingTextPadding = 0;
 	
 	/**
 	 * Alpha value for the textbox background
@@ -140,7 +138,15 @@ public class IconHelper {
 	 */
 	private static Map<String, IconPackage> packageCache = new HashMap<>();
 	
+	/**
+	 * Default font for the text on the ESD FantasqueSansMono-Bold.ttf
+	 * /resources/Blogger-Sans-Medium.ttf /resources/FantasqueSansMono-Bold.ttf
+	 */
+	public static final Font DEFAULT_FONT = loadFont("/resources/FantasqueSansMono-Regular.ttf", StreamDeckConstants.DEFAULT_STREAM_DECK.getDescriptor().defaultFontSize);
+	
 	public static final SDImage BLACK_ICON;
+	
+	public static final SDImage BLACK_TOUCH_SCREEN;
 
 	public static final SDImage FOLDER_ICON;
 
@@ -151,6 +157,12 @@ public class IconHelper {
 		g.fillRect(0, 0, (int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight());
 		g.dispose();
 		BLACK_ICON = cacheImage(TEMP_BLACK_ICON, img);
+		img = new BufferedImage((int)StreamDeckConstants.TOUCH_SCREEN_SIZE.getWidth(), (int)StreamDeckConstants.TOUCH_SCREEN_SIZE.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		g = img.createGraphics();
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, (int)StreamDeckConstants.TOUCH_SCREEN_SIZE.getWidth(), (int)StreamDeckConstants.TOUCH_SCREEN_SIZE.getHeight());
+		g.dispose();
+		BLACK_TOUCH_SCREEN = cacheImage(TEMP_BLACK_TOUCH_SCREEN, img);
 		img = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		g = img.createGraphics();
 		g.setColor(Color.BLACK);
@@ -217,7 +229,7 @@ public class IconHelper {
 		g.setColor(borderColor);
 		g.fillRect(0, 0, (int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight());
 		g.dispose();
-		applyAlpha(img, FRAME);
+		applyAlpha(img, createResizedCopy(FRAME, false, new Dimension(img.getWidth(), img.getHeight())));
 		return cacheImage(frameKey, img);
 	}
 	
@@ -388,8 +400,10 @@ public class IconHelper {
 	 */
 	public static AnimationStack createRollingTextAnimation(SDImage imgData, String text, int pos, float fontSize) {
 		AnimationStack animation = new AnimationStack(AnimationStack.REPEAT_PING_PONG, true, AnimationStack.FRAME_RATE_30, AnimationStack.TRIGGER_AUTO, new SDImage[0]);
-		BufferedImage baseImage = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), imgData.image.getType());
-		BufferedImage drawOn = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), imgData.image.getType());
+		BufferedImage baseImage = new BufferedImage((int)imgData.image.getWidth(), (int)imgData.image.getHeight(), imgData.image.getType());
+		System.out.println("Create Rolling Animation image Width: " + (int)imgData.image.getWidth());
+		System.out.println("Create Rolling Animation image Height: " + (int)imgData.image.getHeight());
+		BufferedImage drawOn = new BufferedImage((int)imgData.image.getWidth(), (int)imgData.image.getHeight(), imgData.image.getType());
 		List<SDImage> frames = new LinkedList<>();
 		Graphics2D gCanvas = baseImage.createGraphics();
 		gCanvas.drawImage(imgData.image, 0, 0, null);
@@ -397,10 +411,10 @@ public class IconHelper {
 		int yStart = 28;
 		switch (pos) {
 		case TEXT_BOTTOM:
-			yStart = 75;
+			yStart = (int) (imgData.image.getHeight());
 			break;
 		case TEXT_CENTER:
-			yStart = 60;
+			yStart = (int) (imgData.image.getHeight())/2;
 			break;
 		default:
 			break;
@@ -408,7 +422,7 @@ public class IconHelper {
 		int y = (yStart - (gCanvas.getFontMetrics().getHeight() / 2));
 		gCanvas.setColor(new Color(0, 0, 0, textBoxAlphaValue));
 		gCanvas.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
-		int width = (int)StreamDeckConstants.ICON_SIZE.getWidth();
+		int width = (int)imgData.image.getWidth();
 		int x = IconHelper.rollingTextPadding;
 		gCanvas.fillRect(x - 1, y - gCanvas.getFontMetrics().getHeight()+1, width + 2, gCanvas.getFontMetrics().getHeight()+gCanvas.getFontMetrics().getDescent());
 		gCanvas.dispose();
@@ -419,7 +433,7 @@ public class IconHelper {
 		gCanvas.setColor(Color.LIGHT_GRAY);
 		gCanvas.drawImage(baseImage, 0, 0, null);
 		StringBuilder sb = new StringBuilder(text);
-		while(gCanvas.getFontMetrics().stringWidth(sb.toString()) < StreamDeckConstants.ICON_SIZE.getWidth()+10) {
+		while(gCanvas.getFontMetrics().stringWidth(sb.toString()) < imgData.image.getWidth()+10) {
 			sb.insert(0, " ");
 			sb.append(" ");
 		}
@@ -429,13 +443,13 @@ public class IconHelper {
 			gCanvas.setColor(Color.LIGHT_GRAY);
 			gCanvas.drawString(text, x, y);
 			x--;
-			BufferedImage frame = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), imgData.image.getType());
+			BufferedImage frame = new BufferedImage((int)imgData.image.getWidth(), (int)imgData.image.getHeight(), imgData.image.getType());
 			Graphics2D gDest = frame.createGraphics();
 			gDest.drawImage(drawOn, 0, 0, null);
 			gDest.dispose();
-			frames.add(convertImage(frame));
+			frames.add(convertImage(frame, new Dimension(frame.getWidth(), frame.getHeight())));
 			gCanvas.drawImage(baseImage, 0, 0, null);
-		} while(x+gCanvas.getFontMetrics().stringWidth(text) > StreamDeckConstants.ICON_SIZE.getWidth() - IconHelper.rollingTextPadding);
+		} while(x+gCanvas.getFontMetrics().stringWidth(text) > imgData.image.getWidth() - IconHelper.rollingTextPadding);
 		gCanvas.dispose();
 		SDImage[] frameArray = frames.toArray(new SDImage[0]);
 		animation.setFrames(frameArray);
@@ -574,14 +588,9 @@ public class IconHelper {
 				imgData[imgDataCount++] = (byte) c.getGreen();
 			}
 		}
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		byte[] jpegData = null;
 		try {
-			ImageIO.write(imgSrc, "jpeg", baos);// Encode as JPEG
-			//baos.flush();
-		    jpegData = baos.toByteArray();
 		    jpegData = writeToByteArrayOutputStreamAsJpeg85(imgSrc).toByteArray();
-		    baos.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -813,12 +822,14 @@ public class IconHelper {
 
 		}
 		int imageType = preserveType ? originalImage.getType() : BufferedImage.TYPE_INT_ARGB;
-		BufferedImage scaledBI = new BufferedImage(scaledWidth, scaledHeight, imageType);
+		BufferedImage scaledBI = new BufferedImage((int)dimensions.getWidth(), (int) dimensions.getHeight(), imageType);
 		Graphics2D g = scaledBI.createGraphics();
 		if (true) {
 			g.setComposite(AlphaComposite.Src);
 		}
 		//g.drawImage(originalImage, (scaledWidth - scaledWidth) / 2, (scaledHeight - scaledHeight) / 2,
+		g.setColor(Color.BLACK);
+		g.drawRect(0, 0, (int)dimensions.getWidth(), (int) dimensions.getHeight());
 		g.drawImage(originalImage, 0, 0,
 				scaledWidth, scaledHeight, null);
 		g.dispose();
