@@ -139,7 +139,7 @@ public class Animator implements StreamKeyListener, Runnable {
 		logger.debug(this.keyIndex + ": Autoplay: " + this.animation.autoPlay());
 		if (this.animation.autoPlay())
 			this.start();
-		this.streamDeck.addKeyListener(this);
+		//this.streamDeck.addKeyListener(this);
 	}
 
 	/**

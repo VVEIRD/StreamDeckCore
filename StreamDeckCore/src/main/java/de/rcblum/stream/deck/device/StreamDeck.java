@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -12,6 +13,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.rcblum.stream.deck.device.components.DialKey;
+import de.rcblum.stream.deck.device.components.TouchScreen;
 import de.rcblum.stream.deck.device.descriptor.DeckDescriptor;
 import de.rcblum.stream.deck.device.descriptor.KeyType;
 import de.rcblum.stream.deck.device.descriptor.hidfunctions.DrawImageInterface;
@@ -111,6 +114,16 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 * current values if a key on a certain index is pressed or not
 	 */
 	private boolean[] keysPressed = new boolean[15];
+	
+	/**
+	 * Object representing the dials on the stream deck, if it has any
+	 */
+	private DialKey[] dials = null;
+	
+	/**
+	 * Object representing the touch screen on the stream deck if it has one
+	 */
+	private TouchScreen touchScreen = null;
 
 	/**
 	 * current values if one of the special keys on a certain index is pressed or not
@@ -145,7 +158,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	/**
 	 * Registered Listeners to the {@link KeyEvent}s created by the ESD
 	 */
-	private List<StreamKeyListener> listerners;
+	private List<StreamKeyListener> listerners = new CopyOnWriteArrayList<>();
 
 	/**
 	 * Creates a wrapper for the Stream Deck HID
@@ -161,10 +174,22 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 		this.keys = new StreamItem[this.getKeySize()];
 		this.keysPressed = new boolean[descriptor.getKeySize()];
 		this.specialKeysPressed = new boolean[descriptor.getSpecialKeySize()];
+		if (descriptor.getTouchScreenIndex() >= 0) {
+			this.touchScreen = new TouchScreen(descriptor.getTouchScreenIndex(), this);
+			this.addKeyListener(this.touchScreen);
+		}
+		List<DialKey> dialList = new LinkedList<DialKey>();
+		for(int i = this.descriptor.getSpecialKeyOffset(); i < this.descriptor.getTotalKeySize(); i++) {
+			if (this.descriptor.getKey(i) == KeyType.ROTARY_ENCODER) {
+				DialKey dial = new DialKey(i, this);
+				dialList.add(dial);
+				this.addKeyListener(dial);
+			}
+		}
+		this.dials = dialList.toArray(new DialKey[dialList.size()]);
 		this.hidDevice = streamDeck;
 		this.hidDevice.setInputReportListener(this);
 		this.brightness = brightness;
-		listerners = new CopyOnWriteArrayList<>();
 		this.sendWorker = new Thread(new DeckWorker(this));
 		this.sendWorker.setDaemon(true);
 		this.sendWorker.start();
@@ -248,6 +273,21 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	@Override
 	public boolean hasTouchScreen() {
 		return this.descriptor.touchScreenIndex > 0;
+	}
+	
+	@Override
+	public TouchScreen getTouchScreen() {
+		return this.touchScreen;
+	}
+	
+	@Override
+	public boolean hasDials() {
+		return this.dials.length > 0;
+	}
+	
+	@Override
+	public DialKey[] getDials() {
+		return this.dials;
 	}
 	
 	@Override

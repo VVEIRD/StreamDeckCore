@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import de.rcblum.stream.deck.StreamDeckController;
+import de.rcblum.stream.deck.device.StreamDeckConstants;
 import de.rcblum.stream.deck.device.StreamDeckDevices;
 import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.items.ExecutableItem;
@@ -29,7 +30,7 @@ public class TestAnimationStack {
 		AnimationStack as = new AnimationStack(AnimationStack.REPEAT_LOOPING, true, AnimationStack.FRAME_RATE_30, AnimationStack.TRIGGER_PRESSED, new SDImage[0]);
 		System.out.println(gson.toJson(as));
 		IconHelper.createIconPackage("resources" + File.separator + "icon.zip", "resources" + File.separator + "icon.png", "resources" + File.separator + "icon.gif", as);
-		IconPackage ip = IconHelper.loadIconPackage("resources" + File.separator + "icon.zip");
+		IconPackage ip = IconHelper.loadIconPackage("resources" + File.separator + "icon.zip", StreamDeckConstants.ICON_SIZE);
 		IStreamDeck sd = StreamDeckDevices.getStreamDeck();
 		StreamItem[] items = new StreamItem[sd.getKeySize()];
 		ExecutableItem item0 = new ExecutableItem(ip, "cmd /c dir");
@@ -39,15 +40,18 @@ public class TestAnimationStack {
 		
 		// Test touch screen animator
 		
-		BufferedImage touchScreenBI = IconHelper.createResizedCopy(IconHelper.loadRawImage(Paths.get("resources" + File.separator + "lcd" + File.separator + "fantasy_background.png")), false, new Dimension(800, 100));
-		SDImage touchScreen = IconHelper.cacheImage("resources" + File.separator + "lcd" + File.separator + "fantasy_background_left_side.png", touchScreenBI);
-		ip = new IconPackage(ip.icon, IconHelper.createRollingTextAnimation(touchScreen, "Rolling Text test Rolling Text test Rolling Text test Rolling", StreamItem.TEXT_POS_BOTTOM));
 
 		items[0] = item1;
 		items[sd.getColumnSize()-1] = item1;
 		items[sd.getColumnSize()*sd.getRowSize()-3] = item2;
 		FolderItem root = new FolderItem(null, null, items);
-		Animator a = new Animator(sd, 8, ip.animation);
+		//Animator a = new Animator(sd, 8, ip.animation);
+		BufferedImage touchScreenBI = IconHelper.createResizedCopy(IconHelper.loadRawImage(Paths.get("resources" + File.separator + "lcd" + File.separator + "fantasy_background.png")), false, new Dimension(800, 100));
+		SDImage touchScreenImage = IconHelper.cacheImage("resources" + File.separator + "lcd" + File.separator + "fantasy_background_left_side.png", touchScreenBI);
+		if(sd.hasTouchScreen()) {
+			AnimationStack aStack = IconHelper.createRollingTextAnimation(touchScreenImage, "Rolling Text Test Rolling Text Test Rolling Text Test Rolling Text Test", StreamItem.TEXT_POS_BOTTOM);
+			sd.getTouchScreen().addTouchScreenAnimation(aStack);
+		}
 		sd.reset();
 		sd.setBrightness(90);
 		StreamDeckController sdc = new StreamDeckController(sd, root);
@@ -57,12 +61,20 @@ public class TestAnimationStack {
 		sdc.pressButton(10);
 		sdc.pressButton(14);
 		try {
-			Thread.sleep(15_000);
+			Thread.sleep(5_000);
+			if(sd.hasTouchScreen()) {
+				AnimationStack aStack = IconHelper.createRollingTextAnimation(touchScreenImage, "Rolling Text Test Rolling Text Test Rolling Text Test Rolling Text Test", StreamItem.TEXT_POS_TOP);
+				ip.animation.setTextPos(StreamItem.TEXT_POS_TOP);
+				sd.getTouchScreen().addTouchScreenAnimation(aStack);
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			Thread.currentThread().interrupt();
 		}
-		item0.setText("Hello");
+		System.out.println(IconHelper.DEFAULT_FONT);
+		item0.setTextPosition(StreamItem.TEXT_POS_CENTER);
+		item0.setText("Center");
+		System.out.println(IconHelper.DEFAULT_FONT);
 		sdc.releaseButton(0);
 		sdc.releaseButton(4);
 		sdc.releaseButton(7);
@@ -70,11 +82,34 @@ public class TestAnimationStack {
 		sdc.releaseButton(14);
 		try {
 			Thread.sleep(5_000);
+			if(sd.hasTouchScreen()) {
+				AnimationStack aStack = IconHelper.createRollingTextAnimation(touchScreenImage, "Rolling Text Test Rolling Text Test Rolling Text Test Rolling Text Test", StreamItem.TEXT_POS_TOP);
+				sd.getTouchScreen().addTouchScreenAnimation(aStack);
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 			Thread.currentThread().interrupt();
 		}
 		item0.setTextPosition(StreamItem.TEXT_POS_TOP);
+		item0.setText("Top");
+		try {
+			Thread.sleep(5_000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			Thread.currentThread().interrupt();
+		}
+		sd.setBrightness(50);
+		if(sd.hasTouchScreen()) {
+			AnimationStack aStack = IconHelper.createRollingTextAnimation(touchScreenImage, "Rolling Text Test Rolling Text Test Rolling Text Test Rolling Text Test", StreamItem.TEXT_POS_CENTER);
+			sd.getTouchScreen().addTouchScreenAnimation(aStack);
+		}
+		item0.setTextPosition(StreamItem.TEXT_POS_BOTTOM);
+		item0.setText("Bottom");
+		sdc.pressButton(0);
+		sdc.pressButton(4);
+		sdc.pressButton(7);
+		sdc.pressButton(10);
+		sdc.pressButton(14);
 		try {
 			Thread.sleep(5_000);
 		} catch (InterruptedException e) {
@@ -83,11 +118,7 @@ public class TestAnimationStack {
 		}
 		sd.setBrightness(50);
 		item0.setTextPosition(StreamItem.TEXT_POS_CENTER);
-		sdc.pressButton(0);
-		sdc.pressButton(4);
-		sdc.pressButton(7);
-		sdc.pressButton(10);
-		sdc.pressButton(14);
+		item0.setText("Center Center Center");
 		try {
 			Thread.sleep(90_000);
 		} catch (InterruptedException e) {
@@ -100,6 +131,7 @@ public class TestAnimationStack {
 		sdc.stop(true, true);
 		sd.waitForCompletion();
 		sd.reset();
+		Thread.sleep(200);
 		System.exit(0);
 	}
 }

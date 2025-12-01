@@ -3,6 +3,8 @@ package de.rcblum.stream.deck.device.general;
 import java.awt.Dimension;
 import java.awt.Point;
 
+import de.rcblum.stream.deck.device.components.DialKey;
+import de.rcblum.stream.deck.device.components.TouchScreen;
 import de.rcblum.stream.deck.device.descriptor.DeckDescriptor;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.StreamItem;
@@ -84,7 +86,24 @@ public interface IStreamDeck {
 	 * @return True if it has a touch screen, false if not
 	 */
 	boolean hasTouchScreen();
+	
+	/**
+	 * Return the touch screen of the stream deck.
+	 * @return Returns the touch screen object or null, if the stream deck has none.
+	 */
+	TouchScreen getTouchScreen();
 
+	/**
+	 * Returns if the stream deck has dials
+	 * @return True if it has one or more dials, false if not
+	 */
+	boolean hasDials();
+
+	/**
+	 * Return the dials of the stream deck.
+	 * @return Returns the dial objects or an empty array, if the stream deck has none.
+	 */
+	DialKey[] getDials();
 	/**
 	 * Creates a Job to send the give icon to the ESD to be displayed on the given keyxIndex
 	 * @param keyIndex	Index of ESD (0..14)

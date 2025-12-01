@@ -36,7 +36,7 @@ public class Example3_Binding_a_build_in_StreamItem_to_the_StreamDeck {
 		// Add the executable item to the 6th key (First key from the right of the second row)
 		streamDeck.addKey(5, executableItem);
 		// Add the runnable item to the 10th key (Last key from the right of the second row)
-		streamDeck.addKey(9, runnableItem);
+		streamDeck.addKey(streamDeck.getKeySize()-1, runnableItem);
 		// Wait 30 seconds before shutting down
 		try {
 			Thread.sleep(30_000);

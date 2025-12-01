@@ -308,6 +308,10 @@ public class DeckDescriptor {
 		return this.keys.length;
 	}
 	
+	public int getTotalKeySize() {
+		return this.keys.length + this.specialKeys.length;
+	}
+	
 	public int getSpecialKeySize() {
 		return this.specialKeys.length;
 	}
@@ -319,8 +323,8 @@ public class DeckDescriptor {
 	public KeyType getKey(int keyId) {
 		if (keyId < this.keys.length)
 			return this.keys[keyId];
-		else if (keyId < this.keys.length + getSpecialKeyOffset())
-			return this.specialKeys[keyId - getSpecialKeyOffset()];
+		else if (keyId < this.getSpecialKeySize() + this.getSpecialKeyOffset())
+			return this.specialKeys[keyId - this.getSpecialKeyOffset()];
 		else
 			return null;
 		

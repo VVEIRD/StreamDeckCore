@@ -5,6 +5,9 @@ import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.rcblum.stream.deck.device.components.DialKey;
+import de.rcblum.stream.deck.device.components.TouchScreen;
+import de.rcblum.stream.deck.device.descriptor.KeyType;
 import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.KeyEvent.Type;
@@ -231,9 +234,11 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 */
 	public void pushButton(int no) {
 		LOGGER.debug(String.format("Virtual button pushed: Key-ID: %d", no));
-		no = no > 14 ? 14 : no < 0 ? 0 : no;
-		KeyEvent evnt = new KeyEvent(streamDeck, no, Type.RELEASED_CLICKED);
-		this.onKeyEvent(evnt, false);
+		KeyType type = this.streamDeck.getDescriptor().getKey(no);
+		if (type != null && !type.equals(KeyType.TOUCH_SCREEN)) {
+			KeyEvent evnt = new KeyEvent(streamDeck, no, Type.RELEASED_CLICKED);
+			this.onKeyEvent(evnt, false);
+		}
 	}
 
 	/**
@@ -245,9 +250,11 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	 */
 	public void pressButton(int no) {
 		LOGGER.debug(String.format("Virtual button pressed: Key-ID: %d", no));
-		no = no > 14 ? 14 : no < 0 ? 0 : no;
-		KeyEvent evnt = new KeyEvent(streamDeck, no, Type.PRESSED);
-		this.onKeyEvent(evnt, false);
+		KeyType type = this.streamDeck.getDescriptor().getKey(no);
+		if (type != null && !type.equals(KeyType.TOUCH_SCREEN)) {
+			KeyEvent evnt = new KeyEvent(streamDeck, no, Type.PRESSED);
+			this.onKeyEvent(evnt, false);
+		}
 	}
 
 	/**
@@ -415,6 +422,22 @@ public class StreamDeckController implements StreamKeyListener, IconUpdateListen
 	public void resetStreamDeck() {
 		this.streamDeck.reset();
 		this.updateDisplay();
+	}
+	
+	public boolean hasTouchScreen() {
+		return this.streamDeck.hasTouchScreen();
+	}
+	
+	public TouchScreen getTouchScreen() {
+		return this.streamDeck.getTouchScreen();
+	}
+	
+	public boolean hasDials() {
+		return this.streamDeck.hasDials();
+	}
+	
+	public DialKey[] getDials() {
+		return this.streamDeck.getDials();
 	}
 
 	/**

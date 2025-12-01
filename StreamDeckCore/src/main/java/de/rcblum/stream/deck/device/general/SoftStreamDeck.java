@@ -25,6 +25,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.rcblum.stream.deck.device.StreamDeckConstants;
+import de.rcblum.stream.deck.device.components.DialKey;
+import de.rcblum.stream.deck.device.components.TouchScreen;
 import de.rcblum.stream.deck.device.descriptor.DeckDescriptor;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.StreamKeyListener;
@@ -229,9 +231,30 @@ public class SoftStreamDeck implements IStreamDeck {
 	
 	@Override
 	public boolean hasTouchScreen() {
-		if(streamDeck != null)
-			return streamDeck.hasTouchScreen();
+		if(this.streamDeck != null)
+			return this.streamDeck.hasTouchScreen();
 		return false;
+	}
+	
+	@Override
+	public TouchScreen getTouchScreen() {
+		if(this.streamDeck != null)
+			return this.streamDeck.getTouchScreen();
+		return null;
+	}
+	
+	@Override
+	public boolean hasDials() {
+		if(this.streamDeck != null)
+			return this.streamDeck.hasDials();
+		return false;
+	}
+	
+	@Override
+	public DialKey[] getDials() {
+		if(this.streamDeck != null)
+			return this.streamDeck.getDials();
+		return null;
 	}
 
 	@Override

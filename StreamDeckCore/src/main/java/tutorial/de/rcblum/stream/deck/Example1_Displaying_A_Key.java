@@ -2,6 +2,8 @@ package tutorial.de.rcblum.stream.deck;
 
 import de.rcblum.stream.deck.device.StreamDeckDevices;
 import de.rcblum.stream.deck.device.general.IStreamDeck;
+import de.rcblum.stream.deck.items.StreamItem;
+import de.rcblum.stream.deck.items.animation.AnimationStack;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.SDImage;
 import test.de.rcblum.stream.deck.TestAnimationStack;
@@ -39,7 +41,9 @@ public class Example1_Displaying_A_Key {
 		SDImage touchScreen = IconHelper.cacheImage("resources" + File.separator + "lcd" + File.separator + "fantasy_background_left_side.png", touchScreenBI);
 
 		streamDeck.drawImage(0,  iconData);
-		streamDeck.drawTouchScreenImage( touchScreen);
+		if(streamDeck.hasTouchScreen()) {
+			streamDeck.getTouchScreen().drawTouchScreen(touchScreen);
+		}
 		for (int i = 0; i < 800; i++) {
 			streamDeck.drawTouchScreenImage(new Point(i, 0),  touchScreen);
 			try {

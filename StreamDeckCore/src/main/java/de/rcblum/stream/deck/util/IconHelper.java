@@ -323,25 +323,25 @@ public class IconHelper {
 	 * @return byte array with the image where the text was added
 	 */
 	public static SDImage addText(BufferedImage imgData, String text, int pos, float fontSize) {
-		BufferedImage img = new BufferedImage((int)StreamDeckConstants.ICON_SIZE.getWidth(), (int)StreamDeckConstants.ICON_SIZE.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		BufferedImage img = new BufferedImage((int)imgData.getWidth(), (int)imgData.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2d = img.createGraphics();
 		g2d.drawImage(imgData, 0, 0, null);
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
-		int yStart = 28;
+		int yStart = g2d.getFontMetrics().getHeight() + 10;
 		switch (pos) {
 		case TEXT_BOTTOM:
-			yStart = 75;
+			yStart = (int) (imgData.getHeight());
 			break;
 		case TEXT_CENTER:
-			yStart = 60;
+			yStart = (int) (imgData.getHeight())/2 + (g2d.getFontMetrics().getHeight()) + (g2d.getFontMetrics().getAscent() - (g2d.getFontMetrics().getHeight()/2));
 			break;
 		default:
 			break;
 		}
 		List<String> lines = splitText(text, g2d.getFontMetrics());
 		
-		if (g2d.getFontMetrics().stringWidth(text) > 71 && text.contains(" ")) {
+		if (g2d.getFontMetrics().stringWidth(text) > StreamDeckConstants.ICON_SIZE.getWidth() && text.contains(" ")) {
 			text = text.replaceFirst(" ", "\n");
 		}
 		// Calculate y-offset for placing the text in the center, if applicable 
@@ -354,7 +354,7 @@ public class IconHelper {
 		g2d.setColor(new Color(0, 0, 0, textBoxAlphaValue));
 		for (String line : lines) {
 			int width = g2d.getFontMetrics().stringWidth(line);
-			int x = (int)(StreamDeckConstants.ICON_SIZE.getWidth() / 2) - width / 2;
+			int x = (int)(imgData.getWidth() / 2) - width / 2;
 			g2d.fillRect(x - 1, y - g2d.getFontMetrics().getHeight() + 7, width + 2,
 					g2d.getFontMetrics().getHeight() - 4);
 			y += g2d.getFontMetrics().getHeight();
@@ -371,13 +371,15 @@ public class IconHelper {
 		
 		for (String line : lines) {
 			int width = g2d.getFontMetrics().stringWidth(line);
-			int x = (int)(StreamDeckConstants.ICON_SIZE.getWidth() / 2) - width / 2;
+			int x = (int)(imgData.getWidth() / 2) - width / 2;
 			x = x < 0 ? 0 : x;
+			g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
+			System.out.println("FONT IN GRAPHICS: " + g2d.getFont());
 			g2d.drawString(line, x, y);
 			y += g2d.getFontMetrics().getHeight();
 		}
 		g2d.dispose();
-		return convertImage(img);
+		return convertImage(img, new Dimension(imgData.getWidth(), imgData.getHeight()));
 	}
 	
 	public static AnimationStack createRollingTextAnimation(SDImage imgData, String text, int pos) {
@@ -405,52 +407,52 @@ public class IconHelper {
 		System.out.println("Create Rolling Animation image Height: " + (int)imgData.image.getHeight());
 		BufferedImage drawOn = new BufferedImage((int)imgData.image.getWidth(), (int)imgData.image.getHeight(), imgData.image.getType());
 		List<SDImage> frames = new LinkedList<>();
-		Graphics2D gCanvas = baseImage.createGraphics();
-		gCanvas.drawImage(imgData.image, 0, 0, null);
-		gCanvas.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		Graphics2D g2d = baseImage.createGraphics();
+		g2d.drawImage(imgData.image, 0, 0, null);
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		int yStart = 28;
 		switch (pos) {
 		case TEXT_BOTTOM:
 			yStart = (int) (imgData.image.getHeight());
 			break;
 		case TEXT_CENTER:
-			yStart = (int) (imgData.image.getHeight())/2;
+			yStart = (int) (imgData.image.getHeight())/2 + (g2d.getFontMetrics().getHeight()) + (g2d.getFontMetrics().getAscent() - (g2d.getFontMetrics().getHeight()/2));
 			break;
 		default:
 			break;
 		}
-		int y = (yStart - (gCanvas.getFontMetrics().getHeight() / 2));
-		gCanvas.setColor(new Color(0, 0, 0, textBoxAlphaValue));
-		gCanvas.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
+		int y = (yStart - (g2d.getFontMetrics().getHeight() / 2));
+		g2d.setColor(new Color(0, 0, 0, textBoxAlphaValue));
+		g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
 		int width = (int)imgData.image.getWidth();
 		int x = IconHelper.rollingTextPadding;
-		gCanvas.fillRect(x - 1, y - gCanvas.getFontMetrics().getHeight()+1, width + 2, gCanvas.getFontMetrics().getHeight()+gCanvas.getFontMetrics().getDescent());
-		gCanvas.dispose();
+		g2d.fillRect(x - 1, y - g2d.getFontMetrics().getHeight()+1, width + 2, g2d.getFontMetrics().getHeight()+g2d.getFontMetrics().getDescent());
+		g2d.dispose();
 		// Draw Frames
-		gCanvas = drawOn.createGraphics();
-		gCanvas.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		gCanvas.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
-		gCanvas.setColor(Color.LIGHT_GRAY);
-		gCanvas.drawImage(baseImage, 0, 0, null);
+		g2d = drawOn.createGraphics();
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
+		g2d.setColor(Color.LIGHT_GRAY);
+		g2d.drawImage(baseImage, 0, 0, null);
 		StringBuilder sb = new StringBuilder(text);
-		while(gCanvas.getFontMetrics().stringWidth(sb.toString()) < imgData.image.getWidth()+10) {
+		while(g2d.getFontMetrics().stringWidth(sb.toString()) < imgData.image.getWidth()+10) {
 			sb.insert(0, " ");
 			sb.append(" ");
 		}
 		text = sb.toString();
 		do {
-			gCanvas.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
-			gCanvas.setColor(Color.LIGHT_GRAY);
-			gCanvas.drawString(text, x, y);
+			g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
+			g2d.setColor(Color.LIGHT_GRAY);
+			g2d.drawString(text, x, y);
 			x--;
 			BufferedImage frame = new BufferedImage((int)imgData.image.getWidth(), (int)imgData.image.getHeight(), imgData.image.getType());
 			Graphics2D gDest = frame.createGraphics();
 			gDest.drawImage(drawOn, 0, 0, null);
 			gDest.dispose();
 			frames.add(convertImage(frame, new Dimension(frame.getWidth(), frame.getHeight())));
-			gCanvas.drawImage(baseImage, 0, 0, null);
-		} while(x+gCanvas.getFontMetrics().stringWidth(text) > imgData.image.getWidth() - IconHelper.rollingTextPadding);
-		gCanvas.dispose();
+			g2d.drawImage(baseImage, 0, 0, null);
+		} while(x+g2d.getFontMetrics().stringWidth(text) > imgData.image.getWidth() - IconHelper.rollingTextPadding);
+		g2d.dispose();
 		SDImage[] frameArray = frames.toArray(new SDImage[0]);
 		animation.setFrames(frameArray);
 		return animation;
@@ -559,7 +561,7 @@ public class IconHelper {
 	 *         stream deck
 	 */
 	public static SDImage convertImage(BufferedImage img) {
-		return convertImage(img, StreamDeckConstants.ICON_SIZE);
+		return convertImage(img, new Dimension(img.getWidth(), img.getHeight()));
 	}
 
 	/**
@@ -892,8 +894,12 @@ public class IconHelper {
 			return new JLabel().getFont().deriveFont(Font.PLAIN, fontSize);
 		}
 	}
-
+	
 	public static IconPackage loadIconPackage(String pathToZip) throws IOException, URISyntaxException {
+		return loadIconPackage(pathToZip, null);
+	}
+
+	public static IconPackage loadIconPackage(String pathToZip, Dimension resizeTo) throws IOException, URISyntaxException {
 		if (packageCache.containsKey(pathToZip))
 			return packageCache.get(pathToZip);
 		Path path = Paths.get(pathToZip);
@@ -905,7 +911,10 @@ public class IconHelper {
 		try (FileSystem fileSystem = FileSystems.newFileSystem(uri, env)) {
 			Path iconPath = fileSystem.getPath("icon.png");
 			// load main icon
-			SDImage icon = IconHelper.loadImage(iconPath);
+			BufferedImage rawIcon = IconHelper.loadRawImage(iconPath);
+			if (resizeTo != null)
+				rawIcon = createResizedCopy(rawIcon, false, resizeTo);
+			SDImage icon = cacheImage(iconPath.toString(), rawIcon);
 			// load animation, if exists
 			Path animFile = fileSystem.getPath("animation.json");
 			// Raw Animation frames, if exists
@@ -920,9 +929,13 @@ public class IconHelper {
 				List<SDImage> frameList = new LinkedList<>();
 				List<BufferedImage> rawFrameList = new LinkedList<>();
 				while (Files.exists(frameFile)) {
-					SDImage frame = IconHelper.loadImage(frameFile);
+					BufferedImage img = IconHelper.loadRawImage(frameFile);
+					if (resizeTo != null)
+						img = createResizedCopy(img, false, resizeTo);
+					System.out.println(resizeTo);
+					SDImage frame = cacheImage(path.toString(), img);
 					frameList.add(frame);
-					rawFrameList.add(loadRawImage(frameFile));
+					rawFrameList.add(img);
 					frameFile = fileSystem.getPath((frameIndex++) + ".png");
 				}
 				SDImage[] frames = new SDImage[frameList.size()];
