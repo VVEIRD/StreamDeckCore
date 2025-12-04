@@ -12,11 +12,11 @@ StreamDeckCore provides the following basic features:
 2. Recognizing a connected ESD
 3. Retriving all connected ESDs
 4. Resetting the connected ESD
-5. Setting the icons of the keys (0 - 14)
+5. Setting the icons of the keys
 6. Setting the brightness of the ESD (0 - 99)
 7. Recieving key pressed, released, clicked events from the ESD
 8. Recieving KeyEvents if a key is beeing changed, one event for adding a key and one event for removing a key.
-9. Custom animations for specific keys, at a 60/30/15 fps or custom fps.
+9. Custom animations for specific keys, at a 30/15 fps or custom fps.
 
 ## Advanced functionality
 ### StreamDeckController
@@ -56,7 +56,7 @@ Then just add the following dependency to you pom.xml:
     <dependency>
       <groupId>io.github.vveird</groupId>
       <artifactId>StreamDeckCore</artifactId>
-      <version>1.1.1</version>
+      <version>1.2.0</version>
     </dependency>
 
 	

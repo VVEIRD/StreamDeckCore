@@ -4,7 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import de.rcblum.stream.deck.device.StreamDeck;
+import de.rcblum.stream.deck.device.descriptor.KeyType;
 import de.rcblum.stream.deck.event.KeyEvent;
+import de.rcblum.stream.deck.event.StreamKeyListener;
 
 /**
  * Dispatcher that asynchronously sends out all issued {@link KeyEvent}s.
@@ -30,16 +32,16 @@ public class EventDispatcher implements Runnable {
 					continue;
 				int i = event.getKeyId();
 				if (i < this.streamDeck.getKeySize() && this.streamDeck.getKey(i) != null) {
-					this.streamDeck.getKey(i).onKeyEvent(event);
+					dispatchEvent(this.streamDeck.getKey(i), event);
 				}
-				this.streamDeck.getListeners().stream().forEach(l -> 
-					{
-						try {
-							l.onKeyEvent(event);
-						} 
-						catch (Exception e) {
-							LOGGER.error("Error sending out KeyEvents", e);
-						}
+				else if (this.streamDeck.getDescriptor().getKey(i).equals(KeyType.TOUCH_SCREEN)) {
+					dispatchEvent(this.streamDeck.getTouchScreen(), event);
+				}
+				else if (this.streamDeck.getDescriptor().getKey(i).equals(KeyType.ROTARY_ENCODER)) {
+							dispatchEvent(this.streamDeck.getDial(i), event);
+				}
+				this.streamDeck.getListeners().stream().forEach(l -> {
+						dispatchEvent(l, event);
 					}
 				);
 			}
@@ -51,6 +53,15 @@ public class EventDispatcher implements Runnable {
 					Thread.currentThread().interrupt();
 				}
 			}
+		}
+	}
+
+	private void dispatchEvent(StreamKeyListener listener, KeyEvent event) {
+		try {
+			listener.onKeyEvent(event);
+		}
+		catch (Exception e) {
+			LOGGER.error("Error sending out KeyEvents", e);
 		}
 	}
 }

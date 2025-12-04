@@ -1,8 +1,8 @@
 package de.rcblum.stream.deck.items;
 
 import de.rcblum.stream.deck.StreamDeckController;
+import de.rcblum.stream.deck.animation.AnimationStack;
 import de.rcblum.stream.deck.event.StreamKeyListener;
-import de.rcblum.stream.deck.items.animation.AnimationStack;
 import de.rcblum.stream.deck.items.listeners.IconUpdateListener;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.IconPackage;
@@ -195,5 +195,41 @@ public interface StreamItem extends StreamKeyListener {
 	 * @param listener Listener to be removed.
 	 */
 	public void removeIconUpdateListener(IconUpdateListener listener);
+	
+	/**
+	 * Returns if the Item has dedicated {@link StreamKeyListener}s for dials on the stream deck
+	 * @return True if there is at least one Listener for changes in dials
+	 */
+	public boolean hasDialListeners();
+	
+	/**
+	 * Returns the {@link StreamKeyListener}s for dials
+	 * @return an Array of {@link StreamKeyListener}s, or an empty arrary or null
+	 */
+	public StreamKeyListener[] getDialListeners();
+
+	/**
+	 * Returns if the Item has dedicated {@link StreamKeyListener}s for the touch screen on the stream deck
+	 * @return True if there is at least one Listener for changes in dials
+	 */
+	public boolean hasTouchScreenListeners();
+	
+	/**
+	 * Returns the {@link StreamKeyListener}s for the touch screen
+	 * @return an Array of {@link StreamKeyListener}s, or an empty arrary or null
+	 */
+	public StreamKeyListener[] getTouchScreenListeners();
+
+	/**
+	 * Returns if the Item has dedicated {@link SDImage} for the touch screen on the stream deck
+	 * @return True if there is an image, false if not
+	 */
+	public boolean hasTouchScreenImage();
+	
+	/**
+	 * Returns the {@link SDImage} for the touch screen
+	 * @return an {@link SDImage} or null
+	 */
+	public SDImage getTouchScreenImage();
 
 }

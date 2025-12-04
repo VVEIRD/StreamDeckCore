@@ -1,6 +1,6 @@
 package de.rcblum.stream.deck.util;
 
-import de.rcblum.stream.deck.items.animation.AnimationStack;
+import de.rcblum.stream.deck.animation.AnimationStack;
 /**
  * Datastructure that pools together icon and the associated AnimationStack
  * 
@@ -48,5 +48,9 @@ public class IconPackage {
 		super();
 		this.icon = icon;
 		this.animation = animation;
+	}
+
+	public IconPackage copy() {
+		return new IconPackage(icon.copy(), animation.copy());
 	}
 }

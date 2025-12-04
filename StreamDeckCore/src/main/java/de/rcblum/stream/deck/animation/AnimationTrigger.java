@@ -1,4 +1,4 @@
-package de.rcblum.stream.deck.items.animation;
+package de.rcblum.stream.deck.animation;
 
 import de.rcblum.stream.deck.event.KeyEvent.Type;
 

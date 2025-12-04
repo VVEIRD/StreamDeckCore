@@ -9,12 +9,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.rcblum.stream.deck.animation.AnimationStack;
+import de.rcblum.stream.deck.animation.Animator;
+import de.rcblum.stream.deck.animation.listener.AnimationListener;
 import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.StreamKeyListener;
-import de.rcblum.stream.deck.items.animation.AnimationStack;
-import de.rcblum.stream.deck.items.animation.Animator;
-import de.rcblum.stream.deck.items.listeners.AnimationListener;
 import de.rcblum.stream.deck.util.SDImage;
 
 public class TouchScreen implements StreamKeyListener, AnimationListener {

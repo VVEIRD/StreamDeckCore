@@ -13,17 +13,17 @@ import de.rcblum.stream.deck.event.StreamKeyListener;
 public class DialKey implements StreamKeyListener {
 	
 	private static final Logger LOGGER = LogManager.getLogger(DialKey.class);
+	
 	/**
 	 * Id of the dial within the stream deck
 	 */
-	private final int keyId;
+	public final int keyId;
 
 	private final IStreamDeck streamDeck;
 	
 	private java.util.List<StreamKeyListener> listeners = new CopyOnWriteArrayList<StreamKeyListener>();
 	
 	private KeyEvent lastEvent = null;
-	
 
 	public DialKey(int keyId, IStreamDeck streamDeck) {
 		super();

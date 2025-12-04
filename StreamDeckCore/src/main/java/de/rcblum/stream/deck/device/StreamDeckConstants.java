@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.rcblum.stream.deck.device.descriptor.DeckDescriptor;
 import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.SDImage;
@@ -164,12 +165,12 @@ public class StreamDeckConstants {
 	public static final int ROW_COUNT = 3;
 
 
-	public static final IStreamDeck DEFAULT_STREAM_DECK = StreamDeckDevices.getStreamDeck();
+	public static final DeckDescriptor DEFAULT_STREAM_DECK_DESCRIPTOR = StreamDeckDevices.getStreamDeckDescriptor();
 	
 	/**
 	 * Icon size of one key (Use the greatest size)
 	 */
-	public static final Dimension ICON_SIZE = DEFAULT_STREAM_DECK.getDescriptor().iconSize;
+	public static final Dimension ICON_SIZE = DEFAULT_STREAM_DECK_DESCRIPTOR.iconSize;
 
 	/**
 	 * Icon size of one key (Use the greatest size)
@@ -352,6 +353,11 @@ public class StreamDeckConstants {
 					new byte[PAGE_PACKET_SIZE_REV1]
 			});
 		}
+		// Reverse the key order for rev 1 devices
+		if (hidDevice.getHidDeviceInfo().getProductId() == 96)
+			keyIndex = 1 + (15 - keyIndex);
+		if (hidDevice.getHidDeviceInfo().getProductId() == 99)
+			keyIndex = 0 + (6 - keyIndex);
 		byte[] page1 = generatePage1(keyIndex, PAGE_CACHE.get(hidDevice.getHidDeviceInfo().getPath())[0], imgData.sdImage);
 		byte[] page2 = generatePage2(keyIndex, PAGE_CACHE.get(hidDevice.getHidDeviceInfo().getPath())[1], imgData.sdImage);
 		hidDevice.setOutputReport((byte) 0x02, page1, page1.length);

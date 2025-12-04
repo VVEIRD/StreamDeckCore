@@ -3,9 +3,10 @@ package de.rcblum.stream.deck.items;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.rcblum.stream.deck.animation.AnimationStack;
 import de.rcblum.stream.deck.device.StreamDeck;
 import de.rcblum.stream.deck.device.StreamDeckConstants;
-import de.rcblum.stream.deck.items.animation.AnimationStack;
+import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.listeners.IconUpdateListener;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.IconPackage;
@@ -124,8 +125,7 @@ public abstract class AbstractStreamItem implements StreamItem {
 		this.rowCount = rowCount;
 		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
 		if (this.text != null && this.animation != null) {
-			this.animation.setTextPos(this.textPos);
-			this.animation.setText(this.text);
+			this.animation.setText(this.text, this.textPos);
 		}
 	}
 
@@ -142,6 +142,8 @@ public abstract class AbstractStreamItem implements StreamItem {
 			this.animation.setTextPos(this.textPos);
 			this.animation.setText(this.text);
 		}
+		this.rawImg = iconPackage.icon;
+		this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
 		this.fireIconUpdate(true);
 	}
 	
@@ -202,29 +204,32 @@ public abstract class AbstractStreamItem implements StreamItem {
 	public String getText() {
 		return this.text;
 	}
-
 	public void setText(String text) {
-		boolean change = this.text != text || text != null && !text.equals(this.text);
+		this.setText(text, this.textPos);
+	}
+
+	public void setText(String text, int textPos) {
+		boolean change = this.text != text || this.textPos != textPos || text != null && !text.equals(this.text);
 		this.text = text;
-		if (change) {
+		this.textPos = textPos;
+		if (change && this.text != null) {
 			if (this.animation != null) {
-				this.animation.setTextPos(this.textPos);
-				this.animation.setText(this.text);
+				this.animation.setText(this.text, this.textPos);
 			}
-			this.img = this.text != null ? IconHelper.addText(this.rawImg, this.text, this.textPos) : this.rawImg;
+			this.img = IconHelper.addText(this.rawImg, this.text, this.textPos);
+			this.fireIconUpdate(false);
+		}
+		else if (change) {
+			if (this.animation != null) {
+				this.animation.setText(null, this.textPos);
+			}
+			this.img = this.rawImg;
 			this.fireIconUpdate(false);
 		}
 	}
 
 	public void setTextPosition(int textPos) {
-		this.textPos = textPos;
-		if (this.text != null) {
-			this.img = IconHelper.addText(this.rawImg, this.text, this.textPos);
-			if (this.animation != null) {
-				this.animation.setTextPos(this.textPos);
-			}
-			this.fireIconUpdate(false);
-		}
+		this.setText(this.text, textPos);
 	}
 
 	@Override
@@ -251,5 +256,35 @@ public abstract class AbstractStreamItem implements StreamItem {
 				this.listeners.get(i).onIconUpdate(this, animationChanged);
 			}
 		}
+	}
+
+	@Override
+	public boolean hasDialListeners() {
+		return false;
+	}
+
+	@Override
+	public StreamKeyListener[] getDialListeners() {
+		return null;
+	}
+
+	@Override
+	public boolean hasTouchScreenListeners() {
+		return false;
+	}
+
+	@Override
+	public StreamKeyListener[] getTouchScreenListeners() {
+		return null;
+	}
+	
+	@Override
+	public SDImage getTouchScreenImage() {
+		return null;
+	}
+	
+	@Override
+	public boolean hasTouchScreenImage() {
+		return false;
 	}
 }

@@ -256,6 +256,13 @@ public class SoftStreamDeck implements IStreamDeck {
 			return this.streamDeck.getDials();
 		return null;
 	}
+	
+	@Override
+	public DialKey  getDial(int keyId) {
+		if(this.streamDeck != null)
+			return this.streamDeck.getDial(keyId);
+		return null;
+	}
 
 	@Override
 	public void drawFullImage(SDImage imgData) {
@@ -407,6 +414,8 @@ public class SoftStreamDeck implements IStreamDeck {
 					if (iu.keyIndex < SoftStreamDeck.this.getKeySize()) {
 						int spaceX = 20 + (90 * ((SoftStreamDeck.this.getColumnSize()-1) - (iu.keyIndex % SoftStreamDeck.this.getColumnSize())));
 						int spaceY = 20 + (90 * (iu.keyIndex / SoftStreamDeck.this.getColumnSize()));
+						spaceX = 20 + (90 * ((iu.keyIndex % SoftStreamDeck.this.getColumnSize())));
+						spaceY = 20 + (90 * (iu.keyIndex / SoftStreamDeck.this.getColumnSize()));
 						g.drawImage(iu.img.getVariant(new Dimension(72, 72)).image, spaceX, spaceY, null);
 					}
 				}
@@ -451,8 +460,8 @@ public class SoftStreamDeck implements IStreamDeck {
 			this.rowStart = new int[rows];
 			this.rowEnd = new int[rows];
 			for(int i = 0;i<columns;i++) {
-				columnStart[columns-1-i] = 20 + 90*i;
-				columnEnd[columns-1-i]   = 90 + 90*i;
+				columnStart[i] = 20 + 90*i;
+				columnEnd[i]   = 90 + 90*i;
 			}
 			for(int i = 0;i<rows;i++) {
 				rowStart[i] = 20 + 90*i;

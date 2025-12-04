@@ -7,9 +7,9 @@ import java.awt.image.BufferedImage;
 
 import org.junit.jupiter.api.*;
 
+import de.rcblum.stream.deck.animation.AnimationStack;
 import de.rcblum.stream.deck.device.StreamDeckConstants;
 import de.rcblum.stream.deck.device.StreamDeckConstants;
-import de.rcblum.stream.deck.items.animation.AnimationStack;
 
 class IconHelperTest {
 

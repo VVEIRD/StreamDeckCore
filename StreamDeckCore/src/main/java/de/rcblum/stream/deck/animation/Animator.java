@@ -1,4 +1,4 @@
-package de.rcblum.stream.deck.items.animation;
+package de.rcblum.stream.deck.animation;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -12,11 +12,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.rcblum.stream.deck.animation.listener.AnimationListener;
 import de.rcblum.stream.deck.device.general.IStreamDeck;
 import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.KeyEvent.Type;
 import de.rcblum.stream.deck.event.StreamKeyListener;
-import de.rcblum.stream.deck.items.listeners.AnimationListener;
 import de.rcblum.stream.deck.util.SDImage;
 
 /**

@@ -1,12 +1,14 @@
 de.rcblum.stream.deck
+de.rcblum.stream.deck.animation
+de.rcblum.stream.deck.animation.listener
 de.rcblum.stream.deck.device
+de.rcblum.stream.deck.device.components
 de.rcblum.stream.deck.device.descriptor
 de.rcblum.stream.deck.device.descriptor.hidfunctions
 de.rcblum.stream.deck.device.general
 de.rcblum.stream.deck.device.worker
 de.rcblum.stream.deck.event
 de.rcblum.stream.deck.items
-de.rcblum.stream.deck.items.animation
 de.rcblum.stream.deck.items.listeners
 de.rcblum.stream.deck.util
 test.de.rcblum.stream.deck

@@ -9,7 +9,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 import java.awt.image.DataBufferInt;
+import java.awt.image.WritableRaster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,10 +53,10 @@ import org.w3c.dom.NodeList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import de.rcblum.stream.deck.animation.AnimationStack;
 import de.rcblum.stream.deck.device.StreamDeck;
 import de.rcblum.stream.deck.device.StreamDeckConstants;
 import de.rcblum.stream.deck.device.StreamDeckConstants;
-import de.rcblum.stream.deck.items.animation.AnimationStack;
 
 /**
  * 
@@ -142,7 +144,7 @@ public class IconHelper {
 	 * Default font for the text on the ESD FantasqueSansMono-Bold.ttf
 	 * /resources/Blogger-Sans-Medium.ttf /resources/FantasqueSansMono-Bold.ttf
 	 */
-	public static final Font DEFAULT_FONT = loadFont("/resources/FantasqueSansMono-Regular.ttf", StreamDeckConstants.DEFAULT_STREAM_DECK.getDescriptor().defaultFontSize);
+	public static final Font DEFAULT_FONT = loadFont("/resources/FantasqueSansMono-Regular.ttf", StreamDeckConstants.DEFAULT_STREAM_DECK_DESCRIPTOR.defaultFontSize);
 	
 	public static final SDImage BLACK_ICON;
 	
@@ -248,6 +250,13 @@ public class IconHelper {
 	    }
 
 	    image.setRGB(0, 0, width, height, imagePixels, 0, width);
+	}
+	
+	public static BufferedImage copyBufferedImage(BufferedImage bi) {
+		ColorModel cm = bi.getColorModel();
+		boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+		WritableRaster raster = bi.copyData(null);
+		return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
 	}
 
 	/**
@@ -374,7 +383,6 @@ public class IconHelper {
 			int x = (int)(imgData.getWidth() / 2) - width / 2;
 			x = x < 0 ? 0 : x;
 			g2d.setFont(DEFAULT_FONT.deriveFont(Font.PLAIN, fontSize));
-			System.out.println("FONT IN GRAPHICS: " + g2d.getFont());
 			g2d.drawString(line, x, y);
 			y += g2d.getFontMetrics().getHeight();
 		}
@@ -517,6 +525,16 @@ public class IconHelper {
 	}
 
 	/**
+	 * Retunrs a previous cached image to the given String 
+	 * @param path
+	 *            String under which the images could be cached
+	 * @return Returns the cached image data or null, if it does not exist
+	 */
+	public static SDImage getCachedImage(String path) {
+		return imageCache.get(path);
+	}
+
+	/**
 	 * Converts given image to bgr color schema and caches the resulting image
 	 * data.
 	 * 
@@ -545,7 +563,7 @@ public class IconHelper {
 		}
 		SDImage sdImage = new SDImage(imgData, jpegData, img);
 		cache(path, sdImage);
-		return sdImage;
+		return sdImage.copy();
 	}
 
 	/**
@@ -682,12 +700,12 @@ public class IconHelper {
 	 * @return Image with the frame applied.
 	 */
 	public static BufferedImage applyFrame(BufferedImage img, Color frameColor) {
-		if(img.getWidth() > StreamDeckConstants.ICON_SIZE.getWidth() || img.getHeight() > StreamDeckConstants.ICON_SIZE.getHeight())
-			img = createResizedCopy(img, true, StreamDeckConstants.ICON_SIZE);
+		//if(img.getWidth() > StreamDeckConstants.ICON_SIZE.getWidth() || img.getHeight() > StreamDeckConstants.ICON_SIZE.getHeight())
+		//	img = createResizedCopy(img, true, StreamDeckConstants.ICON_SIZE);
 		BufferedImage nImg = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
 		Graphics2D g = nImg.createGraphics();
 		g.drawImage(img, 0, 0, null);
-		g.drawImage(createColoredFrame(frameColor).image, 0, 0, null);
+		g.drawImage(createColoredFrame(frameColor).getVariant(new Dimension(img.getWidth(), img.getHeight())).image, 0, 0, null);
 		g.dispose();
 		return nImg;
 	}
@@ -704,13 +722,16 @@ public class IconHelper {
 	 * @param pathToGif
 	 *            Gif, that contains the animation
 	 * @param stack AnimationStack to include into the icon package
+	 * @param useCache Use image caching or not
 	 * @throws URISyntaxException	Maleformed archive URI
 	 * @throws IOException	If writing to the created archive fails
+	 * @return Returns the created IconPackage
 	 */
-	public static void createIconPackage(String pathToArchive, String pathToIcon, String pathToGif,
-			AnimationStack stack) throws URISyntaxException, IOException {
+	public static IconPackage createIconPackage(String pathToArchive, String pathToIcon, String pathToGif,
+			AnimationStack stack, Dimension targetSize, boolean useCache) throws URISyntaxException, IOException {
 		Path path = Paths.get(pathToArchive);
 		URI uri = new URI("jar", path.toUri().toString(), null);
+		SDImage[] images = null;
 
 		Map<String, String> env = new HashMap<>();
 		env.put("create", "true");
@@ -728,44 +749,14 @@ public class IconHelper {
 				// save animation frames
 				if (pathToGif != null && Files.exists(Paths.get(pathToGif))) {
 					try {
-						String[] imageatt = new String[] { "imageLeftPosition", "imageTopPosition", "imageWidth",
-								"imageHeight" };
+						images = loadImagesFromGif(pathToGif, true);
 
-						ImageReader reader = ImageIO.getImageReadersByFormatName("gif").next();
-						ImageInputStream ciis = ImageIO.createImageInputStream(new File(pathToGif));
-						reader.setInput(ciis, false);
-
-						int noi = reader.getNumImages(true);
-						BufferedImage master = null;
+						int noi = images.length;
 
 						for (int i = 0; i < noi; i++) {
-							BufferedImage image = reader.read(i);
-							IIOMetadata metadata = reader.getImageMetadata(i);
-
-							Node tree = metadata.getAsTree("javax_imageio_gif_image_1.0");
-							NodeList children = tree.getChildNodes();
-
-							for (int j = 0; j < children.getLength(); j++) {
-								Node nodeItem = children.item(j);
-
-								if (nodeItem.getNodeName().equals("ImageDescriptor")) {
-									Map<String, Integer> imageAttr = new HashMap<>();
-
-									for (int k = 0; k < imageatt.length; k++) {
-										NamedNodeMap attr = nodeItem.getAttributes();
-										Node attnode = attr.getNamedItem(imageatt[k]);
-										imageAttr.put(imageatt[k], Integer.valueOf(attnode.getNodeValue()));
-									}
-									if (master == null) {
-										master = new BufferedImage(imageAttr.get("imageWidth"),
-												imageAttr.get("imageHeight"), BufferedImage.TYPE_INT_ARGB);
-									}
-									master.getGraphics().drawImage(image, imageAttr.get("imageLeftPosition"),
-											imageAttr.get("imageTopPosition"), null);
-								}
-							}
+							SDImage image = images[i];
 							File tmpImgFile = File.createTempFile("edsc", ".png");
-							ImageIO.write(master, "PNG", tmpImgFile);
+							ImageIO.write(image.image, "PNG", tmpImgFile);
 							Path iconTargetPath = fileSystem.getPath(i + ".png");
 							Files.copy(tmpImgFile.toPath(), iconTargetPath, StandardCopyOption.REPLACE_EXISTING);
 						}
@@ -776,6 +767,9 @@ public class IconHelper {
 				}
 			}
 		}
+		stack.setFrames(images);
+		stack = stack.copy();
+		return new IconPackage(loadImage(pathToIcon).getVariant(targetSize), stack.getVariant(targetSize));
 	}
 
 	public static void createIconPackage(String pathToArchive, String pathToIcon, String[] pathToFrames,
@@ -901,7 +895,7 @@ public class IconHelper {
 
 	public static IconPackage loadIconPackage(String pathToZip, Dimension resizeTo) throws IOException, URISyntaxException {
 		if (packageCache.containsKey(pathToZip))
-			return packageCache.get(pathToZip);
+			return packageCache.get(pathToZip).copy();
 		Path path = Paths.get(pathToZip);
 		URI uri = new URI("jar", path.toUri().toString(), null);
 
@@ -914,7 +908,7 @@ public class IconHelper {
 			BufferedImage rawIcon = IconHelper.loadRawImage(iconPath);
 			if (resizeTo != null)
 				rawIcon = createResizedCopy(rawIcon, false, resizeTo);
-			SDImage icon = cacheImage(iconPath.toString(), rawIcon);
+			SDImage icon = convertImage(rawIcon);
 			// load animation, if exists
 			Path animFile = fileSystem.getPath("animation.json");
 			// Raw Animation frames, if exists
@@ -933,7 +927,7 @@ public class IconHelper {
 					if (resizeTo != null)
 						img = createResizedCopy(img, false, resizeTo);
 					System.out.println(resizeTo);
-					SDImage frame = cacheImage(path.toString(), img);
+					SDImage frame = cacheImage(path.toString() + ":" + frameFile.toString(), img);
 					frameList.add(frame);
 					rawFrameList.add(img);
 					frameFile = fileSystem.getPath((frameIndex++) + ".png");
@@ -946,7 +940,7 @@ public class IconHelper {
 			}
 			IconPackage iconPackage = new IconPackage(icon, animation);
 			packageCache.put(pathToZip, iconPackage);
-			return iconPackage;
+			return iconPackage.copy();
 		}
 	}
 
@@ -1047,7 +1041,7 @@ public class IconHelper {
 		return IconHelper.getImage(TEMP_BLACK_ICON);
 	}
 
-	public static SDImage[] loadImagesFromGif(String pathToGif) throws IOException {
+	public static SDImage[] loadImagesFromGif(String pathToGif, boolean useCache) throws IOException {
 		try {
 			String[] imageatt = new String[] { "imageLeftPosition", "imageTopPosition", "imageWidth", "imageHeight" };
 
@@ -1061,6 +1055,11 @@ public class IconHelper {
 			SDImage[] images = new SDImage[noi];
 
 			for (int i = 0; i < noi; i++) {
+				SDImage imgData = null;
+				if (useCache)
+					imgData = getCachedImage(pathToGif + "[" + i + "]");
+				if (imgData != null)
+					continue;
 				BufferedImage image = reader.read(i);
 				IIOMetadata metadata = reader.getImageMetadata(i);
 
@@ -1086,7 +1085,7 @@ public class IconHelper {
 								imageAttr.get("imageTopPosition"), null);
 					}
 				}
-				SDImage imgData = convertImage(master); 
+				imgData = useCache ? cacheImage(pathToGif + "[" + i + "]", master) : convertImage(master); 
 				images[i] = imgData;
 			}
 			return images;

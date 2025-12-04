@@ -63,7 +63,7 @@ public interface IStreamDeck {
 
 	/**
 	 * Creates a Job to send the give icon to the ESD to be displayed on the given keyxIndex
-	 * @param keyIndex	Index of ESD (0..14)
+	 * @param keyIndex  Index on the ESD as defined by {@link DeckDescriptor}
 	 * @param imgData	Image to be displayed
 	 */
 	void drawImage(int keyIndex, SDImage imgData);
@@ -104,9 +104,20 @@ public interface IStreamDeck {
 	 * @return Returns the dial objects or an empty array, if the stream deck has none.
 	 */
 	DialKey[] getDials();
+	
+
+
+	/**
+	 * Return the dials of the stream deck.
+	 * @param keyIndex Index on the ESD as defined by {@link DeckDescriptor}
+	 * @return Returns the dial objects or an empty array, if the stream deck has none.
+	 */
+	DialKey getDial(int keyIndex);
+
+	
 	/**
 	 * Creates a Job to send the give icon to the ESD to be displayed on the given keyxIndex
-	 * @param keyIndex	Index of ESD (0..14)
+	 * @param keyIndex  Index on the ESD as defined by {@link DeckDescriptor}
 	 * @param imgData	Image to be displayed
 	 * @param overrideSize Overrides the default icon size of the given streamdeck
 	 */
@@ -199,6 +210,5 @@ public interface IStreamDeck {
 	public void releaseButton(int no);
 
 	void drawFullImage(SDImage imgData);
-
 
 }

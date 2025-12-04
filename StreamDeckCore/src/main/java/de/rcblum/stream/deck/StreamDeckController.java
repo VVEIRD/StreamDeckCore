@@ -5,6 +5,8 @@ import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import de.rcblum.stream.deck.animation.Animator;
+import de.rcblum.stream.deck.animation.listener.AnimationListener;
 import de.rcblum.stream.deck.device.components.DialKey;
 import de.rcblum.stream.deck.device.components.TouchScreen;
 import de.rcblum.stream.deck.device.descriptor.KeyType;
@@ -13,8 +15,6 @@ import de.rcblum.stream.deck.event.KeyEvent;
 import de.rcblum.stream.deck.event.KeyEvent.Type;
 import de.rcblum.stream.deck.event.StreamKeyListener;
 import de.rcblum.stream.deck.items.StreamItem;
-import de.rcblum.stream.deck.items.animation.Animator;
-import de.rcblum.stream.deck.items.listeners.AnimationListener;
 import de.rcblum.stream.deck.items.listeners.IconUpdateListener;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.SDImage;

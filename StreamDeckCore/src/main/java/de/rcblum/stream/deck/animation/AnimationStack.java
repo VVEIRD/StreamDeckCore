@@ -1,9 +1,9 @@
-package de.rcblum.stream.deck.items.animation;
+package de.rcblum.stream.deck.animation;
 
+import java.awt.Dimension;
 import java.util.Objects;
 
 import de.rcblum.stream.deck.event.KeyEvent.Type;
-import de.rcblum.stream.deck.items.StreamItem;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.SDImage;
 
@@ -141,9 +141,9 @@ public class AnimationStack {
 
 	/**
 	 * Position of the text on the frames
-	 * (<code>StreamItem.TEXT_POS_BOTTOM/TEXT_CENTER/TEXT_POS_TOP</code>)
+	 * (<code>IconHelper.TEXT_BOTTOM/TEXT_CENTER/TEXT_TOP</code>)
 	 */
-	private transient int textPos = StreamItem.TEXT_POS_BOTTOM;
+	private transient int textPos = IconHelper.TEXT_BOTTOM;
 
 	private AnimationTrigger animationTrigger;
 
@@ -161,7 +161,7 @@ public class AnimationStack {
 	 *                              {@link IconHelper#convertImage(java.awt.image.BufferedImage)}
 	 */
 	public AnimationStack(int repeatType, boolean endAnimationImmediate, int frameRate, int trigger, SDImage[] frames) {
-		this(repeatType, endAnimationImmediate, frameRate, trigger, frames, null, StreamItem.TEXT_POS_BOTTOM);
+		this(repeatType, endAnimationImmediate, frameRate, trigger, frames, null, IconHelper.TEXT_BOTTOM);
 	}
 
 	/**
@@ -175,9 +175,9 @@ public class AnimationStack {
 	 *                   {@link IconHelper#convertImage(java.awt.image.BufferedImage)}
 	 * @param text       Text to be displayed while the animation is running
 	 * @param textPos    Position of the text on the frames
-	 *                   ({@link StreamItem#TEXT_POS_TOP},
-	 *                   {@link StreamItem#TEXT_POS_CENTER},
-	 *                   {@link StreamItem#TEXT_POS_BOTTOM})
+	 *                   ({@link IconHelper#TEXT_TOP},
+	 *                   {@link IconHelper#TEXT_CENTER},
+	 *                   {@link IconHelper#TEXT_BOTTOM})
 	 */
 	public AnimationStack(int repeatType, boolean endAnimationImmediate, int frameRate, int trigger, SDImage[] frames,
 			String text, int textPos) {
@@ -259,6 +259,15 @@ public class AnimationStack {
 		return this.trigger;
 	}
 
+
+	/**
+	 * Change the trigger for the animations
+	 * 
+	 */
+	public void setTrigger(int trigger) {
+		this.trigger = trigger;
+	}
+
 	/**
 	 * Returns if the animation should be triggered.
 	 * 
@@ -273,6 +282,7 @@ public class AnimationStack {
 				|| this.trigger == TRIGGER_CLICKED && keyEventType == Type.RELEASED_CLICKED
 				|| this.trigger == TRIGGER_AUTO;
 	}
+	
 
 	/**
 	 * Returns if the animation should be looped
@@ -343,7 +353,17 @@ public class AnimationStack {
 	 * @param text
 	 */
 	public void setText(String text) {
+		this.setText(text, this.textPos);
+	}
+
+	/**
+	 * Sets the text to be displayed on the animation
+	 * 
+	 * @param text
+	 */
+	public void setText(String text, int textPos) {
 		this.text = text;
+		this.textPos = textPos;
 		// create new local frames
 		SDImage[] nframes = new SDImage[this.rawFrames.length];
 		if (this.text != null) {
@@ -363,15 +383,22 @@ public class AnimationStack {
 	 * @param textPos
 	 */
 	public void setTextPos(int textPos) {
-		this.textPos = textPos;
-		if (this.text != null) {
-			// Create frames with new text pos
-			SDImage[] nframes = new SDImage[this.rawFrames.length];
-			for (int i = 0; i < nframes.length; i++) {
-				nframes[i] = IconHelper.addText(this.rawFrames[i], this.text, this.textPos);
-			}
-			// swap local frames with the stacks frames
-			this.frames = nframes;
-		}
+		this.setText(this.text, textPos);
 	}
+
+	public AnimationStack copy() {
+		SDImage[] newRaws = new SDImage[rawFrames.length];
+		System.arraycopy(rawFrames, 0, newRaws, 0, rawFrames.length);
+		return new AnimationStack(this.repeatType, this.endAnimationImmediate, this.frameRate, this.trigger, newRaws);
+	}
+
+	public AnimationStack getVariant(Dimension targetSize) {
+		SDImage[] newRaws = new SDImage[rawFrames.length];
+		for (int i = 0; i < newRaws.length; i++) {
+			newRaws[i] = rawFrames[i].getVariant(targetSize);
+		}
+		return new AnimationStack(this.repeatType, this.endAnimationImmediate, this.frameRate, this.trigger, newRaws);
+	}
+	
+	
 }

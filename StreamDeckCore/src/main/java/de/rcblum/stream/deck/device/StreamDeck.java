@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -90,6 +91,8 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	
 	private static final Logger LOGGER = LogManager.getLogger(StreamDeck.class);
 	
+	private String uid = UUID.randomUUID().toString().substring(0,4);
+	
 	/**
 	 * Descriptor for the deck device
 	 */
@@ -99,17 +102,17 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 * HidDevice associated with the connected ESD
 	 */
 	private HidDevice hidDevice = null;
-
+	
 	/**
 	 * Brightness command for this instance.
 	 */
 	private int brightness = 70;
-
+	
 	/**
 	 * Keys set to be displayed on the StreamDeck
 	 */
 	private StreamItem[] keys = new StreamItem[15];
-
+	
 	/**
 	 * current values if a key on a certain index is pressed or not
 	 */
@@ -124,42 +127,42 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	 * Object representing the touch screen on the stream deck if it has one
 	 */
 	private TouchScreen touchScreen = null;
-
+	
 	/**
 	 * current values if one of the special keys on a certain index is pressed or not
 	 */
 	private boolean[] specialKeysPressed = new boolean[15];
-
+	
 	/**
 	 * Queue for commands to be sent to the ESD
 	 */
 	private Queue<DeckUpdater> sendPool = new ConcurrentLinkedQueue<>();
-
+	
 	/**
 	 * Queue for {@link KeyEvent}s that are triggered by the ESD
 	 */
 	private Queue<KeyEvent> recievePool = new ConcurrentLinkedQueue<>();
-
+	
 	/**
 	 * Daemon that send commands to the ESD
 	 */
 	private Thread sendWorker = null;
-
+	
 	/**
 	 * Daemon that sends received {@link KeyEvent}s  to the affected listeners.
 	 */
 	private Thread eventDispatcher = null;
-
+	
 	/**
 	 * Intended state of the daemons
 	 */
 	private boolean running = true;
-
+	
 	/**
 	 * Registered Listeners to the {@link KeyEvent}s created by the ESD
 	 */
 	private List<StreamKeyListener> listerners = new CopyOnWriteArrayList<>();
-
+	
 	/**
 	 * Creates a wrapper for the Stream Deck HID
 	 * 
@@ -176,14 +179,14 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 		this.specialKeysPressed = new boolean[descriptor.getSpecialKeySize()];
 		if (descriptor.getTouchScreenIndex() >= 0) {
 			this.touchScreen = new TouchScreen(descriptor.getTouchScreenIndex(), this);
-			this.addKeyListener(this.touchScreen);
+			//this.addKeyListener(this.touchScreen);
 		}
 		List<DialKey> dialList = new LinkedList<DialKey>();
 		for(int i = this.descriptor.getSpecialKeyOffset(); i < this.descriptor.getTotalKeySize(); i++) {
 			if (this.descriptor.getKey(i) == KeyType.ROTARY_ENCODER) {
 				DialKey dial = new DialKey(i, this);
 				dialList.add(dial);
-				this.addKeyListener(dial);
+				//this.addKeyListener(dial);
 			}
 		}
 		this.dials = dialList.toArray(new DialKey[dialList.size()]);
@@ -207,7 +210,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	public int getRowSize() {
 		return this.descriptor.rows;
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see de.rcblum.stream.deck.IStreamDeck#addKey(int, de.rcblum.stream.deck.items.StreamItem)
 	 */
@@ -215,10 +218,16 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	public void addKey(int keyId, StreamItem item) {
 		if (keyId < this.keys.length && keyId >= 0) {
 			this.keys[keyId] = item;
+			try {
+				this.keys[keyId].onKeyEvent(new KeyEvent(this, keyId, Type.ON_DISPLAY));
+			} 
+			catch (Exception e) {
+				LOGGER.error("Error sending out KeyEvents", e);
+			}
 			queue(new DeckUpdater(this.hidDevice, this.descriptor.drawImageInterface, keyId + this.getDescriptor().drawImageKeyOffset, item.getIcon(), this.descriptor.iconSize));
 		}
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see de.rcblum.stream.deck.IStreamDeck#addKeyListener(de.rcblum.stream.deck.event.StreamKeyListener)
 	 */
@@ -228,8 +237,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 			return false;
 		return this.listerners.add(listener);
 	}
-
-
+	
 	/* (non-Javadoc)
 	 * @see de.rcblum.stream.deck.IStreamDeck#remvoeKeyListener(de.rcblum.stream.deck.event.StreamKeyListener)
 	 */
@@ -237,7 +245,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	public boolean removeKeyListener(StreamKeyListener listener) {
 		return this.listerners.remove(listener);
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see de.rcblum.stream.deck.IStreamDeck#drawImage(int, de.rcblum.stream.deck.util.SDImage)
 	 */
@@ -245,7 +253,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	public void drawImage(int keyIndex, SDImage imgData) {
 		drawImage(keyIndex, imgData, this.getDescriptor().getKey(keyIndex).getDimension());
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see de.rcblum.stream.deck.IStreamDeck#drawImage(int, de.rcblum.stream.deck.util.SDImage)
 	 */
@@ -261,7 +269,7 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 			queue(new DeckUpdater(this.hidDevice, dI, keyIndex + this.getDescriptor().drawImageKeyOffset, imgData, overrideSize));
 		}
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see de.rcblum.stream.deck.IStreamDeck#drawImage(int, de.rcblum.stream.deck.util.SDImage)
 	 */
@@ -288,6 +296,11 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	@Override
 	public DialKey[] getDials() {
 		return this.dials;
+	}
+	
+	@Override
+	public DialKey getDial(int keyIndex) {
+		return Arrays.stream(this.dials).filter(d -> d.keyId == keyIndex).findFirst().orElse(null);
 	}
 	
 	@Override
@@ -326,14 +339,14 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
     public void onInputReport(HidDevice source, byte reportID, byte[] reportData, int reportLength) {
         int byteOffset = StreamDeck.this.descriptor.keyEventInputReportOffset;
         LOGGER.debug("");
-        LOGGER.debug(String.format("Type: 0x%02X 0x%02X 0x%02X", Byte.valueOf(reportData[0]), Byte.valueOf(reportData[1]), Byte.valueOf(reportData[2])));
+        LOGGER.debug(String.format("[" + uid + "] Type: 0x%02X 0x%02X 0x%02X", Byte.valueOf(reportData[0]), Byte.valueOf(reportData[1]), Byte.valueOf(reportData[2])));
         //LOGGER.debug(String.format("Type: %4s %4s %4s", Byte.valueOf(reportData[0]), Byte.valueOf(reportData[1]), Byte.valueOf(reportData[2])));
         //LOGGER.debug(String.format("Legnth: %4s", reportLength));
         int lastNonZero = 0;
-        String data1 = "Data:";
-        String data2 = "     ";
-        String data3 = "     ";
-        String data4 = "     ";
+        String data1 = "[" + uid + "] Data:";
+        String data2 = "[" + uid + "]      ";
+        String data3 = "[" + uid + "]      ";
+        String data4 = "[" + uid + "]      ";
         String formatString = " 0x%02X";
         //formatString = " %4s";
         for (int i = 0; i < reportData.length; i++) {
@@ -475,6 +488,12 @@ public class StreamDeck implements InputReportListener, IStreamDeck {
 	@Override
 	public void removeKey(int keyId) {
 		if (keyId < this.keys.length && keyId >= 0 && this.keys[keyId] != null) {
+			try {
+				this.keys[keyId].onKeyEvent(new KeyEvent(this, keyId, Type.OFF_DISPLAY));
+			} 
+			catch (Exception e) {
+				LOGGER.error("Error sending out KeyEvents", e);
+			}
 			this.keys[keyId] = null;
 			queue(new DeckUpdater(this.hidDevice, this.descriptor.drawImageInterface, keyId, StreamDeckConstants.BLACK_ICON, this.descriptor.iconSize));
 		}

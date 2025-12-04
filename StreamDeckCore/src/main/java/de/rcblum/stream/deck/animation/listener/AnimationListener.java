@@ -1,4 +1,4 @@
-package de.rcblum.stream.deck.items.listeners;
+package de.rcblum.stream.deck.animation.listener;
 
 /**
  * Listener for change of the animation state.

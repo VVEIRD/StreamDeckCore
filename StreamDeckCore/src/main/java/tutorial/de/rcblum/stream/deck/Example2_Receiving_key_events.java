@@ -16,7 +16,7 @@ public class Example2_Receiving_key_events {
 		// Reset the ESD so we can display our icon on it:
 		streamDeck.reset();
 		// Set the brightness to 75%
-		streamDeck.setBrightness(75);
+		streamDeck.setBrightness(50);
 		// Add the Listener to the stream deck:
 		streamDeck.addKeyListener(new ExampleListener());
 		// Wait 30 seconds before shutting down

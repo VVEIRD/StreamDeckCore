@@ -67,13 +67,29 @@ public class SDImage {
 		this.image = image;
 	}
 	
+	public void putVariant(Dimension imageSize, SDImage image) {
+		this.variants.put(imageSize, image);
+	}
+	
 	public SDImage getVariant(Dimension imageSize) {
 		if (this.imageSize.equals(imageSize))
 			return this;
 		if (!variants.containsKey(imageSize)) {
-			variants.put(imageSize, IconHelper.convertImage(this.image, imageSize));
+			SDImage newVariant = IconHelper.convertImage(this.image, imageSize);
+			// Backlink to all known variants to prevent unnecessary conversions and memory usage
+			this.variants.keySet().stream().forEach(k -> newVariant.putVariant(k, this.variants.get(k)));
+			newVariant.putVariant(this.imageSize, this);
+			this.putVariant(imageSize, newVariant);
 		}
 		return variants.get(imageSize);
+	}
+
+	public SDImage copy() {
+		byte[] sdImage     = new byte[this.sdImage.length];
+		byte[] sdImageJpeg = new byte[this.sdImageJpeg.length];
+		System.arraycopy(this.sdImage,     0, sdImage,     0, this.sdImage.length);
+		System.arraycopy(this.sdImageJpeg, 0, sdImageJpeg, 0, this.sdImageJpeg.length);
+		return new SDImage(sdImage, sdImageJpeg, IconHelper.copyBufferedImage(this.image));
 	}
 
 }

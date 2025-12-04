@@ -52,6 +52,7 @@ public class StreamDeckDevices {
 	private static final Logger LOGGER = LogManager.getLogger(StreamDeckDevices.class);
 	
 	static {
+		deckDevices = new ArrayList<>(10);
 		SDImage a = IconHelper.BLACK_ICON;
 	}
 	
@@ -65,7 +66,7 @@ public class StreamDeckDevices {
 	
 	private static List<HidDeviceInfo> deckInfos = null;
 
-	private static List<HidDevice> deckDevices = null;
+	private static List<HidDevice> deckDevices = new ArrayList<>(10);
 
 	private static List<IStreamDeck> decks = null;
 
@@ -119,7 +120,6 @@ public class StreamDeckDevices {
 	private static void initStreamDecks() {
 		if (deckDevices == null || deckDevices.isEmpty()) {
 			HidDeviceInfo info = getStreamDeckInfo();
-			deckDevices = new ArrayList<>(deckInfos.size());
 			if (info != null) {
 				try {
 					LOGGER.info("Connected Stream Decks:");
@@ -137,6 +137,16 @@ public class StreamDeckDevices {
 				}
 			}
 		}
+	}
+
+	public static DeckDescriptor getStreamDeckDescriptor() {
+		if (decks == null || decks.isEmpty()) {
+			HidDevice hidDevice = getStreamDeckDevice();
+			DeckDescriptor descriptor = DeckDescriptor.getDescriptor(hidDevice.getHidDeviceInfo().getVendorId(), hidDevice.getHidDeviceInfo().getProductId());
+			return descriptor;
+		}
+		else
+		return decks.get(0).getDescriptor();
 	}
 	
 	public static IStreamDeck getStreamDeck() {

@@ -1,6 +1,6 @@
 package de.rcblum.stream.deck.items;
 
-import de.rcblum.stream.deck.items.animation.AnimationStack;
+import de.rcblum.stream.deck.animation.AnimationStack;
 import de.rcblum.stream.deck.util.IconHelper;
 import de.rcblum.stream.deck.util.SDImage;
 
